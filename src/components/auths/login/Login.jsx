@@ -1,5 +1,6 @@
-"use client"; // If using Next.js for Client Components
+"use client"; // For Next.js Client Components
 import React, { useState } from "react";
+import { useRouter } from "next/navigation"; // Next.js router for navigation
 import axios from "axios";
 
 const Login = () => {
@@ -7,6 +8,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const router = useRouter(); // Next.js router
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,8 +29,9 @@ const Login = () => {
 
       if (response.status === 200) {
         setSuccess("Login successful!");
-        console.log("User details:", response.data.user);
-        // Handle successful login (e.g., store token, redirect, etc.)
+        const userId = response.data.user.id; // Assuming the API returns user ID
+        localStorage.setItem("userId", userId); // Store user ID in localStorage
+        router.push("/profile"); // Redirect to profile page
       }
     } catch (err) {
       setError(err.response?.data?.message || "Login failed. Please try again.");
@@ -59,7 +62,10 @@ const Login = () => {
             <img src="/kws.png" alt="Logo" className="h-24 w-28" />
           </div>
 
-          <h2 className="text-3xl font-montserrat font-bold text-center text-gray-800 mb-2">Welcome <br /><span className="font-syne text-blue-400">KWSKW Portal</span></h2>
+          <h2 className="text-3xl font-montserrat font-bold text-center text-gray-800 mb-2">
+            Welcome <br />
+            <span className="font-syne text-blue-400">KWSKW Portal</span>
+          </h2>
           <p className="text-center text-black mb-4">Login to your account</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -108,7 +114,10 @@ const Login = () => {
 
           <div className="mt-4 text-center">
             <p className="text-gray-600">
-              Don&apos;t have an account? <a href="/register" className="text-blue-500 font-semibold hover:underline">Register</a>
+              Don&apos;t have an account?{" "}
+              <a href="/register" className="text-blue-500 font-semibold hover:underline">
+                Register
+              </a>
             </p>
           </div>
         </div>
