@@ -1,7 +1,7 @@
 "use client"
 import Copyright from '@/components/layouts/copyright/copyright'
 import Navbar from '@/components/layouts/navbar/navbar'
-import Transactions from '@/components/transactions/Transactions'
+import Transactions from '@/components/sandouqchaTransactions/Transactions'
 
 import React from 'react'
 

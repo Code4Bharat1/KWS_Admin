@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import {
   AiOutlineSearch,
   AiOutlinePrinter,
@@ -6,8 +7,16 @@ import {
   AiOutlinePlus,
   AiOutlineEllipsis,
 } from "react-icons/ai";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const MemberTransaction = () => {
+  const router = useRouter();
+
+  // State for user roles
+  const [staffRoles, setStaffRoles] = useState(null);
+
+  // State for handling filters
   const [filters, setFilters] = useState({
     kwsId: "",
     category: "",
@@ -15,27 +24,16 @@ const MemberTransaction = () => {
     toDate: "",
   });
 
-  const [list, setList] = useState([
-    {
-      uid: 1,
-      date: "2023-12-01",
-      category: "Renewal",
-      for: "MBS1",
-      amount: 50,
-    },
-    {
-      uid: 2,
-      date: "2023-11-30",
-      category: "Elite Renewal",
-      for: "MBS2",
-      amount: 75,
-    },
-  ]);
+  // State for transactions list and loading
+  const [list, setList] = useState([]);
+  const [totalTransactions, setTotalTransactions] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
+  // State for form visibility and new transaction data
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [newTransaction, setNewTransaction] = useState({
     kwsId: "",
-    paymentFor: "",
+    paymentFor: "NEW",
     cardPrintedDate: "",
     cardExpiryDate: "",
     amountPaid: "",
@@ -43,64 +41,193 @@ const MemberTransaction = () => {
     remarks: "",
   });
 
+  // State for active dropdown
   const [activeDropdown, setActiveDropdown] = useState(null);
 
+  // Define the zones for which certain buttons should be hidden
+  const restrictedZones = [
+    "fahaheel",
+    "salmiya",
+    "jleeb",
+    "farwaniya",
+    "hawally",
+  ];
+
+  // Normalize zone names for consistent comparison
+  const normalizeZone = (zone) =>
+    zone
+      ? zone
+          .toLowerCase()
+          .replace(/^(al|ala)?[-\s]?/, "") // Remove 'al' or 'ala' prefixes
+          .replace(/\s|-/g, "") // Remove remaining spaces and hyphens
+      : "";
+
+  // Fetch user roles from localStorage
+  useEffect(() => {
+    const roles = localStorage.getItem("staffRoles");
+    if (roles) {
+      const parsedRoles = JSON.parse(roles);
+      console.log("Fetched Staff Roles:", parsedRoles);
+      setStaffRoles(parsedRoles);
+    } else {
+      console.warn("No staffRoles found in localStorage.");
+    }
+  }, []);
+
+  // Determine if the user has 'All' role
+  const hasAllRole = staffRoles?.All === true;
+
+  // Define the handleRedirect function
+  const handleRedirect = (id, action) => {
+    if (action === "view") {
+      router.push(`/members/transactions/view-transaction?uid=${id}`);
+    } else if (action === "edit") {
+      router.push(`/members/transactions/edit-transaction?uid=${id}`);
+    } else if (action === "delete") {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this transaction?"
+      );
+      if (confirmDelete) deleteTransaction(id);
+    } else if (action === "logs") {
+      router.push(`/members/transactions/transaction-logs?uid=${id}`);
+    }
+  };
+
+  // Handle deleting a transaction
+  const deleteTransaction = async (uid) => {
+    try {
+      await axios.delete(`http://localhost:5786/api/transaction/delete/${uid}`);
+      setList((prev) => prev.filter((transaction) => transaction.UID !== uid));
+      alert("Transaction deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      alert("Failed to delete transaction.");
+    }
+  };
+
+  // Fetch transactions
+  const fetchTransactions = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        "http://localhost:5786/api/transaction/gettransactions"
+      );
+      console.log("Fetched Transactions:", response.data); // Debugging log
+      setList(response.data.transactions);
+      setTotalTransactions(response.data.totalTransactions);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      alert("Failed to fetch transactions.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  // Handle filter changes
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle search functionality
+  // ...
+// Handle search functionality
+const handleSearch = async () => {
+  try {
+    let query = "http://localhost:5786/api/transaction/gettransactions";
+
+    const filterParams = {
+      kwsId: filters.kwsId || undefined,
+      category: filters.category || undefined,
+      fromDate: filters.fromDate || undefined,
+      // Default to today's date if not provided
+      toDate: filters.toDate || new Date().toISOString().split("T")[0],
+    };
+
+    const queryString = Object.keys(filterParams)
+      .filter((key) => filterParams[key])
+      .map(
+        (key) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(filterParams[key])}`
+      )
+      .join("&");
+
+    query += `?${queryString}`;
+
+    // Make the request
+    const response = await axios.get(query);
+
+    // Check what comes back
+    console.log("Search Response:", response.data);
+
+    // IMPORTANT: set the 'list' state to 'response.data.transactions'
+    setList(response.data.transactions);
+    // Also update total transactions if your backend returns it
+    setTotalTransactions(response.data.totalTransactions);
+
+  } catch (error) {
+    console.error("Error applying filters:", error);
+    alert("Failed to apply filters.");
+  }
+};
+
+
+  // Handle refresh functionality
+  const handleRefresh = () => {
+    setFilters({ kwsId: "", category: "", fromDate: "", toDate: "" });
+    fetchTransactions();
+  };
+
+  // Handle form input changes
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setNewTransaction((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSearch = () => {
-    console.log("Filters applied:", filters);
-  };
-
-  const handleRefresh = () => {
-    setFilters({ kwsId: "", category: "", fromDate: "", toDate: "" });
-    console.log("Refreshed list.");
-  };
-
-  const handlePrint = () => {
-    console.log("Print the list.");
-  };
-
-  const handleAdd = () => {
-    setIsFormVisible(true);
-  };
-
-  const handleFormSubmit = (e) => {
+  // Handle form submission
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    setList((prev) => [
-      ...prev,
-      {
-        uid: list.length + 1,
-        date: newTransaction.date,
-        category: newTransaction.paymentFor,
-        for: newTransaction.paymentFor,
-        amount: parseFloat(newTransaction.amountPaid),
-      },
-    ]);
-    setNewTransaction({
-      kwsId: "",
-      paymentFor: "",
-      cardPrintedDate: "",
-      cardExpiryDate: "",
-      amountPaid: "",
-      date: "",
-      remarks: "",
-    });
-    setIsFormVisible(false);
-    console.log("New transaction added:", newTransaction);
+    try {
+      const response = await axios.post(
+        "http://localhost:5786/api/transaction/addtransactions",
+        {
+          kwsId: newTransaction.kwsId,
+          paymentFor: newTransaction.paymentFor,
+          cardPrintedDate: newTransaction.cardPrintedDate,
+          cardExpiryDate: newTransaction.cardExpiryDate,
+          amountKWD: newTransaction.amountPaid,
+          date: newTransaction.date,
+          remarks: newTransaction.remarks,
+        }
+      );
+      console.log("Added Transaction:", response.data); // Debugging log
+      setList((prev) => [...prev, response.data.transaction]);
+      setNewTransaction({
+        kwsId: "",
+        paymentFor: "NEW",
+        cardPrintedDate: "",
+        cardExpiryDate: "",
+        amountPaid: "",
+        date: "",
+        remarks: "",
+      });
+      setIsFormVisible(false);
+      alert("Transaction added successfully!");
+    } catch (error) {
+      console.error("Error adding transaction:", error);
+      alert("Failed to add transaction.");
+    }
   };
 
+  // Handle form cancellation
   const handleFormCancel = () => {
     setNewTransaction({
       kwsId: "",
-      paymentFor: "",
+      paymentFor: "NEW",
       cardPrintedDate: "",
       cardExpiryDate: "",
       amountPaid: "",
@@ -110,72 +237,152 @@ const MemberTransaction = () => {
     setIsFormVisible(false);
   };
 
-  const toggleDropdown = (index) => {
-    setActiveDropdown((prev) => (prev === index ? null : index));
+  // Handle print functionality
+  const handlePrint = () => {
+    const printContent = `
+      <div>
+        <h1>KWS Transaction Report</h1>
+        <h3>Transactions:</h3>
+        <table border="1" style="width:100%; text-align:center;">
+          <thead>
+            <tr>
+              <th>UID</th>
+              <th>Date</th>
+              <th>Category</th>
+              <th>For</th>
+              <th>Amount (KWD)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list
+              .map(
+                (item) => `
+              <tr>
+                <td>${item.UID}</td>
+                <td>${item.Date}</td>
+                <td>${item.Category}</td>
+                <td>${item.For}</td>
+                <td>${parseFloat(item.AmountKWD || 0).toFixed(3)}</td>
+              </tr>
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.print();
   };
+
+  // Toggle dropdown menu
+  const toggleDropdown = (index) => {
+    setActiveDropdown((prevIndex) => (prevIndex === index ? null : index));
+  };
+
+  // Define Dropdown Components
+  const ViewDropdown = ({ item }) => (
+    <div
+      className="absolute right-0 mt-2 w-24 bg-white border rounded shadow-lg z-10"
+      onClick={(e) => e.stopPropagation()} // Prevent closing on button click
+    >
+      {/* Only View button */}
+      <button
+        onClick={() => {
+          handleRedirect(item.UID, "view");
+          setActiveDropdown(null);
+        }}
+        className="block w-full text-left px-4 py-2 text-blue-500 hover:bg-gray-100"
+      >
+        View
+      </button>
+    </div>
+  );
+
+  const FullDropdown = ({ item }) => (
+    <div
+      className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10"
+      onClick={(e) => e.stopPropagation()} // Prevent closing on button click
+    >
+      {/* All action buttons */}
+      <button
+        onClick={() => {
+          handleRedirect(item.UID, "view");
+          setActiveDropdown(null);
+        }}
+        className="block w-full text-left px-4 py-2 text-blue-500 hover:bg-gray-100"
+      >
+        View
+      </button>
+      <button
+        onClick={() => {
+          handleRedirect(item.UID, "edit");
+          setActiveDropdown(null);
+        }}
+        className="block w-full text-left px-4 py-2 text-green-500 hover:bg-gray-100"
+      >
+        Edit
+      </button>
+      <button
+        onClick={() => {
+          handleRedirect(item.UID, "logs");
+          setActiveDropdown(null);
+        }}
+        className="block w-full text-left px-4 py-2 text-yellow-500 hover:bg-gray-100"
+      >
+        View All Transactions
+      </button>
+      <button
+        onClick={() => {
+          handleRedirect(item.UID, "delete");
+          setActiveDropdown(null);
+        }}
+        className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
+      >
+        Delete
+      </button>
+    </div>
+  );
 
   return (
     <div className="p-6">
       <h1 className="text-3xl md:text-5xl text-[#355F2E] font-syne font-bold text-center mb-6">
-        Member Transactions 
+        Member Transactions
       </h1>
+      <p className="text-2xl md:text-3xl text-center text-black font-semibold text-gray-600 mb-6">
+        Total Transactions: {totalTransactions}
+      </p>
 
       {/* Filters Section */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div>
-          <label className="block mb-2 font-bold">KWS ID</label>
-          <input
-            type="text"
-            name="kwsId"
-            value={filters.kwsId}
-            onChange={handleFilterChange}
-            placeholder="Enter KWS ID"
-            className="border p-2 rounded w-full"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-2 font-bold">Category</label>
-          <input
-            type="text"
-            name="category"
-            value={filters.category}
-            onChange={handleFilterChange}
-            placeholder="Enter Category"
-            className="border p-2 rounded w-full"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-2 font-bold">From Date</label>
-          <input
-            type="date"
-            name="fromDate"
-            value={filters.fromDate}
-            onChange={handleFilterChange}
-            className="border p-2 rounded w-full"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-2 font-bold">To Date</label>
-          <input
-            type="date"
-            name="toDate"
-            value={filters.toDate}
-            onChange={handleFilterChange}
-            className="border p-2 rounded w-full"
-          />
-        </div>
+        {["kwsId", "category", "fromDate", "toDate"].map((filter) => (
+          <div key={filter}>
+            <label className="block mb-2 font-bold">
+              {filter.charAt(0).toUpperCase() +
+                filter.slice(1).replace(/([A-Z])/g, " $1")}
+            </label>
+            <input
+              type={filter.includes("Date") ? "date" : "text"}
+              name={filter}
+              value={filters[filter]}
+              onChange={handleFilterChange}
+              placeholder={`Enter ${filter}`}
+              className="border p-2 rounded w-full"
+            />
+          </div>
+        ))}
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-center space-x-4 mb-6">
+      <div className="flex justify-center space-x-2 mb-6">
         <button
           onClick={handleSearch}
-          className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="flex items-center space-x-2 bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-600"
         >
-          <AiOutlineSearch size={20} /> <span>Search</span>
+          <AiOutlineSearch size={20} /> <span></span>
         </button>
         <button
           onClick={handlePrint}
@@ -189,22 +396,28 @@ const MemberTransaction = () => {
         >
           <AiOutlineReload size={20} /> <span>Refresh</span>
         </button>
-        <button
-          onClick={handleAdd}
-          className="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          <AiOutlinePlus size={20} /> <span>Add</span>
-        </button>
+
+        {/* Conditionally render the Add button based on user roles */}
+        {hasAllRole && (
+          <button
+            onClick={() => setIsFormVisible(true)}
+            className="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            <AiOutlinePlus size={20} /> <span>Add</span>
+          </button>
+        )}
       </div>
 
-      {/* Form Section */}
+      {/* Add Transaction Form */}
       {isFormVisible && (
-        <form onSubmit={handleFormSubmit} className="mb-6 p-4 border rounded bg-gray-50">
+        <form
+          onSubmit={handleFormSubmit}
+          className="mb-6 p-4 border rounded bg-gray-50"
+        >
           <h2 className="text-lg font-bold mb-4">Add New Transaction</h2>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block mb-2 font-bold">KWS ID</label>
+              <label className="block mb-2 font-bold">KWS ID*</label>
               <input
                 type="text"
                 name="kwsId"
@@ -212,21 +425,25 @@ const MemberTransaction = () => {
                 onChange={handleFormChange}
                 placeholder="Enter KWS ID"
                 className="border p-2 rounded w-full"
+                required
               />
             </div>
-
             <div>
-              <label className="block mb-2 font-bold">Payment For</label>
-              <input
-                type="text"
+              <label className="block mb-2 font-bold">Payment For*</label>
+              <select
                 name="paymentFor"
                 value={newTransaction.paymentFor}
                 onChange={handleFormChange}
-                placeholder="e.g., NEW, RENEWAL, ELITE RENEWAL, MBS1, etc."
                 className="border p-2 rounded w-full"
-              />
+                required
+              >
+                <option value="NEW">NEW</option>
+                <option value="RENEWAL">RENEWAL</option>
+                <option value="ELITE RENEWAL">ELITE RENEWAL</option>
+                <option value="MBS1">MBS1</option>
+                <option value="MBS2">MBS2</option>
+              </select>
             </div>
-
             <div>
               <label className="block mb-2 font-bold">Card Printed Date</label>
               <input
@@ -237,7 +454,6 @@ const MemberTransaction = () => {
                 className="border p-2 rounded w-full"
               />
             </div>
-
             <div>
               <label className="block mb-2 font-bold">Card Expiry Date</label>
               <input
@@ -248,9 +464,10 @@ const MemberTransaction = () => {
                 className="border p-2 rounded w-full"
               />
             </div>
-
             <div>
-              <label className="block mb-2 font-bold">Amount Paid (KWD)</label>
+              <label className="block mb-2 font-bold">
+                Amount Paid (KWD)*
+              </label>
               <input
                 type="number"
                 name="amountPaid"
@@ -258,20 +475,20 @@ const MemberTransaction = () => {
                 onChange={handleFormChange}
                 placeholder="Enter Amount"
                 className="border p-2 rounded w-full"
+                required
               />
             </div>
-
             <div>
-              <label className="block mb-2 font-bold">Date</label>
+              <label className="block mb-2 font-bold">Date*</label>
               <input
                 type="date"
                 name="date"
                 value={newTransaction.date}
                 onChange={handleFormChange}
                 className="border p-2 rounded w-full"
+                required
               />
             </div>
-
             <div className="col-span-2">
               <label className="block mb-2 font-bold">Remarks</label>
               <textarea
@@ -283,7 +500,6 @@ const MemberTransaction = () => {
               ></textarea>
             </div>
           </div>
-
           <div className="flex justify-end space-x-4">
             <button
               type="button"
@@ -302,6 +518,11 @@ const MemberTransaction = () => {
         </form>
       )}
 
+      {/* Loading Spinner */}
+      {isLoading && (
+        <div className="text-center text-blue-500">Loading...</div>
+      )}
+
       {/* List Section */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300">
@@ -316,35 +537,131 @@ const MemberTransaction = () => {
             </tr>
           </thead>
           <tbody>
-            {list.map((item, index) => (
-              <tr key={index} className="text-center">
-                <td className="border px-4 py-2">{item.uid}</td>
-                <td className="border px-4 py-2">{item.date}</td>
-                <td className="border px-4 py-2">{item.category}</td>
-                <td className="border px-4 py-2">{item.for}</td>
-                <td className="border px-4 py-2">{item.amount.toFixed(3)}</td>
-                <td className="border px-4 py-2 relative">
-                  <button
-                    onClick={() => toggleDropdown(index)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <AiOutlineEllipsis size={20} />
-                  </button>
-                  {activeDropdown === index && (
-                    <div className="absolute bg-white border shadow-md right-0 mt-2 z-10">
-                      <button className="block px-4 py-2 text-blue-500 hover:bg-gray-100 w-full text-left">View</button>
-                      <button className="block px-4 py-2 text-green-500 hover:bg-gray-100 w-full text-left">Edit</button>
-                      <button className="block px-4 py-2 text-yellow-500 hover:bg-gray-100 w-full text-left">Logs</button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {list.map((item, index) => {
+              // Normalize the zone for comparison
+              const memberZone = normalizeZone(item.For || "");
+              const isRestrictedZone = restrictedZones.some(
+                (zone) => normalizeZone(zone) === memberZone
+              );
+
+              // Determine if user has role for this zone
+              const userHasRoleForZone = staffRoles?.[memberZone] === true;
+
+              // Define when to show full dropdown vs view-only
+              // According to your request:
+              // - If user has specific zone role (userHasRoleForZone), show only View dropdown
+              // - Else, show full dropdown (if hasAllRole)
+              const showViewOnlyDropdown = userHasRoleForZone;
+              const showFullDropdown =
+                hasAllRole && !showViewOnlyDropdown;
+
+              // Debugging logs
+              console.log(
+                `Transaction UID: ${item.UID}, Original Zone: ${item.For}, Normalized Zone: ${memberZone}, Is Restricted: ${isRestrictedZone}, User Has Role for Zone: ${userHasRoleForZone}, Has All Role: ${hasAllRole}`
+              );
+
+              return (
+                <tr key={index} className="text-center">
+                  <td className="border px-4 py-2">{item.UID}</td>
+                  <td className="border px-4 py-2">{item.Date}</td>
+                  <td className="border px-4 py-2">{item.Category}</td>
+                  <td className="border px-4 py-2">{item.For}</td>
+                  <td className="border px-4 py-2">{item.AmountKWD}</td>
+                  <td className="border px-4 py-2 relative">
+                    <button
+                      onClick={() => toggleDropdown(index)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <AiOutlineEllipsis size={20} />
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    {activeDropdown === index && (
+                      <>
+                        {showViewOnlyDropdown ? (
+                          <ViewDropdown item={item} />
+                        ) : showFullDropdown ? (
+                          <FullDropdown item={item} />
+                        ) : (
+                          <ViewDropdown item={item} />
+                        )}
+                      </>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
     </div>
   );
 };
+
+// Dropdown Components
+const ViewDropdown = ({ item }) => (
+  <div
+    className="absolute right-0 mt-2 w-24 bg-white border rounded shadow-lg z-10"
+    onClick={(e) => e.stopPropagation()} // Prevent closing on button click
+  >
+    {/* Only View button */}
+    <button
+      onClick={() => {
+        handleRedirect(item.UID, "view");
+        setActiveDropdown(null);
+      }}
+      className="block w-full text-left px-4 py-2 text-blue-500 hover:bg-gray-100"
+    >
+      View
+    </button>
+  </div>
+);
+
+const FullDropdown = ({ item }) => (
+  <div
+    className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10"
+    onClick={(e) => e.stopPropagation()} // Prevent closing on button click
+  >
+    {/* All action buttons */}
+    <button
+      onClick={() => {
+        handleRedirect(item.UID, "view");
+        setActiveDropdown(null);
+      }}
+      className="block w-full text-left px-4 py-2 text-blue-500 hover:bg-gray-100"
+    >
+      View
+    </button>
+    <button
+      onClick={() => {
+        handleRedirect(item.UID, "edit");
+        setActiveDropdown(null);
+      }}
+      className="block w-full text-left px-4 py-2 text-green-500 hover:bg-gray-100"
+    >
+      Edit
+    </button>
+    <button
+      onClick={() => {
+        handleRedirect(item.UID, "logs");
+        setActiveDropdown(null);
+      }}
+      className="block w-full text-left px-4 py-2 text-yellow-500 hover:bg-gray-100"
+    >
+      View All Transactions
+    </button>
+    <button
+      onClick={() => {
+        handleRedirect(item.UID, "delete");
+        setActiveDropdown(null);
+      }}
+      className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
+    >
+      Delete
+    </button>
+  </div>
+);
+
+
 
 export default MemberTransaction;
