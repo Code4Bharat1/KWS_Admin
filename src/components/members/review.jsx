@@ -1390,10 +1390,10 @@ const handleRemoveImage = (indexToRemove) => {
       >
         <option value="" disabled>Select</option>
         <option value="fahaheel">Fahaheel</option>
-        <option value="farwaniya">Farwaniya</option>
-        <option value="hawally">Hawally</option>
-        <option value="jleeb">Jleeb</option>
-        <option value="salmiya">Salmiya</option>
+        <option value="Farwaniya">Farwaniya</option>
+        <option value="Fahaheel">Hawally</option>
+        <option value="Jleeb">Jleeb</option>
+        <option value="Salmiya">Salmiya</option>
       </select>
     </div>
 

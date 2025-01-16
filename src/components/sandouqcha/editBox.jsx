@@ -22,6 +22,8 @@ const EditBox = () => {
     if (number) {
       const fetchBoxDetails = async () => {
         try {
+          const committedId = localStorage.getItem("userId");
+
           const response = await axios.get(
             `http://localhost:5786/api/sandouqcha/getbox/${number}`
           );
@@ -33,12 +35,15 @@ const EditBox = () => {
             dateIssued: boxData.dateIssued || "",
             remarks: boxData.remarks || "",
             referredBy: boxData.referredBy?.kwsid || "", // Ensure it's a string (e.g., "KWSKW12345")
+            committedId:committedId,
           });
         } catch (err) {
           setError(err.response?.data?.error || "Failed to fetch box details.");
         }
       };
       fetchBoxDetails();
+
+      console.log("juend here",fetchBoxDetails)
     }
   }, [number]);
 

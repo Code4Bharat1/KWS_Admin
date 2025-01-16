@@ -18,6 +18,7 @@ const AssignStaff = () => {
       Jleeb: false,
       Hawally: false,
       Salmiya: false,
+      Auditor:false,
     },
   });
 
@@ -135,6 +136,7 @@ const AssignStaff = () => {
         Jleeb: false,
         Hawally: false,
         Salmiya: false,
+        Auditor: false,
       },
     });
     setList(allStaff);  // Restore the full list

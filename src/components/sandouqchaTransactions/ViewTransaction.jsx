@@ -102,7 +102,7 @@ const ViewTransaction = () => {
             <div className="flex flex-col">
               <span className="text-gray-500 font-medium">Collected By</span>
               <span className="text-lg font-semibold text-gray-900">
-                {transaction.collectedBy || "Unknown"}
+                {transaction.collectedByKwsid || "Unknown"}
               </span>
             </div>
             <div className="flex flex-col">
@@ -112,9 +112,9 @@ const ViewTransaction = () => {
               </span>
             </div>
             <div className="flex flex-col">
-              <span className="text-gray-500 font-medium">Holder Contact</span>
+              <span className="text-gray-500 font-medium">Transaction Id</span>
               <span className="text-lg font-semibold text-gray-900">
-                {transaction.holderContact || "No Contact"}
+                {transaction.transactionId || "No Contact"}
               </span>
             </div>
           </div>
@@ -179,3 +179,4 @@ const ViewTransaction = () => {
 };
 
 export default ViewTransaction;
+ 

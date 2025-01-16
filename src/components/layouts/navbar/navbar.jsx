@@ -43,6 +43,7 @@ const Navbar = () => {
   const showAllMenus = staffRoles.All === true; // Check if "All" role is true
   const showRegistrarMenus = staffRoles.Registrar === true;
   const showSandouqchaMenus = staffRoles.Sandouqcha === true;
+  const showSanduqchaMenus = staffRoles.Auditor === true;
   const showTreasurerMenus = staffRoles.Treasurer === true;
 
   // Check if any of the zones are selected (like Fahaheel, Farwaniya, etc.)
@@ -152,7 +153,7 @@ const Navbar = () => {
             )}
 
             {/* Sandouqcha Dropdown (Visible for Sandouqcha role) */}
-            {showAllMenus || showSandouqchaMenus ? (
+            {showAllMenus || showSandouqchaMenus || showSanduqchaMenus ? (
               <div className="relative">
                 <button
                   onClick={() => toggleDropdown("sandouqcha")}

@@ -17,6 +17,7 @@ const EditStaff = () => {
     Jleeb: false,
     Hawally: false,
     Salmiya: false,
+    Auditor: false,
   });
   const [username, setUsername] = useState(null);
 

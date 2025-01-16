@@ -1,18 +1,16 @@
 import Copyright from '@/components/layouts/copyright/copyright'
 import Navbar from '@/components/layouts/navbar/navbar'
-import Boxes from '@/components/sandouqcha/boxes'
-import BoxLogs from '@/components/sandouqcha/boxLogs'
-
+import BulkTransaction from '@/components/sandouqchaTransactions/BulkTransaction'
 import React from 'react'
 
 const page = () => {
   return (
     <div>
         <Navbar/>
-<BoxLogs/>
+        <BulkTransaction/>
         <Copyright/>
     </div>
   )
 }
 
-export default page;
+export default page
