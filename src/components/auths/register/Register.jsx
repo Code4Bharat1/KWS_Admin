@@ -121,14 +121,14 @@ const Register = () => {
   // Confirm final submission to backend
   const handleConfirmSubmit = async () => {
     setIsLoading(true);
-    console.log("Form data being submitted:", formData);
+    // console.log("Form data being submitted:", formData);
     try {
       // For a file upload, you might need to use FormData here.
       const response = await axios.post(
         "http://localhost:5786/api/auth/register",
         formData
       );
-      console.log("Response from backend:", response.data);
+      // console.log("Response from backend:", response.data);
       setIsSubmitted(true);
       setTimeout(() => {
         setIsModalOpen(false);

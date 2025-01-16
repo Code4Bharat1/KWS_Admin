@@ -36,7 +36,7 @@ const AssignStaff = () => {
       setLoading(true);
       try {
         const response = await axios.get("http://localhost:5786/api/staff/getlist");
-        console.log(response.data);
+        // console.log(response.data);
         setAllStaff(response.data);  
         setList(response.data);      
       } catch (err) {

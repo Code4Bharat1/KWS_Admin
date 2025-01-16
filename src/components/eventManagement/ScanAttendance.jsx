@@ -44,7 +44,7 @@ const ScanAttendance = () => {
               markAttendance(result.text); // Mark attendance after scan
               stopScanner(); // Stop the scanner after a successful scan
             } else if (err instanceof NotFoundException) {
-              console.log("No QR code found, waiting for QR code...");
+              // console.log("No QR code found, waiting for QR code...");
             } else {
               console.error("Error scanning QR code", err);
               setErrorMessage("Error scanning QR code.");

@@ -21,7 +21,7 @@ const ViewTransaction = () => {
       const response = await axios.get(
         `http://localhost:5786/api/transaction/get/${formattedUid}` // Adjust URL if necessary
       );
-      console.log("API Response:", response.data); // Log the complete response
+      // console.log("API Response:", response.data); // Log the complete response
       setTransactionDetails(response.data);
     } catch (error) {
       console.error("Error fetching transaction details:", error);
@@ -40,11 +40,11 @@ const ViewTransaction = () => {
   // Helper function to format date properly
   const formatDate = (date) => {
     // Log the raw date to check the format
-    console.log("Raw date:", date);
+    // console.log("Raw date:", date);
 
     // Check for missing dates or "Not Available"
     if (!date || date === "Not Available" || date === null) {
-      console.log("Invalid date value:", date);
+      // console.log("Invalid date value:", date);
       return "Not Available";
     }
 

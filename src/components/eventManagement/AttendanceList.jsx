@@ -27,12 +27,12 @@ const AttendanceList = () => {
 
     const fetchAttendanceList = async () => {
       try {
-        console.log(`Fetching data for event_id=${eventId}`);
+        // console.log(`Fetching data for event_id=${eventId}`);
         const response = await axios.get(
           `http://localhost:5786/api/event/attendancelist/${eventId}`
         );
 
-        console.log("Fetched Attendance Data:", response.data);
+        // console.log("Fetched Attendance Data:", response.data);
         setAttendanceList(response.data);
         setFilteredAttendanceList(response.data); // Set filtered list initially
       } catch (err) {

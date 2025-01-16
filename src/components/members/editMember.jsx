@@ -137,7 +137,7 @@ const EditMember = () => {
         }
       );
   
-      console.log("Update response:", response.data);
+      // console.log("Update response:", response.data);
       setSuccessMessage("Member information updated successfully.");
     } catch (error) {
       console.error("Error updating member data:", error.response?.data || error.message);

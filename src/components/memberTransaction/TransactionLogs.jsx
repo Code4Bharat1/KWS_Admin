@@ -9,7 +9,7 @@ const TransactionLogs = () => {
   const uid = searchParams.get("uid"); // Fetch the UID from the URL query params
 
   // Log to see if UID is being retrieved
-  console.log("UID from URL:", uid);
+  // console.log("UID from URL:", uid);
 
   const [logs, setLogs] = useState([]);
   const [userDetails, setUserDetails] = useState({});

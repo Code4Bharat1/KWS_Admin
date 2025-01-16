@@ -44,7 +44,7 @@ const AddNonKws = () => {
   const onSubmit = async (data) => {
     setIsLoading(true);
     try {
-      console.log("Form Data:", data);
+      // console.log("Form Data:", data);
 
       // Send the form data to the backend using Axios
       const response = await axios.post(
@@ -53,7 +53,7 @@ const AddNonKws = () => {
       );
 
       // Handle the response if the data is successfully added
-      console.log("Backend Response:", response.data);
+      // console.log("Backend Response:", response.data);
 
       // Optional: Redirect to another page or show success message
       alert("Non-KWS member added successfully!");

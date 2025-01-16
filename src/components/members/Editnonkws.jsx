@@ -73,14 +73,14 @@ const EditNonKws = () => {
 
     // Include committed_by in the form data
     const formDataWithCommittedBy = { ...formData, committed_by: userId };
-    console.log("Submitting form with data:", formData); // Add this line to debug form data
+    // console.log("Submitting form with data:", formData); // Add this line to debug form data
 
     try {
       const response = await axios.put(
         `http://localhost:5786/api/nonkws/editnonkwsmember/${id}`,
         formDataWithCommittedBy
       );
-      console.log("Response:", response); // Log the response to see if it's successful
+      // console.log("Response:", response); // Log the response to see if it's successful
       alert("Member details updated successfully");
       router.push(`/members/non-kws`); // Redirect after successful update
     } catch (error) {

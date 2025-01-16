@@ -11,7 +11,7 @@ const BulkTransaction = () => {
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     setError("");
-    console.log("File selected:", e.target.files[0]);
+    // console.log("File selected:", e.target.files[0]);
   };
 
   const handleSubmit = async (e) => {
@@ -28,13 +28,13 @@ const BulkTransaction = () => {
 
     try {
       setLoading(true);
-      console.log("Sending request to upload file...");
+      // console.log("Sending request to upload file...");
       
       const response = await axios.post("http://localhost:5786/api/sandouqchaTransaction/bulk", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      console.log("Response from server:", response.data);
+      // console.log("Response from server:", response.data);
 
       setUploadResults(response.data);
       setFile(null); // Clear file after successful upload

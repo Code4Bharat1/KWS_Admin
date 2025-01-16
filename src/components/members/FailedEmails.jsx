@@ -31,12 +31,12 @@ const FailedEmails = () => {
   };
 
   const handleSearch = () => {
-    console.log("Filters applied:", filters);
+    // console.log("Filters applied:", filters);
   };
 
   const handleRefresh = () => {
     setFilters({ resolved: "all", resolvedBy: "" });
-    console.log("Filters reset.");
+    ("Filters reset.");
   };
 
   const toggleDropdown = (index) => {

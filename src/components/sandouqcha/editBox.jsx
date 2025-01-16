@@ -43,7 +43,7 @@ const EditBox = () => {
       };
       fetchBoxDetails();
 
-      console.log("juend here",fetchBoxDetails)
+      // console.log("juend here",fetchBoxDetails)
     }
   }, [number]);
 

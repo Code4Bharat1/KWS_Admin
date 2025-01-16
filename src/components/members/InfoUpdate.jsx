@@ -33,21 +33,21 @@ const InfoUpdate = () => {
   };
 
   const handleSearch = () => {
-    console.log("Filters applied:", filters);
+    // console.log("Filters applied:", filters);
     // Logic for filtering the list based on filters
   };
 
   const handleRefresh = () => {
     setFilters({ kwsId: "", lookUp: "", zone: "all", membershipType: "all" });
-    console.log("Refreshed filters.");
+    // console.log("Refreshed filters.");
   };
 
   const handleApprove = (kwsId) => {
-    console.log(`Approved request for KWS ID: ${kwsId}`);
+    // console.log(`Approved request for KWS ID: ${kwsId}`);
   };
 
   const handleReject = (kwsId) => {
-    console.log(`Rejected request for KWS ID: ${kwsId}`);
+    // console.log(`Rejected request for KWS ID: ${kwsId}`);
   };
 
   return (

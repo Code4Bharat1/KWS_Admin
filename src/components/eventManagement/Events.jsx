@@ -39,7 +39,7 @@ const Events = () => {
     if (roles) {
       try {
         const parsedRoles = JSON.parse(roles);
-        console.log("Fetched Staff Roles:", parsedRoles);
+        // console.log("Fetched Staff Roles:", parsedRoles);
         setStaffRoles(parsedRoles);
       } catch (err) {
         console.warn("Invalid staffRoles format in localStorage:", roles);
@@ -66,7 +66,7 @@ const Events = () => {
     setIsLoading(true);
     try {
       const response = await axios.get("http://localhost:5786/api/event/get");
-      console.log("Fetched Events:", response.data);
+      // console.log("Fetched Events:", response.data);
       
       // Ensure response.data is an array
       if (Array.isArray(response.data)) {
@@ -137,7 +137,7 @@ const Events = () => {
         "http://localhost:5786/api/event/add",
         newEvent
       );
-      console.log("Added Event:", response.data);
+      // console.log("Added Event:", response.data);
       setEvents((prev) => [...prev, response.data]);
       setFilteredEvents((prev) => [...prev, response.data]); // Update filtered events
       setShowAddForm(false);
@@ -167,7 +167,7 @@ const Events = () => {
       const response = await axios.delete(
         `http://localhost:5786/api/event/delete/${eventId}`
       );
-      console.log("Event deleted:", response.data); // Log success response
+      // console.log("Event deleted:", response.data); // Log success response
 
       // Remove the deleted event from the state
       setEvents(events.filter((event) => event.id !== eventId));

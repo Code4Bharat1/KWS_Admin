@@ -32,13 +32,13 @@ const Login = () => {
         setSuccess("Login successful!");
   
         // Log the entire response data to check the structure
-        console.log("Backend Response:", response.data); // Log the response
+        // console.log("Backend Response:", response.data); // Log the response
   
         const { user } = response.data; // Get user data from the response
-        console.log("User data:", user); // Check the user object structure
+        // console.log("User data:", user); // Check the user object structure
   
         // Ensure staffRoles is included in the response
-        console.log("Staff Roles:", user.staffRoles);
+        // console.log("Staff Roles:", user.staffRoles);
   
         localStorage.setItem("userId", user.id); // Store user ID in localStorage
         localStorage.setItem("staffRoles", JSON.stringify(user.staffRoles)); // Store staff roles in localStorage

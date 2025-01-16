@@ -274,9 +274,9 @@ const Transactions = () => {
       }
 
       // Log for debugging
-      console.log("Form data being sent:");
+      // console.log("Form data being sent:");
       for (let pair of transactionData.entries()) {
-        console.log(pair[0], pair[1]);
+        // console.log(pair[0], pair[1]);
       }
 
       await axios.post(

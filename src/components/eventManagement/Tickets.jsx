@@ -29,7 +29,7 @@ const Tickets = () => {
       // Redirect to homepage or any fallback page if no ID is present
       router.push("/event-management");
     } else {
-      console.log("Event ID:", idFromUrl); // Log the event ID for debugging
+      // console.log("Event ID:", idFromUrl); // Log the event ID for debugging
       setId(idFromUrl); // Set the ID if present
     }
   }, [router]);
@@ -40,7 +40,7 @@ const Tickets = () => {
     const fetchTickets = async () => {
       try {
         const response = await axios.get(`http://localhost:5786/api/event/tickets/${id}`);
-        console.log("Fetched tickets:", response.data); // Log fetched tickets for debugging
+        // console.log("Fetched tickets:", response.data); // Log fetched tickets for debugging
         setTickets(response.data); // Set the fetched tickets to state
       } catch (err) {
         console.error("Error fetching tickets:", err);
@@ -109,7 +109,7 @@ const Tickets = () => {
       return;
     }
 
-    console.log("Submitting new ticket:", newTicket);  // Log the data being sent
+    // console.log("Submitting new ticket:", newTicket);  // Log the data being sent
 
     try {
       // Make the POST request to the backend with the event ID
@@ -135,7 +135,7 @@ const Tickets = () => {
   };
 
   const handleView = (ticketNo, eventId) => {
-    console.log("Navigating to view ticket:", ticketNo, eventId); // Log for debugging
+    // console.log("Navigating to view ticket:", ticketNo, eventId); // Log for debugging
     if (!ticketNo || !eventId) {
       console.error("Ticket number or Event ID is missing.");
       return;
@@ -152,7 +152,7 @@ const Tickets = () => {
   };
 
   const handleDelete = async (ticketNo, event_id) => {
-    console.log("Deleting ticket with ticketNo:", ticketNo, "and event_id:", event_id); // Log values
+    // console.log("Deleting ticket with ticketNo:", ticketNo, "and event_id:", event_id); // Log values
 
     if (!ticketNo || !event_id) {
       console.error("Ticket number or Event ID missing");
@@ -166,7 +166,7 @@ const Tickets = () => {
         data: { event_id },  // Send event_id in the request body
       });
 
-      console.log("Ticket deleted:", response.data);  // Log success response
+      // console.log("Ticket deleted:", response.data);  // Log success response
 
       // Remove the deleted ticket from the state
       setTickets(tickets.filter(ticket => ticket.ticketNo !== ticketNo)); // Use ticketNo to filter
