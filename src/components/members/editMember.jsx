@@ -1428,11 +1428,11 @@ const EditMember = () => {
                     <option value="" disabled>
                       Select
                     </option>
-                    <option value="fahaheel">Fahaheel</option>
-                    <option value="farwaniya">Farwaniya</option>
-                    <option value="hawally">Hawally</option>
-                    <option value="jleeb">Jleeb</option>
-                    <option value="salmiya">Salmiya</option>
+                    <option value="Fahaheel">Fahaheel</option>
+                    <option value="Farwaniya">Farwaniya</option>
+                    <option value="Hawally">Hawally</option>
+                    <option value="Jleeb">Jleeb</option>
+                    <option value="Salmiya">Salmiya</option>
                   </select>
                 </div>
 

@@ -1389,9 +1389,9 @@ const handleRemoveImage = (indexToRemove) => {
         className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
       >
         <option value="" disabled>Select</option>
-        <option value="fahaheel">Fahaheel</option>
+        <option value="Fahaheel">Fahaheel</option>
         <option value="Farwaniya">Farwaniya</option>
-        <option value="Fahaheel">Hawally</option>
+        <option value="Hawally">Hawally</option>
         <option value="Jleeb">Jleeb</option>
         <option value="Salmiya">Salmiya</option>
       </select>

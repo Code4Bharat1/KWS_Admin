@@ -33,7 +33,7 @@ const ProfileNavbar = () => {
 
   const handleUpdate = () => {
     if (!isLoggedIn) return;
-    router.push("/update");
+    router.push("/profile/update");
   };
 
   const handleStaff = () => {

@@ -240,6 +240,7 @@ const Transactions = () => {
         coins5,
         total,
         transactionSlip,
+        status,
       } = newTransaction;
 
       if (!boxNumber || !transactionDate || !collectedByKwsid) {
@@ -265,6 +266,7 @@ const Transactions = () => {
       transactionData.append("coin_10", coins10 || 0);
       transactionData.append("coin_5", coins5 || 0);
       transactionData.append("total", total || 0);
+      transactionData.append("status", status); 
 
       // Append the file if one was selected
       if (transactionSlip) {
