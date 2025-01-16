@@ -67,7 +67,7 @@ const MemberTransaction = () => {
     const roles = localStorage.getItem("staffRoles");
     if (roles) {
       const parsedRoles = JSON.parse(roles);
-      console.log("Fetched Staff Roles:", parsedRoles);
+      // console.log("Fetched Staff Roles:", parsedRoles);
       setStaffRoles(parsedRoles);
     } else {
       console.warn("No staffRoles found in localStorage.");
@@ -90,6 +90,8 @@ const MemberTransaction = () => {
       if (confirmDelete) deleteTransaction(id);
     } else if (action === "logs") {
       router.push(`/members/transactions/transaction-logs?uid=${id}`);
+    } else if (action === "alllogs") {
+      router.push(`/members/transactions/all_logs?uid=${id}`);
     }
   };
 
@@ -112,7 +114,7 @@ const MemberTransaction = () => {
       const response = await axios.get(
         "http://localhost:5786/api/transaction/gettransactions"
       );
-      console.log("Fetched Transactions:", response.data); // Debugging log
+      // console.log("Fetched Transactions:", response.data); // Debugging log
       setList(response.data.transactions);
       setTotalTransactions(response.data.totalTransactions);
     } catch (error) {
@@ -134,47 +136,45 @@ const MemberTransaction = () => {
   };
 
   // Handle search functionality
-  // ...
-// Handle search functionality
-const handleSearch = async () => {
-  try {
-    let query = "http://localhost:5786/api/transaction/gettransactions";
+  const handleSearch = async () => {
+    try {
+      let query = "http://localhost:5786/api/transaction/gettransactions";
 
-    const filterParams = {
-      kwsId: filters.kwsId || undefined,
-      category: filters.category || undefined,
-      fromDate: filters.fromDate || undefined,
-      // Default to today's date if not provided
-      toDate: filters.toDate || new Date().toISOString().split("T")[0],
-    };
+      const filterParams = {
+        kwsId: filters.kwsId || undefined,
+        category: filters.category || undefined,
+        fromDate: filters.fromDate || undefined,
+        // Default to today's date if not provided
+        toDate: filters.toDate || new Date().toISOString().split("T")[0],
+      };
 
-    const queryString = Object.keys(filterParams)
-      .filter((key) => filterParams[key])
-      .map(
-        (key) =>
-          `${encodeURIComponent(key)}=${encodeURIComponent(filterParams[key])}`
-      )
-      .join("&");
+      const queryString = Object.keys(filterParams)
+        .filter((key) => filterParams[key])
+        .map(
+          (key) =>
+            `${encodeURIComponent(key)}=${encodeURIComponent(
+              filterParams[key]
+            )}`
+        )
+        .join("&");
 
-    query += `?${queryString}`;
+      query += `?${queryString}`;
 
-    // Make the request
-    const response = await axios.get(query);
+      // Make the request
+      const response = await axios.get(query);
 
-    // Check what comes back
-    console.log("Search Response:", response.data);
+      // Check what comes back
+      // console.log("Search Response:", response.data);
 
-    // IMPORTANT: set the 'list' state to 'response.data.transactions'
-    setList(response.data.transactions);
-    // Also update total transactions if your backend returns it
-    setTotalTransactions(response.data.totalTransactions);
-
-  } catch (error) {
-    console.error("Error applying filters:", error);
-    alert("Failed to apply filters.");
-  }
-};
-
+      // IMPORTANT: set the 'list' state to 'response.data.transactions'
+      setList(response.data.transactions);
+      // Also update total transactions if your backend returns it
+      setTotalTransactions(response.data.totalTransactions);
+    } catch (error) {
+      console.error("Error applying filters:", error);
+      alert("Failed to apply filters.");
+    }
+  };
 
   // Handle refresh functionality
   const handleRefresh = () => {
@@ -204,7 +204,7 @@ const handleSearch = async () => {
           remarks: newTransaction.remarks,
         }
       );
-      console.log("Added Transaction:", response.data); // Debugging log
+      // console.log("Added Transaction:", response.data); // Debugging log
       setList((prev) => [...prev, response.data.transaction]);
       setNewTransaction({
         kwsId: "",
@@ -304,10 +304,9 @@ const handleSearch = async () => {
 
   const FullDropdown = ({ item }) => (
     <div
-      className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10"
+      className="absolute right-0 mt-2 w-56 bg-white border rounded shadow-lg z-10"
       onClick={(e) => e.stopPropagation()} // Prevent closing on button click
     >
-      {/* All action buttons */}
       <button
         onClick={() => {
           handleRedirect(item.UID, "view");
@@ -334,6 +333,15 @@ const handleSearch = async () => {
         className="block w-full text-left px-4 py-2 text-yellow-500 hover:bg-gray-100"
       >
         View All Transactions
+      </button>
+      <button
+        onClick={() => {
+          handleRedirect(item.UID, "alllogs");
+          setActiveDropdown(null);
+        }}
+        className="block w-full text-left px-4 py-2 text-slate-800"
+      >
+        All Logs
       </button>
       <button
         onClick={() => {
@@ -465,9 +473,7 @@ const handleSearch = async () => {
               />
             </div>
             <div>
-              <label className="block mb-2 font-bold">
-                Amount Paid (KWD)*
-              </label>
+              <label className="block mb-2 font-bold">Amount Paid (KWD)*</label>
               <input
                 type="number"
                 name="amountPaid"
@@ -519,9 +525,7 @@ const handleSearch = async () => {
       )}
 
       {/* Loading Spinner */}
-      {isLoading && (
-        <div className="text-center text-blue-500">Loading...</div>
-      )}
+      {isLoading && <div className="text-center text-blue-500">Loading...</div>}
 
       {/* List Section */}
       <div className="overflow-x-auto">
@@ -552,13 +556,12 @@ const handleSearch = async () => {
               // - If user has specific zone role (userHasRoleForZone), show only View dropdown
               // - Else, show full dropdown (if hasAllRole)
               const showViewOnlyDropdown = userHasRoleForZone;
-              const showFullDropdown =
-                hasAllRole && !showViewOnlyDropdown;
+              const showFullDropdown = hasAllRole && !showViewOnlyDropdown;
 
-              // Debugging logs
-              console.log(
-                `Transaction UID: ${item.UID}, Original Zone: ${item.For}, Normalized Zone: ${memberZone}, Is Restricted: ${isRestrictedZone}, User Has Role for Zone: ${userHasRoleForZone}, Has All Role: ${hasAllRole}`
-              );
+              // // Debugging logs
+              // console.log(
+              //   `Transaction UID: ${item.UID}, Original Zone: ${item.For}, Normalized Zone: ${memberZone}, Is Restricted: ${isRestrictedZone}, User Has Role for Zone: ${userHasRoleForZone}, Has All Role: ${hasAllRole}`
+              // );
 
               return (
                 <tr key={index} className="text-center">
@@ -598,70 +601,5 @@ const handleSearch = async () => {
   );
 };
 
-// Dropdown Components
-const ViewDropdown = ({ item }) => (
-  <div
-    className="absolute right-0 mt-2 w-24 bg-white border rounded shadow-lg z-10"
-    onClick={(e) => e.stopPropagation()} // Prevent closing on button click
-  >
-    {/* Only View button */}
-    <button
-      onClick={() => {
-        handleRedirect(item.UID, "view");
-        setActiveDropdown(null);
-      }}
-      className="block w-full text-left px-4 py-2 text-blue-500 hover:bg-gray-100"
-    >
-      View
-    </button>
-  </div>
-);
-
-const FullDropdown = ({ item }) => (
-  <div
-    className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg z-10"
-    onClick={(e) => e.stopPropagation()} // Prevent closing on button click
-  >
-    {/* All action buttons */}
-    <button
-      onClick={() => {
-        handleRedirect(item.UID, "view");
-        setActiveDropdown(null);
-      }}
-      className="block w-full text-left px-4 py-2 text-blue-500 hover:bg-gray-100"
-    >
-      View
-    </button>
-    <button
-      onClick={() => {
-        handleRedirect(item.UID, "edit");
-        setActiveDropdown(null);
-      }}
-      className="block w-full text-left px-4 py-2 text-green-500 hover:bg-gray-100"
-    >
-      Edit
-    </button>
-    <button
-      onClick={() => {
-        handleRedirect(item.UID, "logs");
-        setActiveDropdown(null);
-      }}
-      className="block w-full text-left px-4 py-2 text-yellow-500 hover:bg-gray-100"
-    >
-      View All Transactions
-    </button>
-    <button
-      onClick={() => {
-        handleRedirect(item.UID, "delete");
-        setActiveDropdown(null);
-      }}
-      className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
-    >
-      Delete
-    </button>
-  </div>
-);
-
-
-
+// Note: The standalone ViewDropdown and FullDropdown components are defined above inside the MemberTransaction component
 export default MemberTransaction;
