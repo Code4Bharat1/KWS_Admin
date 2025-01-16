@@ -360,7 +360,7 @@ const MemberTransaction = () => {
       <h1 className="text-3xl md:text-5xl text-[#355F2E] font-syne font-bold text-center mb-6">
         Member Transactions
       </h1>
-      <p className="text-2xl md:text-3xl text-center text-black font-semibold text-gray-600 mb-6">
+      <p className="text-2xl md:text-3xl text-center text-black font-semibold  mb-6">
         Total Transactions: {totalTransactions}
       </p>
 

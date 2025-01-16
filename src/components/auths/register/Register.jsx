@@ -118,26 +118,41 @@ const Register = () => {
     setIsModalOpen(true);
   };
 
-  // Confirm final submission to backend
+
+
   const handleConfirmSubmit = async () => {
     setIsLoading(true);
-    // console.log("Form data being submitted:", formData);
+  
     try {
-      // For a file upload, you might need to use FormData here.
+      // Convert your react-hook-form data (formData) into FormData
+      const multipartFormData = new FormData();
+  
+      // Iterate over keys in the formData object
+      Object.keys(formData).forEach((key) => {
+        // If the key is "profile_picture", it’s an array-like object containing the file
+        if (key === "profile_picture" && formData.profile_picture?.length > 0) {
+          multipartFormData.append(key, formData.profile_picture[0]); 
+        } else {
+          multipartFormData.append(key, formData[key]);
+        }
+      });
+  
+      // Send with the correct headers
       const response = await axios.post(
         "http://localhost:5786/api/auth/register",
-        formData
+        multipartFormData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
       );
-      // console.log("Response from backend:", response.data);
+  
+      // On success:
       setIsSubmitted(true);
       setTimeout(() => {
         setIsModalOpen(false);
       }, 2000);
     } catch (error) {
-      console.error(
-        "Error submitting form:",
-        error.response?.data || error.message
-      );
+      console.error("Error submitting form:", error.response?.data || error.message);
       setErrorMessage(
         error.response?.data?.message || "An error occurred. Please try again."
       );
@@ -145,6 +160,8 @@ const Register = () => {
       setIsLoading(false);
     }
   };
+  
+
 
   const handleCancelSubmit = () => {
     setIsModalOpen(false);
