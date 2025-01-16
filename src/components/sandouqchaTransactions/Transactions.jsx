@@ -526,39 +526,40 @@ const Transactions = () => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-center space-x-4 mb-6">
-        <button
-          onClick={handleSearch}
-          className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          <AiOutlineSearch size={20} /> <span>Search</span>
-        </button>
-        <button
-          onClick={handlePrint}
-          className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          <AiOutlinePrinter size={20} /> <span>Print</span>
-        </button>
-        <button
-          onClick={handleRefresh}
-          className="flex items-center space-x-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-        >
-          <AiOutlineReload size={20} /> <span>Refresh</span>
-        </button>
-        <button
-          onClick={handleAdd}
-          className="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          <AiOutlinePlus size={20} /> <span>Add</span>
-        </button>
+      <div className="flex flex-wrap justify-center space-x-4 mb-6">
+  <button
+    onClick={handleSearch}
+    className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full sm:w-auto mb-2 sm:mb-0"
+  >
+    <AiOutlineSearch size={20} /> <span>Search</span>
+  </button>
+  <button
+    onClick={handlePrint}
+    className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full sm:w-auto mb-2 sm:mb-0"
+  >
+    <AiOutlinePrinter size={20} /> <span>Print</span>
+  </button>
+  <button
+    onClick={handleRefresh}
+    className="flex items-center space-x-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 w-full sm:w-auto mb-2 sm:mb-0"
+  >
+    <AiOutlineReload size={20} /> <span>Refresh</span>
+  </button>
+  <button
+    onClick={handleAdd}
+    className="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full sm:w-auto mb-2 sm:mb-0"
+  >
+    <AiOutlinePlus size={20} /> <span>Add</span>
+  </button>
 
-        <button
-          onClick={handleBulk}
-          className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          <FaUpload  size={20} /> <span>Bulk Upload</span>
-        </button>
-      </div>
+  <button
+    onClick={handleBulk}
+    className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-600 w-full sm:w-auto mb-2 sm:mb-0"
+  >
+    <FaUpload size={20} /> <span>Bulk Upload</span>
+  </button>
+</div>
+
 
       {/* Form Section */}
       {isFormVisible && (
