@@ -1,40 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, FormProvider, useWatch } from "react-hook-form";
 import axios from "axios";
 
 const Register = () => {
+  // Use onChange validation and persist registration of fields from non-visible steps.
+  const methods = useForm({
+    mode: "onChange",
+    shouldUnregister: false,
+  });
+  const { register, getValues, handleSubmit, formState, trigger } = methods;
+  const { errors, isValid } = formState;
   const [currentStep, setCurrentStep] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  // Initialize react-hook-form methods
-  const methods = useForm({
-    mode: "onTouched",
-  });
-  const { register, trigger, getValues, handleSubmit, formState } = methods;
-  const { errors } = formState;
   const totalSteps = 4;
 
-  // Watch values for dynamic fields
+  // Watch dynamic fields.
   const numberOfNominations = useWatch({
     control: methods.control,
     name: "numberOfNominations",
     defaultValue: "1",
   });
 
-  // Watch gender to conditionally render the profile picture field
   const gender = useWatch({
     control: methods.control,
     name: "gender",
     defaultValue: "",
   });
 
-  // Define required (asterisk-marked) field names for each step
+  // Define required field names per step (asterisk fields).
   const requiredFieldsByStep = {
     1: ["acceptDisclaimer"],
     2: [
@@ -49,7 +48,6 @@ const Register = () => {
       "kuwait_contact",
       "kuwait_whatsapp",
       "gender",
-      // profilePicture is not required by default, so it is not added here.
     ],
     3: [
       "block_no",
@@ -62,112 +60,98 @@ const Register = () => {
       "emergency_name_india",
       "emergency_contact_india",
     ],
-    4: [
-      "numberOfNominations",
-      "reviewInfo",
-      // nominee fields will be appended dynamically below
-    ],
+    4: ["numberOfNominations", "reviewInfo"],
   };
 
-  // Handler for moving to the next step
-  const handleNext = async () => {
-    let fieldsToValidate = requiredFieldsByStep[currentStep] || [];
-
-    // For step 2, ensure that password and confirmPassword match
-    if (currentStep === 2) {
-      const password = getValues("password");
-      const confirmPassword = getValues("confirmPassword");
-      if (password !== confirmPassword) {
-        methods.setError("confirmPassword", {
-          type: "manual",
-          message: "Passwords do not match.",
-        });
-        return;
-      }
+  // Navigation handlers.
+  const handleNext = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep((prev) => prev + 1);
     }
-
-    // For step 4, add dynamic nominee fields for validation based on numberOfNominations
-    if (currentStep === 4) {
-      const nNominees = parseInt(getValues("numberOfNominations"), 10) || 0;
-      for (let i = 1; i <= nNominees; i++) {
-        fieldsToValidate = [
-          ...fieldsToValidate,
-          `full_name_${i}`,
-          `relation_${i}`,
-          `percentage_${i}`,
-          `mobile_${i}`,
-        ];
-      }
-    }
-
-    const isValid = await trigger(fieldsToValidate);
-    if (!isValid) {
-      return;
-    }
-    setCurrentStep((prev) => prev + 1);
   };
 
-  // Handler to go back to the previous step
   const handleBack = () => {
-    if (currentStep > 1) setCurrentStep((prev) => prev - 1);
+    if (currentStep > 1) {
+      setCurrentStep((prev) => prev - 1);
+    }
   };
 
-  // On final form submission, open the confirmation modal
+  // Final submission callback.
   const onSubmit = (data) => {
     setFormData(data);
     setIsModalOpen(true);
   };
 
+  // When validation fails on final submission, scroll to first error field.
+  const onError = (errors) => {
+    const firstErrorKey = Object.keys(errors)[0];
+    const errorElement = document.querySelector(`[name="${firstErrorKey}"]`);
+    if (errorElement) {
+      errorElement.focus();
+      errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
 
-
+  // Final confirmation submission handler (after reviewing in modal).
   const handleConfirmSubmit = async () => {
     setIsLoading(true);
-  
     try {
-      // Convert your react-hook-form data (formData) into FormData
       const multipartFormData = new FormData();
-  
-      // Iterate over keys in the formData object
+
+      // Append regular fields.
       Object.keys(formData).forEach((key) => {
-        // If the key is "profile_picture", it’s an array-like object containing the file
         if (key === "profile_picture" && formData.profile_picture?.length > 0) {
-          multipartFormData.append(key, formData.profile_picture[0]); 
+          multipartFormData.append(key, formData.profile_picture[0]);
         } else {
           multipartFormData.append(key, formData[key]);
         }
       });
-  
-      // Send with the correct headers
-      const response = await axios.post(
-        "http://localhost:5786/api/auth/register",
-        multipartFormData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
+
+      // Assemble child names into an array.
+      const childNames = [];
+      for (let i = 1; i <= 5; i++) {
+        const childName = getValues(`child_name_${i}`);
+        if (childName) {
+          childNames.push(childName);
         }
-      );
-  
-      // On success:
+      }
+      multipartFormData.append("child_names", JSON.stringify(childNames));
+
+      // Process nomination fields into an array.
+      const nominations = [];
+      const nNominees = parseInt(getValues("numberOfNominations"), 10) || 0;
+      for (let i = 1; i <= nNominees; i++) {
+        const nomination = {
+          name: getValues(`full_name_${i}`) || "",
+          relation: getValues(`relation_${i}`) || "",
+          percentage: getValues(`percentage_${i}`) || "",
+          contact: getValues(`mobile_${i}`) || "",
+        };
+        nominations.push(nomination);
+      }
+      multipartFormData.append("nominations", JSON.stringify(nominations));
+
+      await axios.post("http://localhost:5786/api/auth/register", multipartFormData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
       setIsSubmitted(true);
       setTimeout(() => {
         setIsModalOpen(false);
       }, 2000);
     } catch (error) {
       console.error("Error submitting form:", error.response?.data || error.message);
-      setErrorMessage(
-        error.response?.data?.message || "An error occurred. Please try again."
-      );
+      setErrorMessage(error.response?.data?.message || "An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
-  
-
 
   const handleCancelSubmit = () => {
     setIsModalOpen(false);
   };
 
-  // Step titles for the stepper
+  // Step titles.
   const stepTitles = [
     "Disclaimer",
     "Personal Details",
@@ -178,44 +162,33 @@ const Register = () => {
   return (
     <div className="relative min-h-screen">
       {/* Background Video */}
-      <video
-        className="absolute inset-0 w-full h-full object-cover"
-        autoPlay
-        loop
-        muted
-      >
+      <video className="absolute inset-0 w-full h-full object-cover" autoPlay loop muted>
         <source src="/register.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-
-      {/* Overlay for better readability */}
+      {/* Overlay */}
       <div className="absolute inset-0 bg-black opacity-5"></div>
-
       {/* Content */}
       <div className="relative flex justify-center items-center min-h-screen p-4">
         <div className="bg-white shadow-lg rounded-lg w-full md:w-4/5 lg:w-2/3 xl:w-1/2 p-8 relative z-10">
-          {/* Stepper */}
+          {/* Stepper (clickable for navigation) */}
           <div className="flex justify-between mb-8">
             {stepTitles.map((title, index) => (
-              <div key={index} className="flex flex-col items-center">
+              <div
+                key={index}
+                className="flex flex-col items-center cursor-pointer"
+                onClick={() => setCurrentStep(index + 1)}
+              >
                 <div
                   className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                    currentStep === index + 1
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-300 text-gray-700"
+                    currentStep === index + 1 ? "bg-blue-600 text-white" : "bg-gray-300 text-gray-700"
                   }`}
                 >
                   {index + 1}
                 </div>
-                <span className="mt-2 text-sm font-medium text-center text-gray-700">
-                  {title}
-                </span>
-                {index < stepTitles.length && (
-                  <div
-                    className={`w-8 h-1 mt-2 ${
-                      currentStep > index + 1 ? "bg-blue-600" : "bg-gray-300"
-                    }`}
-                  ></div>
+                <span className="mt-2 text-sm font-medium text-center text-gray-700">{title}</span>
+                {index < stepTitles.length - 1 && (
+                  <div className={`w-8 h-1 mt-2 ${currentStep > index + 1 ? "bg-blue-600" : "bg-gray-300"}`}></div>
                 )}
               </div>
             ))}
@@ -223,29 +196,24 @@ const Register = () => {
 
           {/* Form Header */}
           <div className="flex flex-col md:flex-row items-center mb-8">
-            {/* Logo Section */}
             <div className="w-full md:w-1/3 flex justify-center md:justify-start mb-4 md:mb-0">
               <img src="/kws.png" alt="Logo" className="w-36 h-28 object-contain" />
             </div>
-
-            {/* Header Section */}
             <div className="w-full md:w-2/3 text-center md:text-left">
-              <h2 className="text-3xl text-blue-500 font-syne font-bold">
-                KWSKW Register
-              </h2>
+              <h2 className="text-3xl text-blue-500 font-syne font-bold">KWSKW Register</h2>
             </div>
           </div>
 
           <FormProvider {...methods}>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              {/* Step 1: Disclaimer */}
+            {/* Final submission uses onSubmit and onError */}
+            <form onSubmit={handleSubmit(onSubmit, onError)}>
+              {/* STEP 1: Disclaimer */}
               {currentStep === 1 && (
                 <div>
                   <p className="text-gray-600 mb-4 text-center">
                     Please read the following document carefully before proceeding.
                   </p>
                   <div className="mb-6">
-                    {/* PDF Viewer */}
                     <div className="border border-gray-300 rounded-lg overflow-hidden h-[400px] md:h-[600px]">
                       <iframe
                         src="/disclaimer2.pdf#toolbar=0&view=FitH"
@@ -264,25 +232,19 @@ const Register = () => {
                         })}
                         className="form-checkbox h-5 w-5 text-blue-600"
                       />
-                      <span className="text-gray-700">
-                        I agree to the disclaimer
-                      </span>
+                      <span className="text-gray-700">I agree to the disclaimer</span>
                     </label>
                     {errors.acceptDisclaimer && (
-                      <p className="text-red-500 text-sm mt-2">
-                        {errors.acceptDisclaimer.message}
-                      </p>
+                      <p className="text-red-500 text-sm mt-2">{errors.acceptDisclaimer.message}</p>
                     )}
                   </div>
                 </div>
               )}
 
-              {/* Step 2: Personal Details */}
+              {/* STEP 2: Personal Details */}
               {currentStep === 2 && (
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-6">
-                    Personal Details
-                  </h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-6">Personal Details</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {[
                       {
@@ -327,8 +289,7 @@ const Register = () => {
                             message: "Password must be at least 8 characters long.",
                           },
                           pattern: {
-                            value:
-                              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/,
                             message:
                               "Password must include uppercase, lowercase, number, and special character.",
                           },
@@ -354,17 +315,7 @@ const Register = () => {
                         label: "Blood Group*",
                         name: "blood_group",
                         type: "select",
-                        options: [
-                          "NA",
-                          "A+",
-                          "A-",
-                          "B+",
-                          "B-",
-                          "O+",
-                          "O-",
-                          "AB+",
-                          "AB-",
-                        ],
+                        options: ["NA", "A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"],
                         validation: { required: "Blood Group is required." },
                       },
                       {
@@ -406,18 +357,13 @@ const Register = () => {
                       },
                     ].map((field, index) => (
                       <div key={index}>
-                        <label
-                          className="block text-sm font-medium text-gray-700"
-                          htmlFor={field.name}
-                        >
+                        <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
                           {field.label}
                         </label>
                         {field.type === "select" ? (
                           <select
                             {...register(field.name, field.validation || {})}
-                            className={`w-full border ${
-                              errors[field.name] ? "border-red-500" : "border-gray-300"
-                            } rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
+                            className={`w-full border ${errors[field.name] ? "border-red-500" : "border-gray-300"} rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
                           >
                             <option value="">Select</option>
                             {field.options &&
@@ -431,26 +377,18 @@ const Register = () => {
                           <input
                             type={field.type}
                             {...register(field.name, field.validation || {})}
-                            className={`w-full border ${
-                              errors[field.name] ? "border-red-500" : "border-gray-300"
-                            } rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
+                            className={`w-full border ${errors[field.name] ? "border-red-500" : "border-gray-300"} rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
                           />
                         )}
                         {errors[field.name] && (
-                          <p className="text-red-500 text-sm mt-2">
-                            {errors[field.name].message}
-                          </p>
+                          <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
                         )}
                       </div>
                     ))}
-
-                    {/* Conditionally render the Profile Picture Upload field if Gender is "Male" */}
+                    {/* Conditional Profile Picture Upload for Male */}
                     {gender === "Male" && (
                       <div>
-                        <label
-                          className="block text-sm font-medium text-gray-700"
-                          htmlFor="profile_picture"
-                        >
+                        <label className="block text-sm font-medium text-gray-700" htmlFor="profile_picture">
                           Upload Profile Picture
                         </label>
                         <input
@@ -458,10 +396,8 @@ const Register = () => {
                           {...register("profile_picture")}
                           className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         />
-                        {errors.profilePicture && (
-                          <p className="text-red-500 text-sm mt-2">
-                            {errors.profilePicture.message}
-                          </p>
+                        {errors.profile_picture && (
+                          <p className="text-red-500 text-sm mt-2">{errors.profile_picture.message}</p>
                         )}
                       </div>
                     )}
@@ -469,18 +405,14 @@ const Register = () => {
                 </div>
               )}
 
-              {/* Step 3: Address & Contacts */}
+              {/* STEP 3: Address & Contacts */}
               {currentStep === 3 && (
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-6">
-                    Address & Contacts
-                  </h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-6">Address & Contacts</h3>
                   <div className="space-y-6">
                     {/* Address (Kuwait) */}
                     <div>
-                      <h4 className="text-lg font-bold text-gray-700">
-                        Address (Kuwait)
-                      </h4>
+                      <h4 className="text-lg font-bold text-gray-700">Address (Kuwait)</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         {[
                           {
@@ -521,25 +453,16 @@ const Register = () => {
                           },
                         ].map((field, index) => (
                           <div key={index}>
-                            <label
-                              className="block text-sm font-medium text-gray-700"
-                              htmlFor={field.name}
-                            >
+                            <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
                               {field.label}
                             </label>
                             <input
                               type={field.type}
-                              {...register(field.name, {
-                                required: field.required
-                                  ? `${field.label} is required.`
-                                  : false,
-                              })}
+                              {...register(field.name, { required: field.required ? `${field.label} is required.` : false })}
                               className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             />
                             {errors[field.name] && (
-                              <p className="text-red-500 text-sm mt-2">
-                                {errors[field.name].message}
-                              </p>
+                              <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
                             )}
                           </div>
                         ))}
@@ -548,9 +471,7 @@ const Register = () => {
 
                     {/* Address (India) */}
                     <div>
-                      <h4 className="text-lg font-bold text-gray-700">
-                        Address (India)
-                      </h4>
+                      <h4 className="text-lg font-bold text-gray-700">Address (India)</h4>
                       <div className="grid grid-cols-1 gap-4 mt-4">
                         {[
                           {
@@ -567,37 +488,24 @@ const Register = () => {
                           },
                         ].map((field, index) => (
                           <div key={index}>
-                            <label
-                              className="block text-sm font-medium text-gray-700"
-                              htmlFor={field.name}
-                            >
+                            <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
                               {field.label}
                             </label>
                             {field.type === "textarea" ? (
                               <textarea
-                                {...register(field.name, {
-                                  required: field.required
-                                    ? `${field.label} is required.`
-                                    : false,
-                                })}
+                                {...register(field.name, { required: field.required ? `${field.label} is required.` : false })}
                                 className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 rows="4"
                               ></textarea>
                             ) : (
                               <input
                                 type={field.type}
-                                {...register(field.name, {
-                                  required: field.required
-                                    ? `${field.label} is required.`
-                                    : false,
-                                })}
+                                {...register(field.name, { required: field.required ? `${field.label} is required.` : false })}
                                 className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                               />
                             )}
                             {errors[field.name] && (
-                              <p className="text-red-500 text-sm mt-2">
-                                {errors[field.name].message}
-                              </p>
+                              <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
                             )}
                           </div>
                         ))}
@@ -606,9 +514,7 @@ const Register = () => {
 
                     {/* Address (Permanent Native) */}
                     <div>
-                      <h4 className="text-lg font-bold text-gray-700">
-                        Address (Permanent Native)
-                      </h4>
+                      <h4 className="text-lg font-bold text-gray-700">Address (Permanent Native)</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         {[
                           {
@@ -637,25 +543,16 @@ const Register = () => {
                           },
                         ].map((field, index) => (
                           <div key={index}>
-                            <label
-                              className="block text-sm font-medium text-gray-700"
-                              htmlFor={field.name}
-                            >
+                            <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
                               {field.label}
                             </label>
                             <input
                               type={field.type}
-                              {...register(field.name, {
-                                required: field.required
-                                  ? `${field.label} is required.`
-                                  : false,
-                              })}
+                              {...register(field.name, { required: field.required ? `${field.label} is required.` : false })}
                               className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             />
                             {errors[field.name] && (
-                              <p className="text-red-500 text-sm mt-2">
-                                {errors[field.name].message}
-                              </p>
+                              <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
                             )}
                           </div>
                         ))}
@@ -664,9 +561,7 @@ const Register = () => {
 
                     {/* Contact Numbers (India) */}
                     <div>
-                      <h4 className="text-lg font-bold text-gray-700">
-                        Contact Numbers (India)
-                      </h4>
+                      <h4 className="text-lg font-bold text-gray-700">Contact Numbers (India)</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         {[
                           {
@@ -689,36 +584,25 @@ const Register = () => {
                           },
                         ].map((field, index) => (
                           <div key={index}>
-                            <label
-                              className="block text-sm font-medium text-gray-700"
-                              htmlFor={field.name}
-                            >
+                            <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
                               {field.label}
                             </label>
                             <input
                               type={field.type}
-                              {...register(field.name, {
-                                required: field.required
-                                  ? `${field.label} is required.`
-                                  : false,
-                              })}
+                              {...register(field.name, { required: field.required ? `${field.label} is required.` : false })}
                               className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             />
                             {errors[field.name] && (
-                              <p className="text-red-500 text-sm mt-2">
-                                {errors[field.name].message}
-                              </p>
+                              <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
                             )}
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    {/* Emergency Contact (Kuwait) */}
+                    {/* Emergency Contacts */}
                     <div>
-                      <h4 className="text-lg font-bold text-gray-700">
-                        Emergency Contact (Kuwait)
-                      </h4>
+                      <h4 className="text-lg font-bold text-gray-700">Emergency Contact (Kuwait)</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         {[
                           {
@@ -735,36 +619,24 @@ const Register = () => {
                           },
                         ].map((field, index) => (
                           <div key={index}>
-                            <label
-                              className="block text-sm font-medium text-gray-700"
-                              htmlFor={field.name}
-                            >
+                            <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
                               {field.label}
                             </label>
                             <input
                               type={field.type}
-                              {...register(field.name, {
-                                required: field.required
-                                  ? `${field.label} is required.`
-                                  : false,
-                              })}
+                              {...register(field.name, { required: field.required ? `${field.label} is required.` : false })}
                               className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             />
                             {errors[field.name] && (
-                              <p className="text-red-500 text-sm mt-2">
-                                {errors[field.name].message}
-                              </p>
+                              <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
                             )}
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    {/* Emergency Contact (India) */}
                     <div>
-                      <h4 className="text-lg font-bold text-gray-700">
-                        Emergency Contact (India)
-                      </h4>
+                      <h4 className="text-lg font-bold text-gray-700">Emergency Contact (India)</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         {[
                           {
@@ -781,25 +653,16 @@ const Register = () => {
                           },
                         ].map((field, index) => (
                           <div key={index}>
-                            <label
-                              className="block text-sm font-medium text-gray-700"
-                              htmlFor={field.name}
-                            >
+                            <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
                               {field.label}
                             </label>
                             <input
                               type={field.type}
-                              {...register(field.name, {
-                                required: field.required
-                                  ? `${field.label} is required.`
-                                  : false,
-                              })}
+                              {...register(field.name, { required: field.required ? `${field.label} is required.` : false })}
                               className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             />
                             {errors[field.name] && (
-                              <p className="text-red-500 text-sm mt-2">
-                                {errors[field.name].message}
-                              </p>
+                              <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
                             )}
                           </div>
                         ))}
@@ -809,12 +672,10 @@ const Register = () => {
                 </div>
               )}
 
-              {/* Step 4: Family & MBS Nomination */}
+              {/* STEP 4: Family & MBS Nomination */}
               {currentStep === 4 && (
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-6">
-                    Family & MBS Nomination
-                  </h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-6">Family & MBS Nomination</h3>
                   <div className="space-y-6">
                     {/* Family Section */}
                     <div>
@@ -831,10 +692,7 @@ const Register = () => {
                           { label: "Name of Fifth Child", name: "child_name_5", type: "text" },
                         ].map((field, index) => (
                           <div key={index}>
-                            <label
-                              className="block text-sm font-medium text-gray-700"
-                              htmlFor={field.name}
-                            >
+                            <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
                               {field.label}
                             </label>
                             <input
@@ -851,10 +709,7 @@ const Register = () => {
                     <div>
                       <h4 className="text-lg font-bold text-gray-700">Additional Information</h4>
                       <div className="mt-4">
-                        <label
-                          className="block text-sm font-medium text-gray-700"
-                          htmlFor="additional_information"
-                        >
+                        <label className="block text-sm font-medium text-gray-700" htmlFor="additional_information">
                           Any additional information to pass to KWS on registration
                         </label>
                         <textarea
@@ -867,16 +722,11 @@ const Register = () => {
 
                     {/* MBS Nomination Section */}
                     <div>
-                      <h4 className="text-lg font-bold text-gray-700">
-                        MBS Nomination
-                      </h4>
+                      <h4 className="text-lg font-bold text-gray-700">MBS Nomination</h4>
                       <div className="grid grid-cols-1 gap-4 mt-4">
                         {/* Number of Nominations */}
                         <div>
-                          <label
-                            className="block text-sm font-medium text-gray-700"
-                            htmlFor="numberOfNominations"
-                          >
+                          <label className="block text-sm font-medium text-gray-700" htmlFor="numberOfNominations">
                             Number of Nominations*
                           </label>
                           <select
@@ -893,9 +743,7 @@ const Register = () => {
                             ))}
                           </select>
                           {errors.numberOfNominations && (
-                            <p className="text-red-500 text-sm mt-2">
-                              {errors.numberOfNominations.message}
-                            </p>
+                            <p className="text-red-500 text-sm mt-2">{errors.numberOfNominations.message}</p>
                           )}
                         </div>
 
@@ -941,10 +789,7 @@ const Register = () => {
                                 },
                               ].map((field, index) => (
                                 <div key={index}>
-                                  <label
-                                    className="block text-sm font-medium text-gray-700"
-                                    htmlFor={field.name}
-                                  >
+                                  <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
                                     {field.label}
                                   </label>
                                   <input
@@ -953,9 +798,7 @@ const Register = () => {
                                     className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                   />
                                   {errors[field.name] && (
-                                    <p className="text-red-500 text-sm mt-2">
-                                      {errors[field.name].message}
-                                    </p>
+                                    <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
                                   )}
                                 </div>
                               ))}
@@ -968,19 +811,13 @@ const Register = () => {
                           <label className="flex items-center space-x-2">
                             <input
                               type="checkbox"
-                              {...register("reviewInfo", {
-                                required: "Please confirm your information.",
-                              })}
+                              {...register("reviewInfo", { required: "Please confirm your information." })}
                               className="form-checkbox h-5 w-5 text-blue-600"
                             />
-                            <span className="text-gray-700">
-                              I confirm all information provided is correct.
-                            </span>
+                            <span className="text-gray-700">I confirm all information provided is correct.</span>
                           </label>
                           {errors.reviewInfo && (
-                            <p className="text-red-500 text-sm mt-2">
-                              {errors.reviewInfo.message}
-                            </p>
+                            <p className="text-red-500 text-sm mt-2">{errors.reviewInfo.message}</p>
                           )}
                         </div>
                       </div>
@@ -991,15 +828,13 @@ const Register = () => {
 
               {/* Navigation Buttons */}
               <div className="flex justify-between mt-6">
-                {currentStep > 1 && (
-                  <button
-                    type="button"
-                    onClick={handleBack}
-                    className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
-                  >
-                    Back
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+                >
+                  Back
+                </button>
                 {currentStep < totalSteps ? (
                   <button
                     type="button"
@@ -1009,9 +844,13 @@ const Register = () => {
                     Next
                   </button>
                 ) : (
+                  // Disable the Submit button until all required fields are valid.
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    disabled={!isValid}
+                    className={`px-4 py-2 ${
+                      !isValid ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
+                    } text-white rounded-lg`}
                   >
                     Submit
                   </button>
@@ -1020,7 +859,7 @@ const Register = () => {
             </form>
           </FormProvider>
 
-          {/* Submission Confirmation Modal */}
+          {/* Confirmation Modal */}
           {isModalOpen && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
               <div className="bg-white rounded-lg p-6 w-11/12 md:w-1/3">
@@ -1048,9 +887,7 @@ const Register = () => {
                 ) : (
                   <>
                     <h3 className="text-xl font-bold mb-4">Success</h3>
-                    <p className="mb-6 text-green-600">
-                      Your form was submitted successfully!
-                    </p>
+                    <p className="mb-6 text-green-600">Your form was submitted successfully!</p>
                     <div className="flex justify-end">
                       <button
                         onClick={() => {
