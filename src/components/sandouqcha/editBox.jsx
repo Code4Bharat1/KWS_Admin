@@ -25,7 +25,7 @@ const EditBox = () => {
           const committedId = localStorage.getItem("userId");
 
           const response = await axios.get(
-            `http://localhost:5786/api/sandouqcha/getbox/${number}`
+            `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqcha/getbox/${number}`
           );
           const boxData = response.data;
           setBox(boxData);
@@ -59,7 +59,7 @@ const EditBox = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5786/api/sandouqcha/editbox/${number}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqcha/editbox/${number}`,
         formData
       );
       setSuccess(response.data.message);
@@ -72,7 +72,7 @@ const EditBox = () => {
     if (!confirm("Are you sure you want to delete this box?")) return;
 
     try {
-      await axios.delete(`http://localhost:5786/api/sandouqcha/deletebox/${number}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqcha/deletebox/${number}`);
       alert("Box deleted successfully.");
       router.push("/sandouqcha/boxes"); // Redirect to the list of boxes after deletion
     } catch (err) {

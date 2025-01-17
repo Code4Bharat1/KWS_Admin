@@ -68,7 +68,7 @@ const EditTransaction = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `http://localhost:5786/api/sandouqchaTransaction/view/${id}`
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqchaTransaction/view/${id}`
         );
         setTransaction({
           ...response.data,
@@ -187,7 +187,7 @@ const EditTransaction = () => {
         formData.append("transactionSlip", transaction.transactionSlip);
       }
 
-      await axios.put(`http://localhost:5786/api/sandouqchaTransaction/edit/${id}`, formData, {
+      await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqchaTransaction/edit/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -273,7 +273,7 @@ const EditTransaction = () => {
             {transaction.transactionSlipUrl && (
               <div className="mb-2">
                 <a
-                  href={`http://localhost:5786${transaction.transactionSlipUrl}`}
+                  href={`http://45.93.139.244:5786${transaction.transactionSlipUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-500 underline"

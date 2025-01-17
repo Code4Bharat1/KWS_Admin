@@ -15,7 +15,7 @@ const Viewnonkws = () => {
   useEffect(() => {
     const fetchNonKwsMember = async () => {
       try {
-        const response = await axios.get(`http://localhost:5786/api/nonkws/viewnonkwsmember/${id}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/nonkws/viewnonkwsmember/${id}`);
         setNonKwsMember(response.data);
         setLoading(false);
       } catch (error) {

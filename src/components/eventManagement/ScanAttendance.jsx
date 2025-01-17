@@ -80,7 +80,7 @@ const ScanAttendance = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:5786/api/event/markattendance/${eventId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/markattendance/${eventId}`,
         {
           event_id: eventId,
           ticket_no: ticketNo,

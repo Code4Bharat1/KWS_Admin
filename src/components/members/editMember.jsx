@@ -25,7 +25,7 @@ const EditMember = () => {
   
     const fetchMemberData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5786/api/profile/get/${userId}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/get/${userId}`);
         const userData = response.data.data;
   
         // Format date of birth if available
@@ -128,7 +128,7 @@ const EditMember = () => {
       }
   
       const response = await axios.put(
-        `http://localhost:5786/api/profile/editprofile/${userId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/editprofile/${userId}`,
         formDataToSend,
         {
           headers: {

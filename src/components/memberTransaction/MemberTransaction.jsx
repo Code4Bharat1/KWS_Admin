@@ -98,7 +98,7 @@ const MemberTransaction = () => {
   // Handle deleting a transaction
   const deleteTransaction = async (uid) => {
     try {
-      await axios.delete(`http://localhost:5786/api/transaction/delete/${uid}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/delete/${uid}`);
       setList((prev) => prev.filter((transaction) => transaction.UID !== uid));
       alert("Transaction deleted successfully!");
     } catch (error) {
@@ -112,7 +112,7 @@ const MemberTransaction = () => {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        "http://localhost:5786/api/transaction/gettransactions"
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/gettransactions`
       );
       // console.log("Fetched Transactions:", response.data); // Debugging log
       setList(response.data.transactions);
@@ -138,7 +138,7 @@ const MemberTransaction = () => {
   // Handle search functionality
   const handleSearch = async () => {
     try {
-      let query = "http://localhost:5786/api/transaction/gettransactions";
+      let query = `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/gettransactions`;
 
       const filterParams = {
         kwsId: filters.kwsId || undefined,
@@ -193,7 +193,7 @@ const MemberTransaction = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:5786/api/transaction/addtransactions",
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/addtransactions`,
         {
           kwsId: newTransaction.kwsId,
           paymentFor: newTransaction.paymentFor,

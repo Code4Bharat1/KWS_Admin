@@ -14,7 +14,7 @@ const LogNonkws = () => {
     const fetchLogs = async () => {
       try {
         // Update the URL structure to match the backend endpoint
-        const response = await axios.get(`http://localhost:5786/api/nonkws/logs/${id}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/nonkws/logs/${id}`);
         setLogs(response.data.logs);
         setLoading(false);
       } catch (error) {

@@ -22,7 +22,7 @@ const UpdateEvent = () => {
       if (!id) return; // If there's no event id in the URL, do nothing
 
       try {
-        const response = await axios.get(`http://localhost:5786/api/event/get?id=${id}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/get?id=${id}`);
         setEvent(response.data); // Set the event details from the API response
         setNewEvent({
           name: response.data.name,
@@ -48,7 +48,7 @@ const UpdateEvent = () => {
 
     try {
       // Sending the PUT request to the backend to update the event
-      const response = await axios.put(`http://localhost:5786/api/event/edit/${id}`, {
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/edit/${id}`, {
         id, 
         name: newEvent.name,
         start_date: newEvent.start_date,

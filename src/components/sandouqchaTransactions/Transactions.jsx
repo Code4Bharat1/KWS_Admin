@@ -53,7 +53,7 @@ const Transactions = () => {
   const fetchTransactions = async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:5786/api/sandouqchaTransaction/getlist");
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqchaTransaction/getlist`);
       
       // Check if the response contains the expected data
       if (Array.isArray(response.data.transactions)) {
@@ -181,7 +181,7 @@ const Transactions = () => {
       if (filters.toDate) params.toDate = filters.toDate;
       if (filters.recentCount) params.recentCount = filters.recentCount;
 
-      const response = await axios.get("http://localhost:5786/api/sandouqchaTransaction/getlist", { params });
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqchaTransaction/getlist`, { params });
       setList(response.data.transactions);
       setTotalTransactions(response.data.totalTransactions); 
       setError(null);
@@ -289,7 +289,7 @@ const Transactions = () => {
       }
      
       await axios.post(
-        "http://localhost:5786/api/sandouqchaTransaction/add",
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqchaTransaction/add`,
         transactionData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -353,7 +353,7 @@ const Transactions = () => {
   const handleDownloadReport = async (transactionId) => {
     try {
       // Call the view API endpoint to get transaction details
-      const response = await axios.get(`http://localhost:5786/api/sandouqchaTransaction/view/${transactionId}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqchaTransaction/view/${transactionId}`);
       const data = response.data;
 
       const formattedDate = new Date(data.date).toLocaleDateString('en-GB');
@@ -457,7 +457,7 @@ const Transactions = () => {
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this transaction?")) return;
     try {
-      await axios.delete(`http://localhost:5786/api/sandouqchaTransaction/delete/${id}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqchaTransaction/delete/${id}`);
       setList((prev) => prev.filter((item) => item.id !== id));
       alert("Transaction deleted successfully.");
     } catch (error) {
@@ -737,7 +737,7 @@ const Transactions = () => {
                       {item.transactionSlip ? (
                         <a
                           className="text-blue-500"
-                          href={`http://localhost:5786${item.transactionSlip}`}
+                          href={`http://45.93.139.244:5786${item.transactionSlip}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >

@@ -15,7 +15,7 @@ const ViewBox = () => {
       const fetchBox = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:5786/api/sandouqcha/getbox/${number}`
+            `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqcha/getbox/${number}`
           );
           setBox(response.data);
         } catch (err) {

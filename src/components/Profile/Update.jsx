@@ -74,7 +74,7 @@ const Update = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5786/api/profile/get/${userId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/get/${userId}`
         );
         // Assume response.data.data contains the user data
         setFormData(response.data.data);
@@ -106,7 +106,7 @@ const Update = () => {
     try {
       // Send updated formData to your update endpoint
       const response = await axios.put(
-        `http://localhost:5786/api/profile/update/${userId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/update/${userId}`,
         formData
       );
       setSuccessMessage("Profile updated successfully!");

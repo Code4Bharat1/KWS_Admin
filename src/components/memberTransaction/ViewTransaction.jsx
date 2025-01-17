@@ -19,7 +19,7 @@ const ViewTransaction = () => {
       if (!uid) return; // Ensure `uid` exists before making the request
       const formattedUid = uid.toString().padStart(8, "0"); // Ensure UID is formatted correctly
       const response = await axios.get(
-        `http://localhost:5786/api/transaction/get/${formattedUid}` // Adjust URL if necessary
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/get/${formattedUid}` // Adjust URL if necessary
       );
       // console.log("API Response:", response.data); // Log the complete response
       setTransactionDetails(response.data);

@@ -48,7 +48,7 @@ const AddNonKws = () => {
 
       // Send the form data to the backend using Axios
       const response = await axios.post(
-        "http://localhost:5786/api/nonkws/addnonkws",
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/nonkws/addnonkws`,
         data
       );
 

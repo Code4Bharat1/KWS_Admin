@@ -43,7 +43,7 @@ const handleRemoveImage = (indexToRemove) => {
   useEffect(() => {
     const fetchPendingApprovals = async () => {
       try {
-        const response = await axios.get("http://localhost:5786/api/member/pending");
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/pending`);
         setPendingApprovals(response.data); // Store fetched pending approvals in state
       } catch (error) {
         console.error("Error fetching pending approvals:", error);
@@ -57,7 +57,7 @@ const handleRemoveImage = (indexToRemove) => {
   // Handle selecting a user for review
   const handleReviewClick = async (userId) => {
     try {
-      const response = await axios.get(`http://localhost:5786/api/auth/get/${userId}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/auth/get/${userId}`);
       const userData = response.data;
       if (userData.dob) {
         userData.dob = new Date(userData.dob).toISOString().split("T")[0]; // Ensure correct format
@@ -102,7 +102,7 @@ const handleRemoveImage = (indexToRemove) => {
       console.log("FormData to be sent:", Array.from(formDataToSend.entries())); // Debug log
   
       const response = await axios.put(
-        `http://localhost:5786/api/member/update/${formData.user_id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/update/${formData.user_id}`,
         formDataToSend,
         {
           headers: {
@@ -116,7 +116,7 @@ const handleRemoveImage = (indexToRemove) => {
       // Reset state and fetch updated data
       setSelectedUser(null);
       setFormData({});
-      const responsePending = await axios.get("http://localhost:5786/api/member/pending");
+      const responsePending = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/pending`);
       setPendingApprovals(responsePending.data);
     } catch (error) {
       console.error("Error updating approval status:", error.response?.data || error.message);

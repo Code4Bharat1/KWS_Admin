@@ -24,7 +24,7 @@ const NonKws = () => {
   const fetchNonKwsList = async () => {
     try {
       const params = { ...filters };
-      const response = await axios.get('http://localhost:5786/api/nonkws/getlist', { params });
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/nonkws/getlist`, { params });
       console.log("Fetched Data:", response.data);
       setList(response.data);
     } catch (error) {
@@ -77,7 +77,7 @@ const NonKws = () => {
   // Function to handle delete
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5786/api/nonkws/deletenonkws/${id}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/nonkws/deletenonkws/${id}`);
       setList((prevList) => prevList.filter(item => item.ID !== id)); // Remove the deleted item from the list
       console.log(`Item with ID ${id} deleted successfully.`);
     } catch (error) {

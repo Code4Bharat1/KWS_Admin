@@ -22,7 +22,7 @@ const ViewTicket = () => {
 
     const fetchTicket = async () => {
       try {
-        const response = await axios.get(`http://localhost:5786/api/event/ticket/${ticketNo}`, {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/ticket/${ticketNo}`, {
           params: { event_id: eventId },
         });
         setTicket(response.data);

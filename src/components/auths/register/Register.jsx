@@ -131,7 +131,7 @@ const Register = () => {
       }
       multipartFormData.append("nominations", JSON.stringify(nominations));
 
-      await axios.post("http://localhost:5786/api/auth/register", multipartFormData, {
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/auth/register`, multipartFormData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

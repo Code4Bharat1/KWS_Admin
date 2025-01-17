@@ -20,7 +20,7 @@ const Profile = () => {
 
       try {
         const response = await axios.get(
-          `http://localhost:5786/api/profile/getprofile/${userId}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/getprofile/${userId}`,
           {
             headers: {
               "Content-Type": "application/json",

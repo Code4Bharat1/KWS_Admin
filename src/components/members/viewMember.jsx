@@ -21,7 +21,7 @@ const ViewMember = ( ) => {
     const fetchFormData = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`http://localhost:5786/api/profile/get/${userId}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/get/${userId}`);
         setFormData(response.data.data);
       } catch (error) {
         console.error("Error fetching data:", error);

@@ -23,7 +23,7 @@ const Login = () => {
       setError(""); // Clear previous errors
       setSuccess(""); // Clear success message
   
-      const response = await axios.post("http://localhost:5786/api/auth/login", {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/auth/login`, {
         username,
         password,
       }, { withCredentials: true }); // Ensure cookies are sent with the request

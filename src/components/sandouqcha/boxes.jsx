@@ -48,7 +48,7 @@ const Boxes = () => {
   const fetchBoxList = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5786/api/sandouqcha/getboxlist"
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqcha/getboxlist`
       );
       setList(response.data); // Assuming API returns a list of boxes
       setOriginalList(response.data); // Save the original list
@@ -209,7 +209,7 @@ const Boxes = () => {
       if (addType === "kws") {
         // POST request for KWS
         response = await axios.post(
-          "http://localhost:5786/api/sandouqcha/add",
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqcha/add`,
           {
             boxFor: newBox.boxFor.trim(), // KWS ID
             boxNumber: parseInt(newBox.boxNumber.trim(), 10), // Box Number as integer
@@ -223,7 +223,7 @@ const Boxes = () => {
       } else if (addType === "nonkws") {
         // POST request for Non-KWS; note that the endpoint is /addnon
         response = await axios.post(
-          "http://localhost:5786/api/sandouqcha/addnon",
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqcha/addnon`,
           {
             boxFor: newBox.boxFor.trim(), // Non-KWS ID (should start with KWSKWN)
             boxNumber: newBox.boxNumber.trim(), // Box Number as string

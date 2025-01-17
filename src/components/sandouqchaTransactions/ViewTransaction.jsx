@@ -23,7 +23,7 @@ const ViewTransaction = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `http://localhost:5786/api/sandouqchaTransaction/view/${id}`
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqchaTransaction/view/${id}`
         );
         setTransaction(response.data);
         setError(null);

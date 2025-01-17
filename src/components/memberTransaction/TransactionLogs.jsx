@@ -24,7 +24,7 @@ const TransactionLogs = () => {
 
     try {
       setIsLoading(true);
-      const response = await axios.get(`http://localhost:5786/api/transaction/getlogs/${uid}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/getlogs/${uid}`);
       setUserDetails(response.data.user); // Get user details from the response
       setLogs(response.data.transactions); // Get transaction logs
     } catch (error) {

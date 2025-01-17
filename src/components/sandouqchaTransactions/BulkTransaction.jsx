@@ -30,7 +30,7 @@ const BulkTransaction = () => {
       setLoading(true);
       // console.log("Sending request to upload file...");
       
-      const response = await axios.post("http://localhost:5786/api/sandouqchaTransaction/bulk", formData, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqchaTransaction/bulk`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

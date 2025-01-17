@@ -30,7 +30,7 @@ const EditTicket = () => {
     const fetchTicket = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:5786/api/event/ticket/${ticketNo}`, {
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/ticket/${ticketNo}`, {
           params: { event_id: eventId },
         });
         setTicket(response.data);
@@ -66,7 +66,7 @@ const EditTicket = () => {
     }
 
     try {
-      await axios.put(`http://localhost:5786/api/event/editticket/${ticketNo}`, {
+      await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/editticket/${ticketNo}`, {
         ...formData,
         event_id: eventId,
       });

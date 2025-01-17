@@ -66,7 +66,7 @@ const Search = () => {
 
     try {
       const response = await axios.get(
-        "http://localhost:5786/api/member/getmembers"
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/getmembers`
       );
 
       if (response.data && response.data.members) {

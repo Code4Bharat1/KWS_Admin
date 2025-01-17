@@ -15,7 +15,7 @@ const BoxLogs = () => {
       try {
         // Fetch logs based on the box number
         const response = await axios.get(
-          `http://localhost:5786/api/sandouqcha/getboxlogs/${number}`
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqcha/getboxlogs/${number}`
         );
         setLogs(response.data); // Assuming the response contains an array of logs
         setLoading(false);

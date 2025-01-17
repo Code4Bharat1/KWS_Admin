@@ -39,7 +39,7 @@ const EditStaff = () => {
     if (username) {
       const fetchStaff = async () => {
         try {
-          const response = await axios.get("http://localhost:5786/api/staff/getlist");
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/staff/getlist`);
           const staffData = response.data.find((staff) => staff.username === username);
           if (staffData) {
             setStaff(staffData);
@@ -69,7 +69,7 @@ const EditStaff = () => {
     try {
       const updatedStaff = { username: staff.username, roles };
       // Send PUT request to update roles
-      await axios.put(`http://localhost:5786/api/staff/edit/${staff.username}`, updatedStaff);
+      await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/staff/edit/${staff.username}`, updatedStaff);
       router.push("/assign-staff"); 
     } catch (err) {
       console.error("Error updating staff roles:", err);

@@ -24,7 +24,7 @@ const EditTransaction = () => {
   const fetchTransactionDetails = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5786/api/transaction/get/${uid}`
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/get/${uid}`
       );
       const data = response.data;
 
@@ -77,7 +77,7 @@ const EditTransaction = () => {
   
     try {
       await axios.put(
-        `http://localhost:5786/api/transaction/edit/${uid}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/edit/${uid}`,
         cleanedData
       );
       alert("Transaction updated successfully!");

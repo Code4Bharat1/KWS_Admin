@@ -39,7 +39,7 @@ const Tickets = () => {
 
     const fetchTickets = async () => {
       try {
-        const response = await axios.get(`http://localhost:5786/api/event/tickets/${id}`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/tickets/${id}`);
         // console.log("Fetched tickets:", response.data); // Log fetched tickets for debugging
         setTickets(response.data); // Set the fetched tickets to state
       } catch (err) {
@@ -67,7 +67,7 @@ const Tickets = () => {
     if (id) {
       const fetchTickets = async () => {
         try {
-          const response = await axios.get(`http://localhost:5786/api/event/tickets/${id}`);
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/tickets/${id}`);
           setTickets(response.data);
         } catch (err) {
           console.error("Error fetching tickets:", err);
@@ -113,7 +113,7 @@ const Tickets = () => {
 
     try {
       // Make the POST request to the backend with the event ID
-      const response = await axios.post(`http://localhost:5786/api/event/addticket/${id}`, newTicket);
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/addticket/${id}`, newTicket);
       setTickets((prev) => [...prev, response.data]);
       setShowAddForm(false); // Hide the form after submission
       setNewTicket({
@@ -162,7 +162,7 @@ const Tickets = () => {
 
     try {
       // Sending the DELETE request with both ticketNo and event_id
-      const response = await axios.delete(`http://localhost:5786/api/event/deleteticket/${ticketNo}`, {
+      const response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/deleteticket/${ticketNo}`, {
         data: { event_id },  // Send event_id in the request body
       });
 

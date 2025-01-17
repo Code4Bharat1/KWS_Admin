@@ -29,7 +29,7 @@ const AttendanceList = () => {
       try {
         // console.log(`Fetching data for event_id=${eventId}`);
         const response = await axios.get(
-          `http://localhost:5786/api/event/attendancelist/${eventId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/attendancelist/${eventId}`
         );
 
         // console.log("Fetched Attendance Data:", response.data);

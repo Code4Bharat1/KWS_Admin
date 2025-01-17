@@ -39,7 +39,7 @@ const EditNonKws = () => {
     const fetchNonKwsMember = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5786/api/nonkws/view/${id}`
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/nonkws/view/${id}`
         );
         setNonKwsMember(response.data);
         setFormData(response.data); // Initialize the form data from the fetched member data
@@ -77,7 +77,7 @@ const EditNonKws = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5786/api/nonkws/editnonkwsmember/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/nonkws/editnonkwsmember/${id}`,
         formDataWithCommittedBy
       );
       // console.log("Response:", response); // Log the response to see if it's successful

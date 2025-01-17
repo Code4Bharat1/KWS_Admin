@@ -14,7 +14,7 @@ const Logs = () => {
     const fetchLogs = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5786/api/sandouqchaTransaction/log/${id}` // Ensure this matches the backend route
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqchaTransaction/log/${id}` // Ensure this matches the backend route
         );
         setLogs(response.data); 
         setLoading(false);

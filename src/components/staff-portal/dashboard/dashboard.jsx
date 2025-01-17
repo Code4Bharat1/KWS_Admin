@@ -19,7 +19,7 @@ const Dashboard = () => {
 
   const fetchZoneData = async () => {
     try {
-      const response = await fetch("http://localhost:5786/api/member/getchart"); // Adjust the API endpoint URL
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/getchart`); // Adjust the API endpoint URL
       const data = await response.json();
 
       setZoneData(data);

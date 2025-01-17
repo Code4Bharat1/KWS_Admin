@@ -65,7 +65,7 @@ const Events = () => {
   const fetchEvents = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get("http://localhost:5786/api/event/get");
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/get`);
       // console.log("Fetched Events:", response.data);
       
       // Ensure response.data is an array
@@ -134,7 +134,7 @@ const Events = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5786/api/event/add",
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/add`,
         newEvent
       );
       // console.log("Added Event:", response.data);
@@ -165,7 +165,7 @@ const Events = () => {
 
     try {
       const response = await axios.delete(
-        `http://localhost:5786/api/event/delete/${eventId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/delete/${eventId}`
       );
       // console.log("Event deleted:", response.data); // Log success response
 
