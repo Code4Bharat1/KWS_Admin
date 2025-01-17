@@ -268,17 +268,26 @@ const Transactions = () => {
       transactionData.append("total", total || 0);
       transactionData.append("status", status); 
 
+
       // Append the file if one was selected
       if (transactionSlip) {
         transactionData.append("transactionSlip", transactionSlip);
       }
-
+      const committedId = localStorage.getItem("userId");
+      if (committedId) {
+        transactionData.append("committedId", committedId);
+      } else {
+        console.error("User is not authenticated, no committedId found.");
+        alert("You must be logged in to submit a transaction.");
+        return;
+      }
+  
       // Log for debugging
       // console.log("Form data being sent:");
       for (let pair of transactionData.entries()) {
         // console.log(pair[0], pair[1]);
       }
-
+     
       await axios.post(
         "http://localhost:5786/api/sandouqchaTransaction/add",
         transactionData,
@@ -306,6 +315,7 @@ const Transactions = () => {
         coins5: 0,
         total: 0,
         transactionSlip: null,
+        committedId: committedId,
       });
       setIsFormVisible(false);
       alert("New transaction added successfully!");
@@ -433,7 +443,7 @@ const Transactions = () => {
         handleDelete(id);
         break;
       case "Logs":
-        router.push(`/sandouqcha/transactions/logs/${id}`);
+        router.push(`/sandouqcha/transactions/logs?id=${id}`);
         break;
       case "Download Report":
         handleDownloadReport(id);

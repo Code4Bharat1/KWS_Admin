@@ -158,6 +158,8 @@ const EditTransaction = () => {
   // Handle form submission with FormData (to include file, if updated)
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const committedId = localStorage.getItem("userId");
     try {
       const formData = new FormData();
       formData.append("id", id);
@@ -178,6 +180,7 @@ const EditTransaction = () => {
       formData.append("coin_5", transaction.coins.coin_5);
       formData.append("total", transaction.total);
       formData.append("status", transaction.status);
+      formData.append("committedId", committedId);
 
       // Append the file if a new slip is provided
       if (transaction.transactionSlip) {
