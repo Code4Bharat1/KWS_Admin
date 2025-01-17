@@ -78,7 +78,8 @@ const Profile = () => {
           />
         </div>
         <div className="p-6 bg-gray-100 text-center">
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-2xl font-bold text-green-600 ">KWS ID</h1>
+          <h1 className="mt-8 text-3xl font-bold text-gray-800">
             {core_kwsmember?.firstName || "N/A"} {core_kwsmember?.middleName || ""} {core_kwsmember?.lastName || ""}
           </h1>
           <p className="text-black text-xl font-semibold mt-4">{core_kwsmember?.typeOfMember || "Member"}</p>

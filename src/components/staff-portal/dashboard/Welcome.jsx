@@ -23,7 +23,7 @@ const Welcome = () => {
           alt="KWS Portal Logo"
           className="mx-auto mb-8 w-24" // Adjust width as needed
         />
-        <h1 className="text-5xl font-extrabold text-gray-800 mb-4">Welcome to KWS Portal</h1>
+        <h1 className="text-3xl md:text-5xl font-extrabold text-gray-800 mb-4">Welcome to KWS Portal</h1>
         <p className="text-lg text-gray-600">We are glad to have you here. Explore and manage your tasks easily!</p>
       </div>
     </div>
