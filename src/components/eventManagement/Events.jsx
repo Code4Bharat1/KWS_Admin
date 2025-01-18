@@ -51,15 +51,8 @@ const Events = () => {
     }
   }, []);
 
-  // Determine if the user has any specific zone roles
-  const hasAnyZone = staffRoles
-    ? Object.keys(staffRoles).some(
-        (role) => role !== "All" && staffRoles[role] === true
-      )
-    : false;
-
-  // Determine if Options and Add button should be shown
-  const shouldShowOptions = !hasAnyZone;
+  // Show options and add button only if "All" role is true
+  const shouldShowOptions = staffRoles?.All === true;
 
   // Fetch events from the backend
   const fetchEvents = async () => {
@@ -214,7 +207,7 @@ const Events = () => {
           </label>
           <input
             id="eventName"
-            name="name" // Added name attribute
+            name="name"
             type="text"
             placeholder="Event Name"
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
@@ -229,7 +222,7 @@ const Events = () => {
           </label>
           <input
             id="startTime"
-            name="start_date" // Added name attribute
+            name="start_date"
             type="datetime-local"
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
             value={searchQuery.start_date}
@@ -243,7 +236,7 @@ const Events = () => {
           </label>
           <input
             id="endTime"
-            name="end_date" // Added name attribute
+            name="end_date"
             type="datetime-local"
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
             value={searchQuery.end_date}
@@ -290,7 +283,7 @@ const Events = () => {
               </label>
               <input
                 id="newEventName"
-                name="name" // Optional: Add name for consistency
+                name="name"
                 type="text"
                 placeholder="Event Name"
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
@@ -304,7 +297,7 @@ const Events = () => {
               </label>
               <input
                 id="newStartTime"
-                name="start_date" // Optional: Add name for consistency
+                name="start_date"
                 type="datetime-local"
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                 value={newEvent.start_date}
@@ -317,7 +310,7 @@ const Events = () => {
               </label>
               <input
                 id="newEndTime"
-                name="end_date" // Optional: Add name for consistency
+                name="end_date"
                 type="datetime-local"
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                 value={newEvent.end_date}
@@ -411,11 +404,8 @@ const Events = () => {
                             >
                               Attendance List
                             </button>
-                            <button className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100">
-                              Statistics
-                            </button>
                             {/* <button className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100">
-                              Logs
+                              Statistics
                             </button> */}
                             <button
                               className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600"
