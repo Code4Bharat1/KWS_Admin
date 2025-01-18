@@ -1284,9 +1284,9 @@ const handleRemoveImage = (indexToRemove) => {
       </label>
       <input
         type="text"
-        name="form_recieved_by"
-        id="form_recieved_by"
-        value={formData.form_recieved_by || ""}
+        name="form_received_by"
+        id="form_received_by"
+        value={formData.form_received_by || ""}
         onChange={handleChange}
         className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
       />
