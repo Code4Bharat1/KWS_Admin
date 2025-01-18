@@ -134,13 +134,19 @@ const Login = () => {
           </form>
 
           <div className="mt-4 text-center">
-            <p className="text-gray-600">
-              Don&apos;t have an account?{" "}
-              <a href="/register" className="text-blue-500 font-semibold hover:underline">
-                Register
-              </a>
-            </p>
-          </div>
+  <p className="text-gray-600">
+    Don&apos;t have an account?{" "}
+    <a href="/register" className="text-blue-500 font-semibold hover:underline">
+      Register
+    </a>
+  </p>
+  <p className="text-gray-600 mt-2">
+    <a href="/forgot-password" className="text-blue-500 font-semibold hover:underline">
+      Forgot Password?
+    </a>
+  </p>
+</div>
+          
         </div>
       </div>
     </div>

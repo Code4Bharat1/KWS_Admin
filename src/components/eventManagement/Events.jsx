@@ -414,9 +414,9 @@ const Events = () => {
                             <button className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100">
                               Statistics
                             </button>
-                            <button className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100">
+                            {/* <button className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100">
                               Logs
-                            </button>
+                            </button> */}
                             <button
                               className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600"
                               onClick={() => handleDelete(event.id)}

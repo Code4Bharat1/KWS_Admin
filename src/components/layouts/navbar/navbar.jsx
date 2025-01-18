@@ -148,15 +148,15 @@ const Navbar = () => {
                         <Link href="/members/review" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Membership Review
                         </Link>
-                        <Link href="/members/info-update" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        {/* <Link href="/members/info-update" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Info Update Request
-                        </Link>
+                        </Link> */}
                         <Link href="/members/non-kws" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Non-KWS Account
                         </Link>
-                        <Link href="/members/failed-emails" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        {/* <Link href="/members/failed-emails" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Failed Emails
-                        </Link>
+                        </Link> */}
                       </>
                     )}
                   </div>
@@ -178,9 +178,9 @@ const Navbar = () => {
                 </button>
                 {activeDropdown === "sandouqcha" && (
                   <div className="absolute top-full mt-2 w-48 bg-white text-black rounded-lg shadow-lg z-20">
-                    <Link href="/sandouqcha" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                    {/* <Link href="/sandouqcha" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                       Overview
-                    </Link>
+                    </Link> */}
                     <Link href="/sandouqcha/boxes" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                       Boxes
                     </Link>
@@ -282,15 +282,15 @@ const Navbar = () => {
                         <Link href="/members/review" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Membership Review
                         </Link>
-                        <Link href="/members/info-update" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        {/* <Link href="/members/info-update" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Info Update Request
-                        </Link>
+                        </Link> */}
                         <Link href="/members/non-kws" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Non-KWS Account
                         </Link>
-                        <Link href="/members/failed-emails" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        {/* <Link href="/members/failed-emails" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Failed Emails
-                        </Link>
+                        </Link> */}
                       </>
                     )}
                   </div>
@@ -309,9 +309,9 @@ const Navbar = () => {
                 </button>
                 {activeDropdown === "sandouqcha-mobile" && (
                   <div className="bg-white text-black p-2 rounded-lg shadow-lg">
-                    <Link href="/sandouqcha" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                    {/* <Link href="/sandouqcha" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                       Overview
-                    </Link>
+                    </Link> */}
                     <Link href="/sandouqcha/boxes" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                       Boxes
                     </Link>
