@@ -5,44 +5,42 @@ import axios from "axios";
 
 const Forgot = () => {
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // Toggle for password visibility
+  const [loading, setLoading] = useState(false);
+  const [isTokenSent, setIsTokenSent] = useState(false); // To track if the token is sent
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!username || !password || !confirmPassword) {
-      setError("Please fill in all fields");
+    if (!username) {
+      setError("Please enter your username");
       return;
     }
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
+    setLoading(true);
+    setError(""); // Clear previous errors
+    setSuccess(""); // Clear success message
 
     try {
-      setError(""); // Clear previous errors
-      setSuccess(""); // Clear success message
-
-      const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/forgot/forgotpassword/username`, {
-        username,
-        password,
-      }, { withCredentials: true }); // Ensure cookies are sent with the request
-
-      if (response.status === 200) {
-        setSuccess("Password reset successful!");
-
-        // Redirect user to login page after successful password reset
-        router.push("/");
-      }
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/forgot/forgotpassword`,
+        { username }
+      );
+      setSuccess(response.data.message);
+      setIsTokenSent(true); // Show the token input once token is sent
     } catch (err) {
-      setError(err.response?.data?.message || "Password reset failed. Please try again.");
+      setError(err.response?.data?.message || "An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleTokenSubmit = (e) => {
+    e.preventDefault();
+    // Redirect to reset password page with the token entered by the user
+    router.push(`/reset-password?token=${username}`); // Pass the token as a query parameter
   };
 
   return (
@@ -70,96 +68,73 @@ const Forgot = () => {
           </div>
 
           <h2 className="text-3xl font-montserrat font-bold text-center text-gray-800 mb-2">
-            Reset Your Password
+            Forgot Password <br />
+            <span className="font-syne text-blue-400">KWSKW Portal</span>
           </h2>
-          <p className="text-center text-black mb-4">Enter your username and new password</p>
+          <p className="text-center text-black mb-4">
+            Enter your username to reset password
+          </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username Field */}
-            <div className="form-group">
-              <label htmlFor="username" className="block text-black font-semibold">
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-
-            {/* Password Field */}
-            <div className="form-group">
-              <label htmlFor="password" className="block text-black font-semibold">
-                New Password
-              </label>
-              <div className="relative">
+          {!isTokenSent ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="form-group">
+                <label htmlFor="username" className="block text-black font-semibold">
+                  KWS ID
+                </label>
                 <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your new password"
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your username"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
-                <button
-                  type="button"
-                  className="absolute right-3 top-2.5 text-gray-500"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? "Hide" : "Show"}
-                </button>
               </div>
-            </div>
 
-            {/* Confirm Password Field */}
-            <div className="form-group">
-              <label htmlFor="confirmPassword" className="block text-black font-semibold">
-                Confirm Password
-              </label>
-              <div className="relative">
+              {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+              {success && <p className="text-green-500 text-sm mt-2">{success}</p>}
+
+              <button
+                type="submit"
+                className="w-full py-2 text-white font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                disabled={loading}
+              >
+                {loading ? "Sending..." : "Send Reset Token"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleTokenSubmit} className="space-y-4">
+              <div className="form-group">
+                <label htmlFor="token" className="block text-black font-semibold">
+                  Enter Token
+                </label>
                 <input
-                  type={showPassword ? "text" : "password"}
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm your new password"
+                  type="text"
+                  id="token"
+                  name="token"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter your reset token"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
-                <button
-                  type="button"
-                  className="absolute right-3 top-2.5 text-gray-500"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? "Hide" : "Show"}
-                </button>
               </div>
-            </div>
 
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-            {success && <p className="text-green-500 text-sm mt-2">{success}</p>}
-
-            <button
-              type="submit"
-              className="w-full py-2 text-white font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              Reset Password
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="w-full py-2 text-white font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                Go to Reset Page
+              </button>
+            </form>
+          )}
 
           <div className="mt-4 text-center">
             <p className="text-gray-600">
-              Remember your password?{" "}
               <a href="/" className="text-blue-500 font-semibold hover:underline">
-                Login
+                Back to Login
               </a>
             </p>
           </div>
