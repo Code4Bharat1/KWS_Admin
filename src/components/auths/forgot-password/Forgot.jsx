@@ -3,9 +3,10 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation"; // Next.js router for navigation
 import axios from "axios";
 
-const Login = () => {
+const Forgot = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false); // Toggle for password visibility
@@ -13,42 +14,36 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    if (!username || !password) {
-      setError("Please enter both username and password");
+
+    if (!username || !password || !confirmPassword) {
+      setError("Please fill in all fields");
       return;
     }
-  
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     try {
       setError(""); // Clear previous errors
       setSuccess(""); // Clear success message
-  
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/auth/login`, {
+
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/forgot/forgotpassword/username`, {
         username,
         password,
       }, { withCredentials: true }); // Ensure cookies are sent with the request
-  
+
       if (response.status === 200) {
-        setSuccess("Login successful!");
-  
-        // Log the entire response data to check the structure
-        // console.log("Backend Response:", response.data); // Log the response
-  
-        const { user } = response.data; // Get user data from the response
-        // console.log("User data:", user); // Check the user object structure
-  
-        // Ensure staffRoles is included in the response
-        // console.log("Staff Roles:", user.staffRoles);
-  
-        localStorage.setItem("userId", user.id); // Store user ID in localStorage
-        localStorage.setItem("staffRoles", JSON.stringify(user.staffRoles)); // Store staff roles in localStorage
-        router.push("/profile"); // Redirect to profile page
+        setSuccess("Password reset successful!");
+
+        // Redirect user to login page after successful password reset
+        router.push("/");
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed. Please try again.");
+      setError(err.response?.data?.message || "Password reset failed. Please try again.");
     }
   };
-  
 
   return (
     <div className="relative min-h-screen">
@@ -66,7 +61,7 @@ const Login = () => {
       {/* Overlay */}
       <div className="absolute inset-0 bg-black bg-opacity-5"></div>
 
-      {/* Login Form */}
+      {/* Forgot Password Form */}
       <div className="relative flex justify-center items-center min-h-screen">
         <div className="w-full max-w-sm bg-white p-4 shadow-2xl rounded-lg border border-gray-200 ">
           {/* Logo Section */}
@@ -75,15 +70,15 @@ const Login = () => {
           </div>
 
           <h2 className="text-3xl font-montserrat font-bold text-center text-gray-800 mb-2">
-            Welcome <br />
-            <span className="font-syne text-blue-400">KWSKW Portal</span>
+            Reset Your Password
           </h2>
-          <p className="text-center text-black mb-4">Login to your account</p>
+          <p className="text-center text-black mb-4">Enter your username and new password</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Username Field */}
             <div className="form-group">
               <label htmlFor="username" className="block text-black font-semibold">
-                KWS ID
+                Username
               </label>
               <input
                 type="text"
@@ -97,9 +92,10 @@ const Login = () => {
               />
             </div>
 
+            {/* Password Field */}
             <div className="form-group">
               <label htmlFor="password" className="block text-black font-semibold">
-                Password
+                New Password
               </label>
               <div className="relative">
                 <input
@@ -108,7 +104,33 @@ const Login = () => {
                   name="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  placeholder="Enter your new password"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-2.5 text-gray-500"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+            </div>
+
+            {/* Confirm Password Field */}
+            <div className="form-group">
+              <label htmlFor="confirmPassword" className="block text-black font-semibold">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm your new password"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -129,28 +151,22 @@ const Login = () => {
               type="submit"
               className="w-full py-2 text-white font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              Login
+              Reset Password
             </button>
           </form>
 
           <div className="mt-4 text-center">
-  <p className="text-gray-600">
-    Don&apos;t have an account?{" "}
-    <a href="/register" className="text-blue-500 font-semibold hover:underline">
-      Register
-    </a>
-  </p>
-  <p className="text-gray-600 mt-2">
-    <a href="/forgot-password" className="text-blue-500 font-semibold hover:underline">
-      Forgot Password?
-    </a>
-  </p>
-</div>
-          
+            <p className="text-gray-600">
+              Remember your password?{" "}
+              <a href="/" className="text-blue-500 font-semibold hover:underline">
+                Login
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Forgot;
