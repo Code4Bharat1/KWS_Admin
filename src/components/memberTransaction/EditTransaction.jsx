@@ -61,6 +61,8 @@ const EditTransaction = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const committedId = localStorage.getItem("userId");
   
     // Clean the data: If card dates are "Not Available", send null instead
     const cleanedData = {
@@ -70,6 +72,7 @@ const EditTransaction = () => {
       amountKWD: parseFloat(transactionData.amountPaid), // Ensure amount is a number
       date: transactionData.date,
       remarks: transactionData.remarks,
+      committedId,
     };
   
     // Logging cleaned data to verify before sending the request

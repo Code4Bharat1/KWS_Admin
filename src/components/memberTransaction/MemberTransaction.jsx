@@ -191,6 +191,9 @@ const MemberTransaction = () => {
   // Handle form submission
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+
+
+    const committedId = localStorage.getItem("userId");
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/addtransactions`,
@@ -202,6 +205,7 @@ const MemberTransaction = () => {
           amountKWD: newTransaction.amountPaid,
           date: newTransaction.date,
           remarks: newTransaction.remarks,
+          committedId,
         }
       );
       // console.log("Added Transaction:", response.data); // Debugging log

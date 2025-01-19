@@ -6,15 +6,14 @@ import axios from "axios";
 
 const AllLogs = () => {
   const searchParams = useSearchParams();
-  const uid = searchParams.get("uid");
+  const id = searchParams.get("uid");
 
   const [logs, setLogs] = useState([]);
-  const [userDetails, setUserDetails] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch transaction logs based on the UID
+  // Fetch logs based on the uid (or transaction id, as determined by the backend)
   const fetchAllLogs = async () => {
-    if (!uid) {
+    if (!id) {
       alert("UID is required");
       return;
     }
@@ -22,19 +21,16 @@ const AllLogs = () => {
     try {
       setIsLoading(true);
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/viewlogs/${uid}`
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/viewlogs/${id}`
       );
-
-      console.log("juned",response);
-
-      setUserDetails(response.data || {});
-      setLogs(response.data || []); // Updated to access `data` from the response
+      console.log("Response data:", response.data);
+      // Assuming response.data is an array of log objects.
+      setLogs(response.data || []);
     } catch (error) {
+      console.error("Error fetching logs:", error.response || error);
       if (error.response && error.response.status === 404) {
-        // If 404, set logs to an empty array
         setLogs([]);
       } else {
-        console.error("Error fetching logs:", error);
         alert("An error occurred while fetching logs.");
       }
     } finally {
@@ -43,11 +39,11 @@ const AllLogs = () => {
   };
 
   useEffect(() => {
-    if (uid) {
+    if (id) {
       fetchAllLogs();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uid]);
+  }, [id]);
 
   return (
     <div className="p-6">
@@ -56,17 +52,6 @@ const AllLogs = () => {
         <div className="text-center">Loading...</div>
       ) : (
         <>
-          {/* Display user details if available */}
-          {userDetails && (userDetails.first_name || userDetails.last_name) ? (
-            <h2 className="text-xl mb-4">
-              Transaction Logs for User: {userDetails.first_name}{" "}
-              {userDetails.last_name}
-            </h2>
-          ) : (
-            <h2 className="text-xl mb-4"></h2>
-          )}
-
-          {/* Table of transactions */}
           <table className="w-full border-collapse border border-gray-300 text-sm">
             <thead className="bg-gray-100">
               <tr>
@@ -90,13 +75,17 @@ const AllLogs = () => {
                     <td className="border px-4 py-2">
                       {new Date(log.date).toLocaleDateString()}
                     </td>
-                    <td className="border px-4 py-2">{log.action || "N/A"}</td>
+                    <td className="border px-4 py-2">
+                      {log.action || "N/A"}
+                    </td>
                     <td className="border px-4 py-2">
                       {log.created_date
                         ? new Date(log.created_date).toLocaleString()
                         : "N/A"}
                     </td>
-                    <td className="border px-4 py-2">{log.remarks || "N/A"}</td>
+                    <td className="border px-4 py-2">
+                      {log.remarks || "N/A"}
+                    </td>
                     <td className="border px-4 py-2">
                       {log.committed_by || "N/A"}
                     </td>
