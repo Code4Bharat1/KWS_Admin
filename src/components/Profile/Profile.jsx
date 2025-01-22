@@ -84,6 +84,8 @@ const Profile = () => {
           </h1>
           <p className="text-black text-xl font-semibold mt-4">{core_kwsmember?.typeOfMember || "Member"}</p>
           <p className="text-black text-xl font-semibold mt-4">{username || "Member"}</p>
+         <p className="text-green-600 text-xl font-semibold mt-4">Card Validity:-</p>
+          <p className="text-black text-xl font-semibold mt-4">{core_kwsmember?.cardPrinted || "NA"} - {core_kwsmember?.cardExpiry || "NA"}</p>
         </div>
         {/* QR Code Section */}
         <div className="p-6 bg-white text-center">
