@@ -148,9 +148,9 @@ const Navbar = () => {
                         <Link href="/members/review" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Membership Review
                         </Link>
-                        {/* <Link href="/members/info-update" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/info-update" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Info Update Request
-                        </Link> */}
+                        </Link>
                         <Link href="/members/non-kws" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Non-KWS Account
                         </Link>
@@ -282,9 +282,9 @@ const Navbar = () => {
                         <Link href="/members/review" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Membership Review
                         </Link>
-                        {/* <Link href="/members/info-update" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/info-update" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Info Update Request
-                        </Link> */}
+                        </Link>
                         <Link href="/members/non-kws" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
                           Non-KWS Account
                         </Link>

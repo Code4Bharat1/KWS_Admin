@@ -63,7 +63,7 @@ const Update = () => {
 
   // Get userId from localStorage (or from your authentication mechanism)
   const userId = typeof window !== "undefined" && localStorage.getItem("userId");
-
+  const [initialFormData, setInitialFormData] = useState({});
   // Fetch existing user details on mount
   useEffect(() => {
     if (!userId) {
@@ -76,8 +76,9 @@ const Update = () => {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/get/${userId}`
         );
-        // Assume response.data.data contains the user data
+        // Set the initial form data
         setFormData(response.data.data);
+        setInitialFormData(response.data.data);  // Store initial form data here
       } catch (error) {
         console.error("Error fetching data:", error);
         setErrorMessage("Failed to fetch data. Please try again later.");
@@ -103,21 +104,42 @@ const Update = () => {
     setIsUpdating(true);
     setErrorMessage("");
     setSuccessMessage("");
+  
+    // Create an object to store only changed data
+    const changedData = {};
+  
+    // Iterate over all fields in the form and compare with initial values
+    for (let key in formData) {
+      if (formData[key] !== initialFormData[key]) {
+        changedData[key] = formData[key]; // Add changed field to the object
+      }
+    }
+  
+    // If no data has changed, exit early
+    if (Object.keys(changedData).length === 0) {
+      setErrorMessage("No changes detected.");
+      setIsUpdating(false);
+      return;
+    }
+  
     try {
-      // Send updated formData to your update endpoint
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/update/${userId}`,
-        formData
+      const memberId = userId;
+      // Send the changed data to the backend to create an update request
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/update-request`, // New endpoint
+        {
+          memberId: memberId,
+          formData: changedData, // Send only the changed fields
+        }
       );
-      setSuccessMessage("Profile updated successfully!");
+      setSuccessMessage("Profile update request submitted successfully!");
     } catch (error) {
-      console.error("Error updating profile:", error);
-      setErrorMessage("Failed to update profile. Please try again later.");
+      console.error("Error submitting update request:", error);
+      setErrorMessage("Failed to submit update request. Please try again later.");
     } finally {
       setIsUpdating(false);
     }
   };
-
   // If still loading data from API...
   if (isLoading) {
     return <div className="text-center text-lg">Loading...</div>;
