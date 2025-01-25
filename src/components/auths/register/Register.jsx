@@ -10,7 +10,7 @@ const Register = () => {
     mode: "onChange",
     shouldUnregister: false,
   });
-  const { register, getValues, handleSubmit, formState, trigger } = methods;
+  const { register, getValues, handleSubmit, formState, trigger,setError ,setValue } = methods;
   const { errors, isValid } = formState;
   const [currentStep, setCurrentStep] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,6 +18,10 @@ const Register = () => {
   const [formData, setFormData] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [backendErrors, setBackendErrors] = useState([]);
+  
   const totalSteps = 4;
 
   // Watch dynamic fields.
@@ -27,13 +31,32 @@ const Register = () => {
     defaultValue: "1",
   });
 
+
+  useEffect(() => {
+    const num = parseInt(numberOfNominations, 10) || 0;
+    if (num > 0) {
+      const equalPercentage = (100 / num).toFixed(2);
+      for (let i = 1; i <= num; i++) {
+        setValue(`percentage_${i}`, equalPercentage);
+      }
+    }
+  }, [numberOfNominations, setValue]);
+
   const gender = useWatch({
     control: methods.control,
     name: "gender",
     defaultValue: "",
   });
 
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePicture(file);
+    }
+  };
+
   // Define required field names per step (asterisk fields).
+  const getStepFields = (step) => {
   const requiredFieldsByStep = {
     1: ["acceptDisclaimer"],
     2: [
@@ -54,45 +77,72 @@ const Register = () => {
       "area",
       "pin_no_india",
       "native_pin_no",
+      "district",
       "indian_contact_no_1",
       "emergency_name_kuwait",
       "emergency_contact_kuwait",
       "emergency_name_india",
       "emergency_contact_india",
     ],
-    4: ["numberOfNominations", "reviewInfo"],
+    4: ["father_name","mother_name","numberOfNominations", "reviewInfo"],
+  };
+  return requiredFieldsByStep[step];
   };
 
   // Navigation handlers.
-  const handleNext = () => {
-    if (currentStep < totalSteps) {
+  const handleNext = async () => {
+    const isStepValid = await trigger(getStepFields(currentStep));
+    if (isStepValid && currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
+      window.scrollTo(0, 0);
     }
   };
-
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
+      window.scrollTo(0, 0);
     }
   };
 
-  // Final submission callback.
   const onSubmit = (data) => {
     setFormData(data);
     setIsModalOpen(true);
   };
 
-  // When validation fails on final submission, scroll to first error field.
+  
   const onError = (errors) => {
+    // Get the first error field key
     const firstErrorKey = Object.keys(errors)[0];
+  
+    // Identify the step where the error occurs
+    const stepWithError = Object.entries(getStepFields(currentStep)).findIndex(
+      ([, fields]) => fields.includes(firstErrorKey)
+    );
+  
+    // Navigate to the step with the error
+    if (stepWithError !== -1 && stepWithError + 1 !== currentStep) {
+      setCurrentStep(stepWithError + 1);
+    }
+  
+    // Scroll to the first error field
     const errorElement = document.querySelector(`[name="${firstErrorKey}"]`);
     if (errorElement) {
       errorElement.focus();
       errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
     }
+  
+    // Open the error modal
+    setBackendErrors(
+      Object.entries(errors).map(([key, value]) => ({
+        field: key,
+        message: value?.message || "Invalid value",
+      }))
+    );
+    setErrorModalOpen(true);
   };
 
-  // Final confirmation submission handler (after reviewing in modal).
+
+
   const handleConfirmSubmit = async () => {
     setIsLoading(true);
     try {
@@ -107,7 +157,6 @@ const Register = () => {
         }
       });
 
-      // Assemble child names into an array.
       const childNames = [];
       for (let i = 1; i <= 5; i++) {
         const childName = getValues(`child_name_${i}`);
@@ -117,7 +166,6 @@ const Register = () => {
       }
       multipartFormData.append("child_names", JSON.stringify(childNames));
 
-      // Process nomination fields into an array.
       const nominations = [];
       const nNominees = parseInt(getValues("numberOfNominations"), 10) || 0;
       for (let i = 1; i <= nNominees; i++) {
@@ -135,17 +183,62 @@ const Register = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      
+
       setIsSubmitted(true);
       setTimeout(() => {
         setIsModalOpen(false);
       }, 2000);
     } catch (error) {
+      // Handle the error properly here
       console.error("Error submitting form:", error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.message || "An error occurred. Please try again.");
+      setErrorMessage(
+        error.response?.data?.message || "An error occurred. Please try again."
+      );
+  
+      // Handle specific errors for form fields
+      if (error.response && error.response.data) {
+        const { message } = error.response.data;
+  
+        if (message.includes("Civil ID")) {
+          setError("civil_id", { type: "manual", message });
+        }
+        if (message.includes("Email")) {
+          setError("email", { type: "manual", message });
+        }
+      }
+      setIsModalOpen(false);
+      setBackendErrors([{ field: "Server Error", message: errorMessage }]);
+      setErrorModalOpen(true);
+
+
     } finally {
       setIsLoading(false);
     }
   };
+
+  const getAllErrors = () => {
+    const frontendErrors = Object.keys(errors).map((key) => ({
+      field: key,
+      message: errors[key]?.message || "Invalid value",
+    }));
+  
+    const backendFormattedErrors = backendErrors.map((error) => ({
+      field: error.field || "Server Error",
+      message: error.message || error,
+    }));
+  
+    return [...frontendErrors, ...backendFormattedErrors].map((error) => ({
+      field: String(error.field),
+      message: String(error.message),
+    }));
+  };
+
+
+  const closeErrorModal = () => {
+    setErrorModalOpen(false);
+  };
+
 
   const handleCancelSubmit = () => {
     setIsModalOpen(false);
@@ -177,7 +270,7 @@ const Register = () => {
               <div
                 key={index}
                 className="flex flex-col items-center cursor-pointer"
-                onClick={() => setCurrentStep(index + 1)}
+                // onClick={() => setCurrentStep(index + 1)}
               >
                 <div
                   className={`flex items-center justify-center w-10 h-10 rounded-full ${
@@ -200,7 +293,7 @@ const Register = () => {
               <img src="/kws.png" alt="Logo" className="w-36 h-28 object-contain" />
             </div>
             <div className="w-full md:w-2/3 text-center md:text-left">
-              <h2 className="text-3xl text-blue-500 font-syne font-bold">KWSKW Register</h2>
+              <h2 className="text-2xl text-blue-500 font-syne font-bold">KWS Membership Registration</h2>
             </div>
           </div>
 
@@ -251,7 +344,13 @@ const Register = () => {
                         label: "Civil ID*",
                         name: "civil_id",
                         type: "text",
-                        validation: { required: "Civil ID is required." },
+                        validation: {
+                          required: "Civil ID is required.",
+                          pattern: {
+                            value: /^\d{12}$/, // This regular expression checks for exactly 12 digits.
+                            message: "Civil ID must be  12 digits.",
+                          },
+                        },
                       },
                       {
                         label: "First Name*",
@@ -277,6 +376,12 @@ const Register = () => {
                             message: "Invalid email format.",
                           },
                         },
+                      },
+                      {
+                        label: "Date of Birth*",
+                        name: "dob",
+                        type: "date",
+                        validation: { required: "Date of Birth is required." },
                       },
                       {
                         label: "Password*",
@@ -305,12 +410,7 @@ const Register = () => {
                             value === getValues("password") || "Passwords do not match.",
                         },
                       },
-                      {
-                        label: "Date of Birth*",
-                        name: "dob",
-                        type: "date",
-                        validation: { required: "Date of Birth is required." },
-                      },
+                    
                       {
                         label: "Blood Group*",
                         name: "blood_group",
@@ -324,6 +424,12 @@ const Register = () => {
                         type: "text",
                       },
                       { label: "Profession", name: "profession", type: "text" },
+                      {
+                        label: "Family in Kuwait",
+                        name: "family_in_kuwait",
+                        type: "select",
+                        options: ["Yes", "No"],
+                      },
                       {
                         label: "Kuwait Contact*",
                         name: "kuwait_contact",
@@ -349,12 +455,7 @@ const Register = () => {
                         type: "select",
                         options: ["Single", "Married"],
                       },
-                      {
-                        label: "Family in Kuwait",
-                        name: "family_in_kuwait",
-                        type: "select",
-                        options: ["Yes", "No"],
-                      },
+                     
                     ].map((field, index) => (
                       <div key={index}>
                         <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
@@ -392,13 +493,23 @@ const Register = () => {
                           Upload Profile Picture
                         </label>
                         <input
-                          type="file"
-                          {...register("profile_picture")}
-                          className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                        />
+                    type="file"
+                    {...register("profile_picture")}
+                    onChange={handleProfilePictureChange}
+                    className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  />
                         {errors.profile_picture && (
                           <p className="text-red-500 text-sm mt-2">{errors.profile_picture.message}</p>
                         )}
+                         {profilePicture && (
+                    <div className="mt-4">
+                      <img
+                        src={URL.createObjectURL(profilePicture)}
+                        alt="Profile Preview"
+                        className="w-20 h-20 object-cover rounded-full"
+                      />
+                    </div>
+                  )}
                       </div>
                     )}
                   </div>
@@ -528,12 +639,14 @@ const Register = () => {
                             name: "taluka",
                             type: "text",
                             required: false,
+                            
                           },
                           {
-                            label: "District",
+                            label: "District*",
                             name: "district",
-                            type: "text",
-                            required: false,
+                            type: "select",
+                            options: ["Mumbai", "Navi Mumbai","Thane","Ratnagiri","Raigad","Sindhudurg"],
+                            required: true,
                           },
                           {
                             label: "Native PIN No.*",
@@ -543,21 +656,47 @@ const Register = () => {
                           },
                         ].map((field, index) => (
                           <div key={index}>
-                            <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
-                              {field.label}
-                            </label>
-                            <input
-                              type={field.type}
-                              {...register(field.name, { required: field.required ? `${field.label} is required.` : false })}
-                              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            />
-                            {errors[field.name] && (
-                              <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+        <label
+          className="block text-sm font-medium text-gray-700"
+          htmlFor={field.name}
+        >
+          {field.label}
+        </label>
+        {field.type === "select" ? (
+          <select
+            {...register(field.name, {
+              required: field.required ? `${field.label} is required.` : true,
+            })}
+            className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            defaultValue=""
+          >
+            <option value="" disabled>
+              Select {field.label}
+            </option>
+            {field.options.map((option, idx) => (
+              <option key={idx} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            type={field.type}
+            {...register(field.name, {
+              required: field.required ? `${field.label} is required.` : false,
+            })}
+            className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+        )}
+        {errors[field.name] && (
+          <p className="text-red-500 text-sm mt-2">
+            {errors[field.name].message}
+          </p>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
 
                     {/* Contact Numbers (India) */}
                     <div>
@@ -682,8 +821,8 @@ const Register = () => {
                       <h4 className="text-lg font-bold text-gray-700">Family</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         {[
-                          { label: "Father's Name", name: "father_name", type: "text" },
-                          { label: "Mother's Name", name: "mother_name", type: "text" },
+                          { label: "Father's Name*", name: "father_name", type: "text" , required:true },
+                          { label: "Mother's Name*", name: "mother_name", type: "text", required:true  },
                           { label: "Spouse's Name", name: "spouse_name", type: "text" },
                           { label: "Name of First Child", name: "child_name_1", type: "text" },
                           { label: "Name of Second Child", name: "child_name_2", type: "text" },
@@ -692,15 +831,22 @@ const Register = () => {
                           { label: "Name of Fifth Child", name: "child_name_5", type: "text" },
                         ].map((field, index) => (
                           <div key={index}>
-                            <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
-                              {field.label}
-                            </label>
-                            <input
-                              type={field.type}
-                              {...register(field.name)}
-                              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            />
-                          </div>
+      <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
+        {field.label}
+      </label>
+      <input
+        type={field.type}
+        {...register(field.name, {
+          required: field.required ? `${field.label} is required.` : false,
+        })}
+        className={`w-full border ${
+          errors[field.name] ? "border-red-500" : "border-gray-300"
+        } rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
+      />
+      {errors[field.name] && (
+        <p className="text-red-500 text-sm mt-2">{errors[field.name]?.message}</p>
+      )}
+    </div>
                         ))}
                       </div>
                     </div>
@@ -814,7 +960,7 @@ const Register = () => {
                               {...register("reviewInfo", { required: "Please confirm your information." })}
                               className="form-checkbox h-5 w-5 text-blue-600"
                             />
-                            <span className="text-gray-700">I confirm all information provided is correct.</span>
+                            <span className="text-gray-700">I confirm that all information provided by me is correct & I will pay the membership fees given above. </span>
                           </label>
                           {errors.reviewInfo && (
                             <p className="text-red-500 text-sm mt-2">{errors.reviewInfo.message}</p>
@@ -858,6 +1004,30 @@ const Register = () => {
               </div>
             </form>
           </FormProvider>
+
+          {/* Error Modal */}
+          {errorModalOpen && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+    <div className="bg-white rounded-lg p-6 w-11/12 md:w-1/3">
+      <h3 className="text-xl font-bold mb-4">Warning</h3>
+      <ul className="list-disc pl-5 space-y-2">
+        {getAllErrors().map((error, index) => (
+          <li key={index} className="text-red-500 text-sm">
+            <strong>{error.field}:</strong> {error.message}
+          </li>
+        ))}
+      </ul>
+      <div className="flex justify-end mt-6">
+        <button
+          onClick={closeErrorModal}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
           {/* Confirmation Modal */}
           {isModalOpen && (
