@@ -31,14 +31,10 @@ const Login = () => {
       if (response.status === 200) {
         setSuccess("Login successful!");
   
-        // Log the entire response data to check the structure
-        // console.log("Backend Response:", response.data); // Log the response
+       
   
-        const { user } = response.data; // Get user data from the response
-        // console.log("User data:", user); // Check the user object structure
-  
-        // Ensure staffRoles is included in the response
-        // console.log("Staff Roles:", user.staffRoles);
+        const { user } = response.data;
+      
   
         localStorage.setItem("userId", user.id); // Store user ID in localStorage
         localStorage.setItem("staffRoles", JSON.stringify(user.staffRoles)); // Store staff roles in localStorage
@@ -76,7 +72,7 @@ const Login = () => {
 
           <h2 className="text-3xl font-montserrat font-bold text-center text-gray-800 mb-2">
             Welcome <br />
-            <span className="font-syne text-blue-400">KWSKW Portal</span>
+            <span className="font-syne text-blue-400">KWS Portal</span>
           </h2>
           <p className="text-center text-black mb-4">Login to your account</p>
 
