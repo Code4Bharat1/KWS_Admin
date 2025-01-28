@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -17,7 +17,8 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(""); // Track the currently open dropdown
-  const [staffRoles, setStaffRoles] = useState(null); // State to hold staff roles
+  const [staffRoles, setStaffRoles] = useState(null);
+  const dropdownRef = useRef(null);
 
   // Check if staff roles are available from localStorage
   useEffect(() => {
@@ -26,6 +27,24 @@ const Navbar = () => {
       setStaffRoles(JSON.parse(roles)); // Parse and set the staff roles
     }
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setActiveDropdown(""); // Close any active dropdown
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+
+
+
+
 
   // Toggle the mobile menu
   const toggleMobileMenu = () => {
@@ -79,7 +98,7 @@ const Navbar = () => {
               className="rounded-lg"
             />
             <span className="text-black text-3xl font-montserrat font-bold">
-              <span className="text-black font-syne font-bold">KWSKW</span> Staff Portal
+              <span className="text-black font-syne font-bold">KWS</span> Staff Portal
             </span>
           </Link>
 
@@ -93,7 +112,8 @@ const Navbar = () => {
           </button>
 
           {/* Desktop Menu */}
-          <div className={`hidden md:flex space-x-16 justify-center flex-1`}>
+          <div className={`hidden md:flex space-x-16 justify-center flex-1`}
+           ref={dropdownRef}>
             {/* Assign Staff (Always visible if `All` role is true) */}
             {showAllMenus && (
               <Link

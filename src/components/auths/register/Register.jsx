@@ -952,6 +952,32 @@ const Register = () => {
                           </div>
                         ))}
 
+<div className="mt-4 space-y-4">
+  <h1 className="font-semibold text-gray-800 ">Membership Type</h1>
+  {[
+    { label: "LIFE MEMBERSHIP - 150 KWD (ONE TIME PAYMENT)", value: "LIFE MEMBERSHIP - 150 KWD (ONE TIME PAYMENT)" },
+    { label: "ELITE MEMBERSHIP - 12 KWD PER YEAR", value: "ELITE MEMBERSHIP - 12 KWD PER YEAR" },
+    { label: "PRIVILEGE MEMBER - 4 KWD - 5 YEARS (1 KWD PER YEAR)", value: "PRIVILEGE MEMBER - 4 KWD - 5 YEARS (1 KWD PER YEAR)" },
+  ].map((option, index) => (
+    <div key={index} className="flex items-center">
+      <input
+        type="radio"
+        id={option.value}
+        value={option.value}
+        {...register("requested_membership", { required: "Membership type is required." })}
+        className="form-radio h-5 w-5 text-blue-600"
+      />
+      <label htmlFor={option.value} className="ml-3 text-gray-700">
+        {option.label}
+      </label>
+    </div>
+  ))}
+  {errors.requested_membership && (
+    <p className="text-red-500 text-sm mt-2">{errors.requested_membership.message}</p>
+  )}
+</div>
+
+
                         {/* Confirmation Checkbox */}
                         <div className="mt-4">
                           <label className="flex items-center space-x-2">

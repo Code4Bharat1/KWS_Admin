@@ -6,9 +6,10 @@ import {
   AiOutlinePlus,
   AiOutlineEllipsis,
 } from "react-icons/ai";
-import { FaUpload } from "react-icons/fa";
+import { FaUpload ,FaFileExcel} from "react-icons/fa";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import * as XLSX from "xlsx";
 
 const Transactions = () => {
   const [filters, setFilters] = useState({
@@ -18,6 +19,7 @@ const Transactions = () => {
     recentCount: "", // added for the dropdown filter
   });
   const [list, setList] = useState([]);
+  const [originalList, setOriginalList] = useState([]);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [newTransaction, setNewTransaction] = useState({
@@ -69,6 +71,23 @@ const Transactions = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearchChange = (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+
+    setFilters((prev) => ({
+      ...prev,
+      search: searchTerm,
+    }));
+
+    // Filter the transactions based on boxNumber or holderName
+    const filteredList = originalList.filter((item) =>
+      item.boxNumber?.toString().toLowerCase().includes(searchTerm) ||
+      item.holderName?.toLowerCase().includes(searchTerm)
+    );
+
+    setList(filteredList);
   };
   
 
@@ -170,20 +189,60 @@ const Transactions = () => {
     newTransaction.coins10,
     newTransaction.coins5,
   ]);
-
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqchaTransaction/getlist`
+        );
+        if (response.data.transactions) {
+          setOriginalList(response.data.transactions);
+          setList(response.data.transactions);
+          setTotalTransactions(response.data.transactions.length);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    fetchData();
+  }, []);
   // Handle search with filters (including recentCount)
-  const handleSearch = async () => {
+  const handleSearch = () => {
     try {
       setLoading(true);
-      const params = {};
-      if (filters.search) params.search = filters.search;
-      if (filters.fromDate) params.fromDate = filters.fromDate;
-      if (filters.toDate) params.toDate = filters.toDate;
-      if (filters.recentCount) params.recentCount = filters.recentCount;
-
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqchaTransaction/getlist`, { params });
-      setList(response.data.transactions);
-      setTotalTransactions(response.data.totalTransactions); 
+  
+      // Extract the filter parameters
+      const { search, fromDate, toDate, recentCount } = filters;
+  
+      // Start filtering from the original list
+      let filteredList = originalList;
+  
+      // Apply search filter for boxNumber or holderName
+      if (search) {
+        filteredList = filteredList.filter(
+          (item) =>
+            item.boxNumber?.toString().toLowerCase().includes(search.toLowerCase()) ||
+            item.holderName?.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+  
+      // Apply date range filters
+      if (fromDate) {
+        filteredList = filteredList.filter((item) => new Date(item.date) >= new Date(fromDate));
+      }
+      if (toDate) {
+        filteredList = filteredList.filter((item) => new Date(item.date) <= new Date(toDate));
+      }
+  
+      // Apply recent transactions filter
+      if (recentCount) {
+        filteredList = filteredList.slice(-recentCount);
+      }
+  
+      // Update the list and total transactions
+      setList(filteredList);
+      setTotalTransactions(filteredList.length);
       setError(null);
     } catch (err) {
       console.error("Error applying filters:", err);
@@ -192,6 +251,7 @@ const Transactions = () => {
       setLoading(false);
     }
   };
+  
 
   // Reset filters and fetch all transactions
   const handleRefresh = () => {
@@ -218,6 +278,46 @@ const Transactions = () => {
     setIsFormVisible(true);
   };
 
+
+  const handleExportToExcel = () => {
+    try {
+      const headers = [
+        "ID",
+        "Box Number",
+        "Zone",
+        "Transaction ID",
+        "Holder",
+        "Date",
+        "Status",
+        "Transaction Slip",
+        "Total Amount (KWD)",
+      ];
+
+      const data = list.map((transaction) => ({
+        ID: transaction.id,
+        "Box Number": transaction.boxNumber,
+        Zone: transaction.zone,
+        "Transaction ID": transaction.transactionId,
+        Holder: transaction.holderName,
+        Date: transaction.date ? new Date(transaction.date).toLocaleDateString() : "N/A",
+        Status: transaction.status,
+        "Transaction Slip": transaction.transactionSlip
+          ? `http://45.93.139.244:5786${transaction.transactionSlip}`
+          : "No Slip",
+        "Total Amount (KWD)": parseFloat(transaction.total || 0).toFixed(3),
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(data, { header: headers });
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+
+      XLSX.writeFile(workbook, `Sandouqcha_Transactions_${new Date().toISOString()}.xlsx`);
+      alert("Excel report generated successfully!");
+    } catch (error) {
+      console.error("Error generating Excel report:", error);
+      alert("Failed to generate Excel report.");
+    }
+  };
   // Handle form submission to add a new transaction (with file upload)
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -494,7 +594,7 @@ const Transactions = () => {
             type="text"
             name="search"
             value={filters.search}
-            onChange={handleFilterChange}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
             placeholder="Search by Box Number or Holder Name"
             className="border p-2 rounded w-full"
           />
@@ -536,10 +636,10 @@ const Transactions = () => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap justify-center space-x-4 mb-6">
+      <div className="flex flex-wrap justify-center space-x-4   mb-6">
   <button
     onClick={handleSearch}
-    className="flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full sm:w-auto mb-2 sm:mb-0"
+    className="flex items-center  space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full sm:w-auto mb-2 sm:mb-0"
   >
     <AiOutlineSearch size={20} /> <span>Search</span>
   </button>
@@ -549,6 +649,12 @@ const Transactions = () => {
   >
     <AiOutlinePrinter size={20} /> <span>Print</span>
   </button>
+  <button
+          onClick={handleExportToExcel}
+          className="flex items-center space-x-2 bg-green-700 text-white px-4 py-2 rounded hover:bg-green-800 w-full sm:w-auto mb-2 sm:mb-0"
+        >
+          <FaFileExcel size={20} /> <span>Export to Excel</span>
+        </button>
   <button
     onClick={handleRefresh}
     className="flex items-center space-x-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 w-full sm:w-auto mb-2 sm:mb-0"

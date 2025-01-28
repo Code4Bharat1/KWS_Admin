@@ -6,9 +6,11 @@ import {
   AiOutlineReload,
   AiOutlinePlus,
   AiOutlineEllipsis,
+  AiOutlineExport,
 } from "react-icons/ai";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import * as XLSX from "xlsx";   
 
 const MemberTransaction = () => {
   const router = useRouter();
@@ -241,6 +243,22 @@ const MemberTransaction = () => {
     setIsFormVisible(false);
   };
 
+  const handleExportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      list.map((item) => ({
+        UID: item.UID,
+        Date: item.Date,
+        Category: item.Category,
+        For: item.For,
+        AmountKWD: parseFloat(item.AmountKWD || 0).toFixed(3),
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+    XLSX.writeFile(workbook, "transactions.xlsx");
+  };
+
+
   // Handle print functionality
   const handlePrint = () => {
     const printContent = `
@@ -389,36 +407,47 @@ const MemberTransaction = () => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-center space-x-2 mb-6">
-        <button
-          onClick={handleSearch}
-          className="flex items-center space-x-2 bg-blue-500 text-white px-2 py-2 rounded hover:bg-blue-600"
-        >
-          <AiOutlineSearch size={20} /> <span></span>
-        </button>
-        <button
-          onClick={handlePrint}
-          className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          <AiOutlinePrinter size={20} /> <span>Print</span>
-        </button>
-        <button
-          onClick={handleRefresh}
-          className="flex items-center space-x-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-        >
-          <AiOutlineReload size={20} /> <span>Refresh</span>
-        </button>
+      <div className="flex flex-wrap justify-center gap-2 mb-6">
+  <button
+    onClick={handleSearch}
+    className="flex items-center justify-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full sm:w-auto"
+  >
+    <AiOutlineSearch size={20} />
+    <span>Search</span>
+  </button>
+  <button
+    onClick={handlePrint}
+    className="flex items-center justify-center space-x-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full sm:w-auto"
+  >
+    <AiOutlinePrinter size={20} />
+    <span>Print</span>
+  </button>
+  <button
+    onClick={handleExportToExcel}
+    className="flex items-center justify-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full sm:w-auto"
+  >
+    <AiOutlineExport size={20} />
+    <span>Export to excel</span>
+  </button>
+  <button
+    onClick={handleRefresh}
+    className="flex items-center justify-center space-x-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 w-full sm:w-auto"
+  >
+    <AiOutlineReload size={20} />
+    <span>Refresh</span>
+  </button>
+  {/* Conditionally render the Add button based on user roles */}
+  {hasAllRole && (
+    <button
+      onClick={() => setIsFormVisible(true)}
+      className="flex items-center justify-center space-x-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full sm:w-auto"
+    >
+      <AiOutlinePlus size={20} />
+      <span>Add</span>
+    </button>
+  )}
+</div>
 
-        {/* Conditionally render the Add button based on user roles */}
-        {hasAllRole && (
-          <button
-            onClick={() => setIsFormVisible(true)}
-            className="flex items-center space-x-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-          >
-            <AiOutlinePlus size={20} /> <span>Add</span>
-          </button>
-        )}
-      </div>
 
       {/* Add Transaction Form */}
       {isFormVisible && (

@@ -1206,43 +1206,19 @@ const handleRemoveImage = (indexToRemove) => {
 </div>
 
 
-    {/* Type of Member Dropdown */}
-    <div>
-  <label htmlFor="type_of_member" className="block text-sm font-medium text-gray-700">
-    Type of Member
+<div>
+  <label htmlFor="application_date" className="block text-sm font-medium text-gray-700">
+    Requested Membership
   </label>
-  <select
-    name="type_of_member"
-    id="type_of_member"
-    value={formData.type_of_member || ""}
-    onChange={handleChange}
-    className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-  >
-    <option value="" disabled>Select</option>
-    <option value="PRIVILEGE MEMBER">PRIVILEGE MEMBER</option>
-    <option value="ADVISOR">ADVISOR</option>
-    <option value="CC MEMBER">CC MEMBER</option>
-    <option value="DONORS">DONORS</option>
-    <option value="EC MEMBER">EC MEMBER</option>
-    <option value="ELITeE MEMBER">ELITE MEMBER</option>
-    <option value="EX OFFICIO PRESIDENT">EX OFFICIO PRESIDENT</option>
-    <option value="GENERAL SECRETARY">GENERAL SECRETARY</option>
-    <option value="JOINT GENERAL SECRETARY">JOINT GENERAL SECRETARY</option>
-    <option value="JOINT TREASURER">JOINT TREASURER</option>
-    <option value="LADIES EC MEMBER">LADIES EC MEMBER</option>
-    <option value="PATRON">PATRON</option>
-    <option value="PRESIDENT">PRESIDENT</option>
-    <option value="TREASURER">TREASURER</option>
-    <option value="VENDORS">VENDORS</option>
-    <option value="VICE PRESIDENT">VICE PRESIDENT</option>
-    <option value="VC MEMBER">VC MEMBER</option>
-    <option value="LADIES CC MEMBER">LADIES CC MEMBER</option>
-    <option value="LADIES VC MEMBER">LADIES VC MEMBER</option>
-    <option value="LADIES ELITE MEMBER">LADIES ELITE MEMBER</option>
-    <option value="LADIES PRIVILEGE MEMBER">LADIES PRIVILEGE MEMBER</option>
-  </select>
+  <p className="text-gray-900">
+    {formData.requested_membership
+      ? formData.requested_membership 
+      : "N/A"}
+  </p>
 </div>
 
+
+ 
 
     {/* Admin Charges Dropdown */}
     <div>
@@ -1261,6 +1237,49 @@ const handleRemoveImage = (indexToRemove) => {
         <option value="no">No</option>
       </select>
     </div>
+
+
+       {/* Type of Member Dropdown */}
+       <div>
+  <label htmlFor="type_of_member" className="block text-sm font-medium text-gray-700">
+    Type of Member
+  </label>
+  <select
+    name="type_of_member"
+    id="type_of_member"
+    value={formData.type_of_member || ""}
+    onChange={handleChange}
+    className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+  >
+    <option value="" disabled>Select</option>
+    <option value="PRIVILEGE MEMBER">PRIVILEGE MEMBER</option>
+    <option value="ADVISOR">ADVISOR</option>
+    <option value="CC MEMBER">CC MEMBER</option>
+    <option value="DONORS">DONORS</option>
+    <option value="LIFETIME MEMBER">LIFETIME MEMBER</option>
+    <option value="SENIOR VICE PRESIDENT">SENIOR VICE PRESIDENT</option>
+    <option value="ASSISTANT GENERAL SECRETARY"> ASSISTANT GENERAL SECRETARY </option>
+    <option value="ASSISTANT TREASURER">ASSISTANT TREASURER</option>
+    <option value="EC MEMBER">EC MEMBER</option>
+    <option value="ELITE MEMBER">ELITE MEMBER</option>
+    <option value="EX OFFICIO PRESIDENT">EX OFFICIO PRESIDENT</option>
+    <option value="GENERAL SECRETARY">GENERAL SECRETARY</option>
+    <option value="JOINT GENERAL SECRETARY">JOINT GENERAL SECRETARY</option>
+    <option value="JOINT TREASURER">JOINT TREASURER</option>
+    <option value="LADIES EC MEMBER">LADIES EC MEMBER</option>
+    <option value="PATRON">PATRON</option>
+    <option value="PRESIDENT">PRESIDENT</option>
+    <option value="TREASURER">TREASURER</option>
+    <option value="VENDORS">VENDORS</option>
+    <option value="VICE PRESIDENT">VICE PRESIDENT</option>
+    <option value="VC MEMBER">VC MEMBER</option>
+    <option value="LADIES CC MEMBER">LADIES CC MEMBER</option>
+    <option value="LADIES VC MEMBER">LADIES VC MEMBER</option>
+    <option value="LADIES ELITE MEMBER">LADIES ELITE MEMBER</option>
+    <option value="LADIES PRIVILEGE MEMBER">LADIES PRIVILEGE MEMBER</option>
+  </select>
+</div>
+
 
     {/* Amount in KWD */}
     <div>
