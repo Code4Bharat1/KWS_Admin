@@ -269,6 +269,8 @@ const Search = () => {
             { label: "Zone", key: "zone" },
             { label: "Contact", key: "contact" },
             { label: "Type of Member", key: "typeOfMember" },
+            { label: "Card Validity Date", key: "cardValidty" },
+            { label: "Status", key: "status" },
           ]}
           filename={"members.csv"}
           className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
@@ -300,6 +302,8 @@ const Search = () => {
                   <th className="border px-4 py-2">Zone</th>
                   <th className="border px-4 py-2">Contact</th>
                   <th className="border px-4 py-2">Type of Member</th>
+                  <th className="border px-4 py-2">Card Validity Date</th>
+                  <th className="border px-4 py-2">Status</th>
                   <th className="border px-4 py-2">Options</th>
                 </tr>
               </thead>
@@ -316,6 +320,8 @@ const Search = () => {
                       <td className="border px-4 py-2">{item.zone}</td>
                       <td className="border px-4 py-2">{item.contact}</td>
                       <td className="border px-4 py-2">{item.typeOfMember}</td>
+                      <td className="border px-4 py-2">{item.cardValidty}</td>
+                      <td className="border px-4 py-2">{item.status}</td>
                       <td className="border px-4 py-2 relative">
                         <button
                           onClick={() => toggleDropdown(index)}

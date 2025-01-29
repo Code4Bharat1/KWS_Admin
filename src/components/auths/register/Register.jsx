@@ -4,13 +4,13 @@ import React, { useState, useEffect } from "react";
 import { useForm, FormProvider, useWatch } from "react-hook-form";
 import axios from "axios";
 
+
 const Register = () => {
-  // Use onChange validation and persist registration of fields from non-visible steps.
   const methods = useForm({
     mode: "onChange",
     shouldUnregister: false,
   });
-  const { register, getValues, handleSubmit, formState, trigger,setError ,setValue } = methods;
+  const { register, getValues, handleSubmit, formState,clearErrors, trigger,setError ,setValue ,watch} = methods;
   const { errors, isValid } = formState;
   const [currentStep, setCurrentStep] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,6 +47,75 @@ const Register = () => {
     name: "gender",
     defaultValue: "",
   });
+
+  const civilId = watch("civil_id");
+  const email = watch("email");
+  let civilIdCancelToken;
+  let emailCancelToken;
+
+  useEffect(() => {
+    if (civilId && civilId.length === 12) {
+      if (civilIdCancelToken) {
+        civilIdCancelToken.cancel("Operation canceled due to new request.");
+      }
+      civilIdCancelToken = axios.CancelToken.source();
+
+      const checkCivilId = async () => {
+        try {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/auth/civilid`, {
+            params: { civil_id: civilId },
+            cancelToken: civilIdCancelToken.token,
+          });
+
+          if (response.data.exists) {
+            setError("civil_id", { type: "manual", message: "Civil ID already exists." });
+          } else {
+            clearErrors("civil_id"); // Clear error when valid
+          }
+        } catch (error) {
+          if (!axios.isCancel(error)) {
+            console.error("Error checking Civil ID:", error);
+          }
+        }
+      };
+
+      const delayDebounceFn = setTimeout(checkCivilId, 500); // Debounce request
+      return () => clearTimeout(delayDebounceFn);
+    }
+  }, [civilId, setError, clearErrors]);
+
+  // Check Email existence
+  useEffect(() => {
+    if (email && email.includes("@")) {
+      if (emailCancelToken) {
+        emailCancelToken.cancel("Operation canceled due to new request.");
+      }
+      emailCancelToken = axios.CancelToken.source();
+
+      const checkEmail = async () => {
+        try {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/auth/email`, {
+            params: { email },
+            cancelToken: emailCancelToken.token,
+          });
+
+          if (response.data.exists) {
+            setError("email", { type: "manual", message: "Email already exists." });
+          } else {
+            clearErrors("email"); // Clear error when valid
+          }
+        } catch (error) {
+          if (!axios.isCancel(error)) {
+            console.error("Error checking email:", error);
+          }
+        }
+      };
+
+      const delayDebounceFn = setTimeout(checkEmail, 500); // Debounce request
+      return () => clearTimeout(delayDebounceFn);
+    }
+  }, [email, setError, clearErrors]);
+
 
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
@@ -343,7 +412,7 @@ const Register = () => {
                       {
                         label: "Civil ID*",
                         name: "civil_id",
-                        type: "text",
+                        type: "number",
                         validation: {
                           required: "Civil ID is required.",
                           pattern: {
@@ -433,13 +502,13 @@ const Register = () => {
                       {
                         label: "Kuwait Contact*",
                         name: "kuwait_contact",
-                        type: "tel",
+                        type: "number",
                         validation: { required: "Kuwait Contact is required." },
                       },
                       {
                         label: "Kuwait WhatsApp*",
                         name: "kuwait_whatsapp",
-                        type: "tel",
+                        type: "number",
                         validation: { required: "Kuwait WhatsApp is required." },
                       },
                       {
@@ -594,7 +663,7 @@ const Register = () => {
                           {
                             label: "PIN No.*",
                             name: "pin_no_india",
-                            type: "text",
+                            type: "number",
                             required: true,
                           },
                         ].map((field, index) => (
@@ -651,7 +720,7 @@ const Register = () => {
                           {
                             label: "Native PIN No.*",
                             name: "native_pin_no",
-                            type: "text",
+                            type: "number",
                             required: true,
                           },
                         ].map((field, index) => (
@@ -706,19 +775,19 @@ const Register = () => {
                           {
                             label: "Indian Contact No 1*",
                             name: "indian_contact_no_1",
-                            type: "tel",
+                            type: "number",
                             required: true,
                           },
                           {
                             label: "Indian Contact No 2",
                             name: "indian_contact_no_2",
-                            type: "tel",
+                            type: "number",
                             required: false,
                           },
                           {
                             label: "Indian Contact No 3",
                             name: "indian_contact_no_3",
-                            type: "tel",
+                            type: "number",
                             required: false,
                           },
                         ].map((field, index) => (
@@ -753,7 +822,7 @@ const Register = () => {
                           {
                             label: "Emergency Contact (Kuwait)*",
                             name: "emergency_contact_kuwait",
-                            type: "tel",
+                            type: "number",
                             required: true,
                           },
                         ].map((field, index) => (
@@ -787,7 +856,7 @@ const Register = () => {
                           {
                             label: "Emergency Contact (India)*",
                             name: "emergency_contact_india",
-                            type: "tel",
+                            type: "number",
                             required: true,
                           },
                         ].map((field, index) => (
