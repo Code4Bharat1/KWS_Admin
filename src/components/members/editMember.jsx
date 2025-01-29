@@ -194,7 +194,7 @@ const EditMember = () => {
                   value={formData.civil_id || ""}
                   onChange={handleChange}
                   className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  required
+                  // required
                 />
               </div>
 
@@ -210,7 +210,7 @@ const EditMember = () => {
                   value={formData.first_name || ""}
                   onChange={handleChange}
                   className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  required
+                  // required
                 />
               </div>
 
@@ -241,7 +241,7 @@ const EditMember = () => {
                   value={formData.last_name || ""}
                   onChange={handleChange}
                   className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  required
+                  // required
                 />
               </div>
 
@@ -257,7 +257,7 @@ const EditMember = () => {
                   value={formData.email || ""}
                   onChange={handleChange}
                   className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  required
+                  // required
                 />
               </div>
 
@@ -1233,7 +1233,7 @@ const EditMember = () => {
                     value={formData.type_of_member || ""}
                     onChange={handleChange}
                     className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    required
+                    // required
                   >
                     <option value="" disabled>
                       Select
@@ -1469,6 +1469,30 @@ const EditMember = () => {
               </div>
             </div>
             </div>
+            <div className="mt-6">
+  <h2 className="text-2xl font-semibold mb-4">Membership Status</h2>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label htmlFor="membership_status" className="block text-sm font-medium text-gray-700">
+        Membership Status
+      </label>
+      <select
+        name="membership_status"
+        id="membership_status"
+        value={formData.membership_status || ""}
+        onChange={handleChange}
+        className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+        // required
+      >
+        <option value="" disabled>
+          Select Status
+        </option>
+        <option value="approved">Approved</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </div>
+  </div>
+</div>
 
             {/* Error and Success Messages */}
             {errorMessage && (

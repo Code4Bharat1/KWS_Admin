@@ -269,6 +269,7 @@ const Search = () => {
             { label: "Zone", key: "zone" },
             { label: "Contact", key: "contact" },
             { label: "Type of Member", key: "typeOfMember" },
+            { label: "Card Printed Date", key: "cardPrinted" },
             { label: "Card Validity Date", key: "cardValidty" },
             { label: "Status", key: "status" },
           ]}
@@ -302,6 +303,7 @@ const Search = () => {
                   <th className="border px-4 py-2">Zone</th>
                   <th className="border px-4 py-2">Contact</th>
                   <th className="border px-4 py-2">Type of Member</th>
+                  <th className="border px-4 py-2">Card Printed Date</th>
                   <th className="border px-4 py-2">Card Validity Date</th>
                   <th className="border px-4 py-2">Status</th>
                   <th className="border px-4 py-2">Options</th>
@@ -320,6 +322,7 @@ const Search = () => {
                       <td className="border px-4 py-2">{item.zone}</td>
                       <td className="border px-4 py-2">{item.contact}</td>
                       <td className="border px-4 py-2">{item.typeOfMember}</td>
+                      <td className="border px-4 py-2">{item.cardPrinted}</td>
                       <td className="border px-4 py-2">{item.cardValidty}</td>
                       <td className="border px-4 py-2">{item.status}</td>
                       <td className="border px-4 py-2 relative">
