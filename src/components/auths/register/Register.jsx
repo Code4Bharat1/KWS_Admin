@@ -42,6 +42,23 @@ const Register = () => {
     }
   }, [numberOfNominations, setValue]);
 
+
+  const taluka2 = watch("taluka2");
+  const district2 = watch("district2");
+  const village2 = watch("village2");
+  const area2 = watch("area2");
+
+  useEffect(() => {
+    if (taluka2 || district2 || village2 || area2) {
+      const formattedAddress = `${village2 ? village2 + ", " : ""}${area2 ? area2 + ", " : ""}${taluka2}, ${district2}`;
+      setValue("residence_complete_address", formattedAddress);
+    }
+  }, [taluka2, district2, village2, area2, setValue]);
+
+
+
+
+
   const gender = useWatch({
     control: methods.control,
     name: "gender",
@@ -652,46 +669,77 @@ const Register = () => {
                     {/* Address (India) */}
                     <div>
                       <h4 className="text-lg font-bold text-gray-700">Address (India)</h4>
-                      <div className="grid grid-cols-1 gap-4 mt-4">
-                        {[
-                          {
-                            label: "Complete Indian Address",
-                            name: "residence_complete_address",
-                            type: "textarea",
-                            required: false,
-                          },
-                          {
-                            label: "PIN No.*",
-                            name: "pin_no_india",
-                            type: "number",
-                            required: true,
-                          },
-                        ].map((field, index) => (
-                          <div key={index}>
-                            <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
-                              {field.label}
-                            </label>
-                            {field.type === "textarea" ? (
-                              <textarea
-                                {...register(field.name, { required: field.required ? `${field.label} is required.` : false })}
-                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                rows="4"
-                              ></textarea>
-                            ) : (
-                              <input
-                                type={field.type}
-                                {...register(field.name, { required: field.required ? `${field.label} is required.` : false })}
-                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                              />
-                            )}
-                            {errors[field.name] && (
-                              <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
-                            )}
-                          </div>
-                        ))}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        {/* Taluka */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700" htmlFor="taluka2">
+                            Taluka*
+                          </label>
+                          <input
+                            type="text"
+                            {...register("taluka2", { required: "Taluka is required." })}
+                            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          />
+                          {errors.taluka2 && <p className="text-red-500 text-sm mt-2">{errors.taluka2.message}</p>}
+                        </div>
+
+                        {/* District */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700" htmlFor="district2">
+                            District*
+                          </label>
+                          <select
+  {...register("district2", { required: "District is required." })}
+  className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+>
+  <option value="">Select District</option>
+  {["Mumbai", "Navi Mumbai", "Thane", "Ratnagiri", "Raigad", "Sindhudurg"].map((district, idx) => (
+    <option key={`district2-${idx}`} value={district}>
+      {district}
+    </option>
+  ))}
+</select>
+                          {errors.district2 && <p className="text-red-500 text-sm mt-2">{errors.district2.message}</p>}
+                        </div>
+
+                        {/* Village */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700" htmlFor="village2">
+                            Village
+                          </label>
+                          <input
+                            type="text"
+                            {...register("village2")}
+                            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          />
+                        </div>
+
+                        {/* Area */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700" htmlFor="area2">
+                            Area
+                          </label>
+                          <input
+                            type="text"
+                            {...register("area2")}
+                            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          />
+                        </div>
+
+                        {/* PIN Code */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700" htmlFor="pin_no_india">
+                            PIN No.*
+                          </label>
+                          <input
+                            type="number"
+                            {...register("pin_no_india", { required: "PIN Code is required." })}
+                            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          />
+                          {errors.pin_no_india && <p className="text-red-500 text-sm mt-2">{errors.pin_no_india.message}</p>}
+                        </div>
                       </div>
                     </div>
-
                     {/* Address (Permanent Native) */}
                     <div>
                       <h4 className="text-lg font-bold text-gray-700">Address (Permanent Native)</h4>

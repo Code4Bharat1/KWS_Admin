@@ -591,7 +591,7 @@ const handleRemoveImage = (indexToRemove) => {
                     type="text"
                     name="indianAddress"
                     id="indianAddress"
-                    value={formData.indianAddress|| ""}
+                    value={formData.residence_complete_address|| ""}
                     onChange={handleChange}
                     className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />

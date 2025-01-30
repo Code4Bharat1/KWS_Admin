@@ -592,14 +592,14 @@ const EditMember = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Complete Indian Address */}
               <div>
-                <label htmlFor="indianAddress" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="residence_complete_address" className="block text-sm font-medium text-gray-700">
                   Complete Indian Address
                 </label>
                 <input
                   type="text"
-                  name="indianAddress"
-                  id="indianAddress"
-                  value={formData.indianAddress || ""}
+                  name="residence_complete_address"
+                  id="residence_complete_address"
+                  value={formData.residence_complete_address || ""}
                   onChange={handleChange}
                   className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />

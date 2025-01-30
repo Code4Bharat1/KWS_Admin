@@ -1,9 +1,9 @@
 "use client";
-import React, { useState, useEffect,useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-// Import MUI Icons
+
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import GroupIcon from "@mui/icons-material/Group";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
@@ -16,11 +16,15 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState(""); // Track the currently open dropdown
+  const [activeDropdown, setActiveDropdown] = useState(""); // For desktop
+  const [activeMobileDropdown, setActiveMobileDropdown] = useState(""); // For mobile
   const [staffRoles, setStaffRoles] = useState(null);
-  const dropdownRef = useRef(null);
+  
+  // Separate refs for desktop and mobile dropdowns
+  const desktopDropdownRef = useRef(null);
+  const mobileDropdownRef = useRef(null);
 
-  // Check if staff roles are available from localStorage
+  // Retrieve staff roles from localStorage
   useEffect(() => {
     const roles = localStorage.getItem("staffRoles");
     if (roles) {
@@ -28,10 +32,24 @@ const Navbar = () => {
     }
   }, []);
 
+  // Handle clicks outside of dropdowns to close them
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setActiveDropdown(""); // Close any active dropdown
+      // Close desktop dropdown if click is outside
+      if (
+        desktopDropdownRef.current &&
+        !desktopDropdownRef.current.contains(event.target)
+      ) {
+        setActiveDropdown("");
+      }
+
+      // Close mobile dropdown if click is outside
+      if (
+        mobileDropdownRef.current &&
+        !mobileDropdownRef.current.contains(event.target) &&
+        isMobileMenuOpen
+      ) {
+        setActiveMobileDropdown("");
       }
     };
 
@@ -39,44 +57,61 @@ const Navbar = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
-
-
-
-
-
+  }, [isMobileMenuOpen]);
 
   // Toggle the mobile menu
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
     if (isMobileMenuOpen) {
-      setActiveDropdown(""); // Close any open dropdowns when closing mobile menu
+      setActiveMobileDropdown(""); // Close any open mobile dropdowns when closing mobile menu
     }
   };
 
-  // Toggle the dropdown for menu items
-  const toggleDropdown = (dropdownName) => {
-    setActiveDropdown(activeDropdown === dropdownName ? "" : dropdownName);
-  };
-
-  // Close mobile menu and dropdowns when a link is clicked
-  const handleLinkClick = () => {
-    if (isMobileMenuOpen) {
-      setIsMobileMenuOpen(false);
-      setActiveDropdown("");
+  // Toggle the dropdown for menu items with context
+  const toggleDropdown = (dropdownName, context) => {
+    if (context === "desktop") {
+      setActiveDropdown(activeDropdown === dropdownName ? "" : dropdownName);
+    } else if (context === "mobile") {
+      setActiveMobileDropdown(
+        activeMobileDropdown === dropdownName ? "" : dropdownName
+      );
     }
   };
 
-  // Check if roles are available and conditionally render the menu
-  if (!staffRoles) return null; // Wait until staffRoles are loaded
+  // Separate link click handlers for desktop and mobile
+  const handleDesktopLinkClick = () => {
+    setActiveDropdown(""); // Close desktop dropdown
+  };
 
-  const showAllMenus = staffRoles.All === true; // Check if "All" role is true
+  const handleMobileLinkClick = () => {
+    setIsMobileMenuOpen(false);
+    setActiveMobileDropdown("");
+  };
+
+  // Close mobile menu and desktop dropdowns when resizing from mobile to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) { // Assuming 'md' breakpoint at 768px
+        setIsMobileMenuOpen(false);
+        setActiveMobileDropdown("");
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Prevent rendering until staffRoles are loaded
+  if (!staffRoles) return null;
+
+  // Determine which menus to show based on roles
+  const showAllMenus = staffRoles.All === true;
   const showRegistrarMenus = staffRoles.Registrar === true;
   const showSandouqchaMenus = staffRoles.Sandouqcha === true;
   const showAuditorMenus = staffRoles.Auditor === true;
   const showTreasurerMenus = staffRoles.Treasurer === true;
 
-  // Check if any of the zones are selected (like Fahaheel, Farwaniya, etc.)
+  // Determine if any zone-specific menus should be shown
   const showZoneMenus =
     staffRoles.Fahaheel ||
     staffRoles.Farwaniya ||
@@ -89,7 +124,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           {/* Main Logo Section */}
-          <Link href="/welcome" className="flex items-center space-x-4" onClick={handleLinkClick}>
+          <Link href="/welcome" className="flex items-center space-x-4" onClick={handleMobileLinkClick}>
             <Image
               src="/kws.png" // Replace with your logo path
               alt="KWS Logo"
@@ -112,14 +147,16 @@ const Navbar = () => {
           </button>
 
           {/* Desktop Menu */}
-          <div className={`hidden md:flex space-x-16 justify-center flex-1`}
-           ref={dropdownRef}>
+          <div
+            className={`hidden md:flex space-x-16 justify-center flex-1`}
+            ref={desktopDropdownRef}
+          >
             {/* Assign Staff (Always visible if `All` role is true) */}
             {showAllMenus && (
               <Link
                 href="/assign-staff"
                 className="flex flex-col items-center text-black text-sm font-medium hover:text-pink-400"
-                onClick={handleLinkClick}
+                onClick={handleDesktopLinkClick}
               >
                 <PersonAddIcon style={{ fontSize: 40 }} />
                 <span>Assign Staff</span>
@@ -130,7 +167,7 @@ const Navbar = () => {
             {(showAllMenus || showRegistrarMenus || showZoneMenus) && (
               <div className="relative">
                 <button
-                  onClick={() => toggleDropdown("members")}
+                  onClick={() => toggleDropdown("members", "desktop")}
                   className="flex flex-col items-center text-black text-sm font-medium cursor-pointer hover:text-pink-400"
                 >
                   <GroupIcon style={{ fontSize: 40 }} />
@@ -143,38 +180,38 @@ const Navbar = () => {
                     {/* Show submenus based on roles */}
                     {showZoneMenus ? (
                       <>
-                        <Link href="/members/overview" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/overview" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                           Overview
                         </Link>
-                        <Link href="/members/search" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/search" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                           Search
                         </Link>
-                        <Link href="/members/transactions" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/transactions" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                           Member Transactions
                         </Link>
                       </>
                     ) : (
                       <>
                         {/* Show all submenus for other roles */}
-                        <Link href="/members/overview" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/overview" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                           Overview
                         </Link>
-                        <Link href="/members/search" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/search" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                           Search
                         </Link>
-                        <Link href="/members/transactions" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/transactions" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                           Member Transactions
                         </Link>
-                        <Link href="/members/review" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/review" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                           Membership Review
                         </Link>
-                        <Link href="/members/info-update" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/info-update" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                           Info Update Request
                         </Link>
-                        <Link href="/members/non-kws" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/non-kws" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                           Non-KWS Account
                         </Link>
-                        {/* <Link href="/members/failed-emails" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        {/* <Link href="/members/failed-emails" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                           Failed Emails
                         </Link> */}
                       </>
@@ -188,7 +225,7 @@ const Navbar = () => {
             {(showAllMenus || showSandouqchaMenus || showAuditorMenus) && (
               <div className="relative">
                 <button
-                  onClick={() => toggleDropdown("sandouqcha")}
+                  onClick={() => toggleDropdown("sandouqcha", "desktop")}
                   className="flex flex-col items-center text-black text-sm font-medium cursor-pointer hover:text-pink-400"
                 >
                   <GiOpenTreasureChest size={40} />
@@ -198,13 +235,13 @@ const Navbar = () => {
                 </button>
                 {activeDropdown === "sandouqcha" && (
                   <div className="absolute top-full mt-2 w-48 bg-white text-black rounded-lg shadow-lg z-20">
-                    {/* <Link href="/sandouqcha" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                    {/* <Link href="/sandouqcha" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                       Overview
                     </Link> */}
-                    <Link href="/sandouqcha/boxes" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                    <Link href="/sandouqcha/boxes" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                       Boxes
                     </Link>
-                    <Link href="/sandouqcha/transactions" className="block px-4 py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                    <Link href="/sandouqcha/transactions" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                       Transactions
                     </Link>
                   </div>
@@ -217,7 +254,7 @@ const Navbar = () => {
               <Link
                 href="/accounting"
                 className="flex flex-col items-center text-black text-sm font-medium hover:text-pink-400"
-                onClick={handleLinkClick}
+                onClick={handleDesktopLinkClick}
               >
                 <AccountBalanceIcon style={{ fontSize: 40 }} />
                 <span>Accounting</span>
@@ -229,7 +266,7 @@ const Navbar = () => {
               <Link
                 href="/event-management"
                 className="flex flex-col items-center text-black text-sm font-medium hover:text-pink-400"
-                onClick={handleLinkClick}
+                onClick={handleDesktopLinkClick}
               >
                 <EventIcon style={{ fontSize: 40 }} />
                 <span>Event Management</span>
@@ -242,7 +279,7 @@ const Navbar = () => {
             <Link
               href="/profile"
               className="flex flex-col items-center text-black text-sm font-medium hover:text-blue-600"
-              onClick={handleLinkClick}
+              onClick={handleDesktopLinkClick}
             >
               <AccountCircleIcon style={{ fontSize: 40 }} />
               <span>Profile</span>
@@ -252,12 +289,15 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-[#DDFFBC] text-black p-4 space-y-4">
+          <div
+            className="md:hidden bg-[#DDFFBC] text-black p-4 space-y-4"
+            ref={mobileDropdownRef}
+          >
             {showAllMenus && (
               <Link
                 href="/assign-staff"
                 className="flex items-center py-2 text-sm font-medium hover:text-pink-400"
-                onClick={handleLinkClick}
+                onClick={handleMobileLinkClick}
               >
                 <PersonAddIcon className="mr-2" />
                 Assign Staff
@@ -268,47 +308,47 @@ const Navbar = () => {
             {(showAllMenus || showRegistrarMenus || showZoneMenus) && (
               <div>
                 <button
-                  onClick={() => toggleDropdown("members-mobile")}
+                  onClick={() => toggleDropdown("members-mobile", "mobile")}
                   className="w-full text-left py-2 text-sm font-medium hover:text-pink-400 flex justify-between items-center"
                 >
                   Members <ArrowDropDownIcon />
                 </button>
-                {activeDropdown === "members-mobile" && (
+                {activeMobileDropdown === "members-mobile" && (
                   <div className="bg-white text-black p-2 rounded-lg shadow-lg">
                     {showZoneMenus ? (
                       <>
-                        <Link href="/members/overview" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/overview" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                           Overview
                         </Link>
-                        <Link href="/members/search" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/search" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                           Search
                         </Link>
-                        <Link href="/members/transactions" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/transactions" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                           Member Transactions
                         </Link>
                       </>
                     ) : (
                       <>
                         {/* Show all submenus for other roles */}
-                        <Link href="/members/overview" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/overview" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                           Overview
                         </Link>
-                        <Link href="/members/search" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/search" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                           Search
                         </Link>
-                        <Link href="/members/transactions" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/transactions" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                           Member Transactions
                         </Link>
-                        <Link href="/members/review" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/review" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                           Membership Review
                         </Link>
-                        <Link href="/members/info-update" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/info-update" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                           Info Update Request
                         </Link>
-                        <Link href="/members/non-kws" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        <Link href="/members/non-kws" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                           Non-KWS Account
                         </Link>
-                        {/* <Link href="/members/failed-emails" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                        {/* <Link href="/members/failed-emails" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                           Failed Emails
                         </Link> */}
                       </>
@@ -322,20 +362,20 @@ const Navbar = () => {
             {(showAllMenus || showSandouqchaMenus || showAuditorMenus) && (
               <div>
                 <button
-                  onClick={() => toggleDropdown("sandouqcha-mobile")}
+                  onClick={() => toggleDropdown("sandouqcha-mobile", "mobile")}
                   className="w-full text-left py-2 text-sm font-medium hover:text-pink-400 flex justify-between items-center"
                 >
                   Sandouqcha <ArrowDropDownIcon />
                 </button>
-                {activeDropdown === "sandouqcha-mobile" && (
+                {activeMobileDropdown === "sandouqcha-mobile" && (
                   <div className="bg-white text-black p-2 rounded-lg shadow-lg">
-                    {/* <Link href="/sandouqcha" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                    {/* <Link href="/sandouqcha" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                       Overview
                     </Link> */}
-                    <Link href="/sandouqcha/boxes" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                    <Link href="/sandouqcha/boxes" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                       Boxes
                     </Link>
-                    <Link href="/sandouqcha/transactions" className="block py-2 hover:bg-gray-100" onClick={handleLinkClick}>
+                    <Link href="/sandouqcha/transactions" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                       Transactions
                     </Link>
                   </div>
@@ -348,7 +388,7 @@ const Navbar = () => {
               <Link
                 href="/accounting"
                 className="flex items-center py-2 text-sm font-medium hover:text-pink-400"
-                onClick={handleLinkClick}
+                onClick={handleMobileLinkClick}
               >
                 <AccountBalanceIcon className="mr-2" />
                 Accounting
@@ -360,7 +400,7 @@ const Navbar = () => {
               <Link
                 href="/event-management"
                 className="flex items-center py-2 text-sm font-medium hover:text-pink-400"
-                onClick={handleLinkClick}
+                onClick={handleMobileLinkClick}
               >
                 <EventIcon className="mr-2" />
                 Event Management
@@ -371,7 +411,7 @@ const Navbar = () => {
             <Link
               href="/profile"
               className="flex items-center py-2 text-sm font-medium hover:text-blue-600"
-              onClick={handleLinkClick}
+              onClick={handleMobileLinkClick}
             >
               <AccountCircleIcon className="mr-2" />
               Profile
