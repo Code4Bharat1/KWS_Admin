@@ -16,6 +16,41 @@ const Dashboard = () => {
 
   const [zoneData, setZoneData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [counts, setCounts] = useState({
+    transactions: 0,
+    members: 0,
+    requests: 0,
+    updates: 0,
+  });
+
+
+  const fetchDashboardCounts = async () => {
+    try {
+      const [transactionsRes, membersRes, requestsRes, updatesRes] = await Promise.all([
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/transactioncount`),
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/count`),
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/pendingcount`),
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/pendingrequest`),
+      ]);
+
+      const transactionsData = await transactionsRes.json();
+      const membersData = await membersRes.json();
+      const requestsData = await requestsRes.json();
+      const updatesData = await updatesRes.json();
+
+
+      setCounts({
+        transactions: transactionsData.count || 0,
+        members: membersData.count || 0,
+        requests: requestsData.count || 0,
+        updates: updatesData.count || 0,
+      });
+    } catch (error) {
+      console.error("Error fetching counts:", error);
+    }
+  };
+
+
 
   const fetchZoneData = async () => {
     try {
@@ -31,6 +66,7 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
+    fetchDashboardCounts();
     fetchZoneData();
   }, []);
 
@@ -71,6 +107,7 @@ const Dashboard = () => {
         >
           <FaMoneyBillTransfer size={48} />
           <h2 className="text-lg mt-4 text-center">Transactions</h2>
+          <p className="text-2xl font-bold mt-2">{counts.transactions}</p>
         </div>
 
         <div
@@ -79,6 +116,7 @@ const Dashboard = () => {
         >
           <MdOutlineStorage size={48} />
           <h2 className="text-lg mt-4 text-center">Member Database</h2>
+          <p className="text-2xl font-bold mt-2">{counts.members}</p>
         </div>
 
         <div
@@ -87,6 +125,7 @@ const Dashboard = () => {
         >
           <IoIosPeople size={48} />
           <h2 className="text-lg mt-4 text-center">Member Request</h2>
+          <p className="text-2xl  font-bold mt-2">{counts.requests}</p>
         </div>
 
         <div
@@ -95,6 +134,7 @@ const Dashboard = () => {
         >
           <GrUpdate size={48} />
           <h2 className="text-lg mt-4 text-center">Information Update</h2>
+          <p className="text-2xl font-bold mt-2">{counts.updates}</p>
         </div>
       </div>
 
@@ -109,6 +149,19 @@ const Dashboard = () => {
             <Pie data={zoneData} options={pieOptions} />
           )}
         </div>
+        {!loading && zoneData && zoneData.labels && (
+          <div className="mt-6 flex flex-wrap justify-center gap-4">
+            {zoneData.labels.map((zone, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <div
+                  className="w-5 h-5 rounded-full"
+                  style={{ backgroundColor: zoneData.datasets[0].backgroundColor[index] }}
+                ></div>
+                <span className="text-gray-800 font-medium">{zone}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

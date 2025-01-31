@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import { FaMoneyBillTransfer } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 import { AiOutlinePieChart } from "react-icons/ai";
@@ -7,9 +7,26 @@ import { BiTrendingUp } from "react-icons/bi";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 
 const Sandouqchaglance = () => {
+  const [boxData, setBoxData] = useState({ in_use: 0, total: 0, usage_percentage: 0 });
+
   const router = useRouter();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [selectedYear, setSelectedYear] = useState("2024");
+
+
+  useEffect(() => {
+    const fetchBoxData = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/sandouqcha/inusecount`);
+        const data = await response.json();
+        setBoxData(data);
+      } catch (error) {
+        console.error("Error fetching box data:", error);
+      }
+    };
+
+    fetchBoxData();
+  }, []);
 
   const toggleDropdown = (dropdownName) => {
     setActiveDropdown((prev) =>
@@ -39,7 +56,9 @@ const Sandouqchaglance = () => {
               <h2 className="text-black text-lg font-bold">All Sandouqcha Boxes in Use</h2>
             </div>
             <div className="flex items-center space-x-2">
-              <span className="text-black text-2xl font-bold">80 / 100</span>
+            <span className="text-black text-2xl font-bold">
+            {boxData.in_use} / {boxData.total}
+          </span>
               {activeDropdown === "allBoxes" ? (
                 <IoIosArrowUp size={24} color="black" />
               ) : (
@@ -49,13 +68,13 @@ const Sandouqchaglance = () => {
           </div>
           {activeDropdown === "allBoxes" && (
             <div className="mt-4 text-center">
-              <p className="text-black text-lg">80% Usage</p>
+              <p className="text-black text-lg">{boxData.usage_percentage}% Usage</p>
             </div>
           )}
         </div>
 
         {/* Boxes in Circulation Zone */}
-        <div
+        {/* <div
           className="border-2 border-black text-white p-6 shadow-md w-full max-w-2xl cursor-pointer hover:scale-105"
           onClick={() => toggleDropdown("circulationZone")}
         >
@@ -92,10 +111,10 @@ const Sandouqchaglance = () => {
               </table>
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Collected This Month */}
-        <div
+        {/* <div
           className="border-2 border-black text-white p-6 shadow-md w-full max-w-2xl cursor-pointer hover:scale-105"
           onClick={() => toggleDropdown("collectedMonth")}
         >
@@ -115,10 +134,10 @@ const Sandouqchaglance = () => {
               <p>Detailed collection statistics can go here.</p>
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Yearly Collection Details */}
-        <div
+        {/* <div
           className="border-2 border-black text-white p-6 shadow-md w-full max-w-4xl cursor-pointer hover:scale-105"
           onClick={() => toggleDropdown("yearlyCollection")}
         >
@@ -190,7 +209,7 @@ const Sandouqchaglance = () => {
               </div>
             </div>
           )}
-        </div>
+        </div> */}
       </div>
     </div>
   );

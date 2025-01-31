@@ -235,9 +235,9 @@ const Navbar = () => {
                 </button>
                 {activeDropdown === "sandouqcha" && (
                   <div className="absolute top-full mt-2 w-48 bg-white text-black rounded-lg shadow-lg z-20">
-                    {/* <Link href="/sandouqcha" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
+                    <Link href="/sandouqcha" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                       Overview
-                    </Link> */}
+                    </Link>
                     <Link href="/sandouqcha/boxes" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                       Boxes
                     </Link>
@@ -369,9 +369,9 @@ const Navbar = () => {
                 </button>
                 {activeMobileDropdown === "sandouqcha-mobile" && (
                   <div className="bg-white text-black p-2 rounded-lg shadow-lg">
-                    {/* <Link href="/sandouqcha" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
+                    <Link href="/sandouqcha" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                       Overview
-                    </Link> */}
+                    </Link>
                     <Link href="/sandouqcha/boxes" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                       Boxes
                     </Link>
