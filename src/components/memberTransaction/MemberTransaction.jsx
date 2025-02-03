@@ -483,8 +483,8 @@ const MemberTransaction = () => {
                 <option value="ELITE RENEWAL">ELITE RENEWAL</option>
                 <option value="MBS1">MBS1</option>
                 <option value="MBS2">MBS2</option>
-                <option value="MBS2">MBS3</option>
-                <option value="MBS2">MBS4</option>
+                <option value="MBS3">MBS3</option>
+                <option value="MBS4">MBS4</option>
               </select>
             </div>
             <div>
