@@ -1244,6 +1244,9 @@ const EditMember = () => {
                     <option value="DONORS">DONORS</option>
                     <option value="EC MEMBER">EC MEMBER</option>
                     <option value="ELITE MEMBER">ELITE MEMBER</option>
+                    <option value="SENIOR VICE PRESIDENT">SENIOR VICE PRESIDENT</option>
+    <option value="ASSISTANT GENERAL SECRETARY"> ASSISTANT GENERAL SECRETARY </option>
+    <option value="ASSISTANT TREASURER">ASSISTANT TREASURER</option>
                     <option value="EX OFFICIO PRESIDENT">EX OFFICIO PRESIDENT</option>
                     <option value="GENERAL SECRETARY">GENERAL SECRETARY</option>
                     <option value="JOINT GENERAL SECRETARY">JOINT GENERAL SECRETARY</option>
@@ -1465,6 +1468,20 @@ const EditMember = () => {
                     rows="3"
                     placeholder="Enter comments"
                   ></textarea>
+                </div>
+
+
+                <div>
+                  <label htmlFor="kwsid" className="block text-sm font-medium text-gray-700">
+KWS ID                  </label>
+                  <input
+                    type="text"
+                    name="kwsid"
+                    id="kwsid"
+                    value={formData.kwsid || ""}
+                    onChange={handleChange}
+                    className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  />
                 </div>
               </div>
             </div>
