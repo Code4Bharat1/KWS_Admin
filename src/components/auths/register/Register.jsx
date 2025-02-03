@@ -42,18 +42,18 @@ const Register = () => {
     }
   }, [numberOfNominations, setValue]);
 
-
+  const generaladdress = watch("generaladdress");
   const taluka2 = watch("taluka2");
-  const district2 = watch("district2");
+  const city = watch("city");
   const village2 = watch("village2");
   const area2 = watch("area2");
 
   useEffect(() => {
-    if (taluka2 || district2 || village2 || area2) {
-      const formattedAddress = `${village2 ? village2 + ", " : ""}${area2 ? area2 + ", " : ""}${taluka2}, ${district2}`;
+    if (generaladdress || taluka2 || city || village2 || area2) {
+      const formattedAddress = `${generaladdress ? generaladdress + ", " : ""}${village2 ? village2 + ", " : ""}${area2 ? area2 + ", " : ""}${taluka2}, ${city}`;
       setValue("residence_complete_address", formattedAddress);
     }
-  }, [taluka2, district2, village2, area2, setValue]);
+  }, [generaladdress,taluka2, city, village2, area2, setValue]);
 
 
 
@@ -164,6 +164,10 @@ const Register = () => {
       "pin_no_india",
       "native_pin_no",
       "district",
+      "generaladdress",
+      "district2",
+      "taluka2",
+      "general_address",
       "indian_contact_no_1",
       "emergency_name_kuwait",
       "emergency_contact_kuwait",
@@ -519,15 +523,52 @@ const Register = () => {
                       {
                         label: "Kuwait Contact*",
                         name: "kuwait_contact",
-                        type: "number",
-                        validation: { required: "Kuwait Contact is required." },
+                        type: "tel",  // Ensures mobile devices display a numeric keypad
+                        validation: {
+                          required: "Kuwait Contact is required.",
+                          pattern: {
+                            value: /^[0-9+\-()]{4,15}$/, // Allows only numbers & special characters (+, -, ())
+                            message: "Enter a valid contact number (4-15 digits, no alphabets)."
+                          }
+                        },
+                        inputMode: "numeric", // Ensures numeric keyboard on mobile devices
+                        autoComplete: "off",
+                        onKeyDown: (e) => {
+                          // Allow only numbers (0-9), "+", "-", "(", ")", Backspace, Delete, Arrow keys
+                          if (!/^[0-9+\-()]+$/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                            e.preventDefault(); // Blocks any alphabets or unwanted characters
+                          }
+                        },
+                        onInput: (e) => {
+                          e.target.value = e.target.value.replace(/[^0-9+\-()]/g, ""); // Removes unwanted characters on paste
+                        }
                       },
+
                       {
                         label: "Kuwait WhatsApp*",
                         name: "kuwait_whatsapp",
-                        type: "number",
-                        validation: { required: "Kuwait WhatsApp is required." },
+                        type: "tel",  // Ensures mobile devices display a numeric keypad
+                        validation: {
+                          required: "Kuwait WhatsApp is required.",
+                          pattern: {
+                            value: /^[0-9+\-()]{4,15}$/, // Allows only numbers & special characters (+, -, ())
+                            message: "Enter a valid contact number (4-15 digits, no alphabets)."
+                          }
+                        },
+                        inputMode: "numeric", // Ensures numeric keyboard on mobile devices
+                        autoComplete: "off",
+                        onKeyDown: (e) => {
+                          // Allow only numbers (0-9), "+", "-", "(", ")", Backspace, Delete, Arrow keys
+                          if (!/^[0-9+\-()]+$/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                            e.preventDefault(); // Blocks any alphabets or unwanted characters
+                          }
+                        },
+                        onInput: (e) => {
+                          e.target.value = e.target.value.replace(/[^0-9+\-()]/g, ""); // Removes unwanted characters on paste
+                        }
                       },
+                      
+                     
                       {
                         label: "Gender*",
                         name: "gender",
@@ -670,7 +711,21 @@ const Register = () => {
                     <div>
                       <h4 className="text-lg font-bold text-gray-700">Address (India)</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        {/* Taluka */}
+                       
+                      <div>
+                          <label className="block text-sm font-medium text-gray-700" htmlFor="generaladdress">
+                            General Address*
+                          </label>
+                          <input
+                            type="text"
+                            {...register("generaladdress", { required: "General Address is required." })}
+                            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          />
+                          {errors.generaladdress && <p className="text-red-500 text-sm mt-2">{errors.generaladdress.message}</p>}
+                        </div>
+                       
+                       
+                       {/* Taluka */}
                         <div>
                           <label className="block text-sm font-medium text-gray-700" htmlFor="taluka2">
                             Taluka*
@@ -683,7 +738,20 @@ const Register = () => {
                           {errors.taluka2 && <p className="text-red-500 text-sm mt-2">{errors.taluka2.message}</p>}
                         </div>
 
-                        {/* District */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700" htmlFor="city">
+                            City*
+                          </label>
+                          <input
+                            type="text"
+                            {...register("city", { required: "City is required." })}
+                            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                          />
+                          {errors.city && <p className="text-red-500 text-sm mt-2">{errors.city.message}</p>}
+                        </div>
+
+
+                        {/* District
                         <div>
                           <label className="block text-sm font-medium text-gray-700" htmlFor="district2">
                             District*
@@ -700,7 +768,7 @@ const Register = () => {
   ))}
 </select>
                           {errors.district2 && <p className="text-red-500 text-sm mt-2">{errors.district2.message}</p>}
-                        </div>
+                        </div> */}
 
                         {/* Village */}
                         <div>
@@ -745,6 +813,13 @@ const Register = () => {
                       <h4 className="text-lg font-bold text-gray-700">Address (Permanent Native)</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         {[
+
+{
+  label: "General Address*",
+  name: "general_address",
+  type: "text",
+  required: true,
+},
                           {
                             label: "Mohalla or Village",
                             name: "mohalla_village",
@@ -815,115 +890,228 @@ const Register = () => {
   </div>
 </div>
 
-                    {/* Contact Numbers (India) */}
-                    <div>
-                      <h4 className="text-lg font-bold text-gray-700">Contact Numbers (India)</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        {[
-                          {
-                            label: "Indian Contact No 1*",
-                            name: "indian_contact_no_1",
-                            type: "number",
-                            required: true,
-                          },
-                          {
-                            label: "Indian Contact No 2",
-                            name: "indian_contact_no_2",
-                            type: "number",
-                            required: false,
-                          },
-                          {
-                            label: "Indian Contact No 3",
-                            name: "indian_contact_no_3",
-                            type: "number",
-                            required: false,
-                          },
-                        ].map((field, index) => (
-                          <div key={index}>
-                            <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
-                              {field.label}
-                            </label>
-                            <input
-                              type={field.type}
-                              {...register(field.name, { required: field.required ? `${field.label} is required.` : false })}
-                              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            />
-                            {errors[field.name] && (
-                              <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                   {/* Contact Numbers (India) */}
+<div>
+  <h4 className="text-lg font-bold text-gray-700">Contact Numbers (India)</h4>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+    {[
+      {
+        label: "Indian Contact No 1*",
+        name: "indian_contact_no_1",
+        required: true, // Required field
+      },
+      {
+        label: "Indian Contact No 2",
+        name: "indian_contact_no_2",
+        required: false, // Optional field
+      },
+      {
+        label: "Indian Contact No 3",
+        name: "indian_contact_no_3",
+        required: false, // Optional field
+      },
+    ].map((field, index) => (
+      <div key={index}>
+        <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
+          {field.label}
+        </label>
 
-                    {/* Emergency Contacts */}
-                    <div>
-                      <h4 className="text-lg font-bold text-gray-700">Emergency Contact (Kuwait)</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        {[
-                          {
-                            label: "Emergency Name (Kuwait)*",
-                            name: "emergency_name_kuwait",
-                            type: "text",
-                            required: true,
-                          },
-                          {
-                            label: "Emergency Contact (Kuwait)*",
-                            name: "emergency_contact_kuwait",
-                            type: "number",
-                            required: true,
-                          },
-                        ].map((field, index) => (
-                          <div key={index}>
-                            <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
-                              {field.label}
-                            </label>
-                            <input
-                              type={field.type}
-                              {...register(field.name, { required: field.required ? `${field.label} is required.` : false })}
-                              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            />
-                            {errors[field.name] && (
-                              <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+        <div className="flex items-center border border-gray-300 rounded-lg p-2 focus-within:ring-2 focus-within:ring-blue-500">
+          <span className="text-gray-600 font-bold mr-2">+91</span>
+          <input
+            type="tel"
+            {...register(field.name, {
+              required: field.required ? `${field.label} is required.` : false,
+              pattern: {
+                value: /^[0-9]{10}$/, // Ensures exactly 10 digits (excluding +91)
+                message: "Must be exactly 10 digits after +91.",
+              },
+              minLength: {
+                value: 10,
+                message: "Must be exactly 10 digits after +91.",
+              },
+              maxLength: {
+                value: 10,
+                message: "Must be exactly 10 digits after +91.",
+              },
+            })}
+            inputMode="numeric"
+            className="w-full focus:outline-none"
+            onKeyDown={(e) => {
+              if (!/^[0-9]$/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                e.preventDefault();
+              }
+            }}
+            onInput={(e) => {
+              e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10); // Ensures only 10 digits
+            }}
+          />
+        </div>
 
-                    <div>
-                      <h4 className="text-lg font-bold text-gray-700">Emergency Contact (India)</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        {[
-                          {
-                            label: "Emergency Name (India)*",
-                            name: "emergency_name_india",
-                            type: "text",
-                            required: true,
-                          },
-                          {
-                            label: "Emergency Contact (India)*",
-                            name: "emergency_contact_india",
-                            type: "number",
-                            required: true,
-                          },
-                        ].map((field, index) => (
-                          <div key={index}>
-                            <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
-                              {field.label}
-                            </label>
-                            <input
-                              type={field.type}
-                              {...register(field.name, { required: field.required ? `${field.label} is required.` : false })}
-                              className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            />
-                            {errors[field.name] && (
-                              <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+        {errors[field.name] && (
+          <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
+                 
+                  {/* Emergency Contacts */}
+<div>
+  <h4 className="text-lg font-bold text-gray-700">Emergency Contact (Kuwait)</h4>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+    {[
+      {
+        label: "Emergency Name (Kuwait)*",
+        name: "emergency_name_kuwait",
+        type: "text",
+        required: true,
+        validation: {
+          required: "Emergency Name (Kuwait) is required.",
+          pattern: {
+            value: /^[A-Za-z\s]+$/, // Allows only letters and spaces
+            message: "Only alphabets are allowed.",
+          },
+        },
+        onKeyDown: (e) => {
+          if (!/^[A-Za-z\s]$/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+            e.preventDefault();
+          }
+        },
+        onInput: (e) => {
+          e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, ""); // Removes non-alphabet characters
+        }
+      },
+      {
+        label: "Emergency Contact (Kuwait)*",
+        name: "emergency_contact_kuwait",
+        type: "tel", // Ensures mobile devices display a numeric keypad
+        required: true,
+        validation: {
+          required: "Emergency Contact (Kuwait) is required.",
+          pattern: {
+            value: /^[0-9+\-() ]{8,15}$/, // Allows numbers and special characters (+, -, (), space)
+            message: "Must be a valid phone number (8-15 digits, numbers and +, -, () allowed).",
+          },
+          minLength: {
+            value: 8,
+            message: "Must be at least 8 characters.",
+          },
+          maxLength: {
+            value: 15,
+            message: "Must be at most 15 characters.",
+          },
+        },
+        inputMode: "numeric",
+        onKeyDown: (e) => {
+          if (!/^[0-9+\-() ]$/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+            e.preventDefault(); // Prevents alphabets and other special characters
+          }
+        },
+        onInput: (e) => {
+          e.target.value = e.target.value.replace(/[^0-9+\-() ]/g, "").slice(0, 15); // Ensures only allowed characters
+        }
+      },
+      
+    ].map((field, index) => (
+      <div key={index}>
+        <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
+          {field.label}
+        </label>
+        <input
+          type={field.type}
+          {...register(field.name, field.validation)}
+          inputMode={field.inputMode || "text"}
+          className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          onKeyDown={field.onKeyDown}
+          onInput={field.onInput}
+        />
+        {errors[field.name] && (
+          <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
+<div>
+  <h4 className="text-lg font-bold text-gray-700">Emergency Contact (India)</h4>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+    {[
+      {
+        label: "Emergency Name (India)*",
+        name: "emergency_name_india",
+        type: "text",
+        required: true,
+        validation: {
+          required: "Emergency Name (India) is required.",
+          pattern: {
+            value: /^[A-Za-z\s]+$/, // Allows only letters and spaces
+            message: "Only alphabets are allowed.",
+          },
+        },
+        onKeyDown: (e) => {
+          if (!/^[A-Za-z\s]$/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+            e.preventDefault();
+          }
+        },
+        onInput: (e) => {
+          e.target.value = e.target.value.replace(/[^A-Za-z\s]/g, ""); // Removes non-alphabet characters
+        }
+      },
+      {
+        label: "Emergency Contact (India)*",
+        name: "emergency_contact_india",
+        type: "tel",
+        required: true,
+        validation: {
+          required: "Emergency Contact (India) is required.",
+          pattern: {
+            value: /^[0-9+\-() ]{10,15}$/, // Allows numbers and special characters
+            message: "Must be a valid phone number (10-15 digits, numbers and +, -, () allowed).",
+          },
+          minLength: {
+            value: 10,
+            message: "Must be at least 10 characters.",
+          },
+          maxLength: {
+            value: 15,
+            message: "Must be at most 15 characters.",
+          },
+        },
+        inputMode: "numeric",
+        onKeyDown: (e) => {
+          if (!/^[0-9+\-() ]$/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+            e.preventDefault(); // Prevents alphabets and other special characters
+          }
+        },
+        onInput: (e) => {
+          e.target.value = e.target.value.replace(/[^0-9+\-() ]/g, "").slice(0, 15); // Ensures only allowed characters
+        }
+      }
+      
+    ].map((field, index) => (
+      <div key={index}>
+        <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
+          {field.label}
+        </label>
+        <input
+          type={field.type}
+          {...register(field.name, field.validation)}
+          inputMode={field.inputMode || "text"}
+          className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          onKeyDown={field.onKeyDown}
+          onInput={field.onInput}
+        />
+        {errors[field.name] && (
+          <p className="text-red-500 text-sm mt-2">{errors[field.name].message}</p>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
                   </div>
                 </div>
               )}
@@ -1048,8 +1236,31 @@ const Register = () => {
                                   type: "tel",
                                   validation: {
                                     required: `Contact is required for nominee ${idx + 1}.`,
+                                    pattern: {
+                                      value: /^[0-9+\-() ]{8,15}$/, // Allows numbers and special characters +, -, (), spaces
+                                      message: "Must be between 8 to 15 characters (numbers and +, -, () allowed).",
+                                    },
+                                    minLength: {
+                                      value: 8,
+                                      message: "Must be at least 8 characters.",
+                                    },
+                                    maxLength: {
+                                      value: 15,
+                                      message: "Must be at most 15 characters.",
+                                    },
                                   },
+                                  inputMode: "numeric", // Ensures numeric keyboard on mobile devices
+                                  onKeyDown: (e) => {
+                                    if (!/^[0-9+\-() ]$/.test(e.key) && !["Backspace", "Delete", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                                      e.preventDefault(); // Prevents alphabets and other special characters
+                                    }
+                                  },
+                                  onInput: (e) => {
+                                    e.target.value = e.target.value.replace(/[^0-9+\-() ]/g, "").slice(0, 15); // Ensures only allowed characters
+                                  }
                                 },
+                                
+                                
                               ].map((field, index) => (
                                 <div key={index}>
                                   <label className="block text-sm font-medium text-gray-700" htmlFor={field.name}>
