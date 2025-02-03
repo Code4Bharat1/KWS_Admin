@@ -426,68 +426,71 @@ const EditMember = () => {
           </div>
 
           {/* Profile Picture Section */}
-<div className="mt-6 flex flex-col items-center">
-  <label className="text-lg font-medium text-gray-800 mb-4">Profile Picture</label>
-  {profilePicturePreview ? (
-    <div className="relative group">
-      <img
-        src={profilePicturePreview}
-        alt="Profile Preview"
-        className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
-      />
-      <button
-        type="button"
-        onClick={handleRemoveProfilePicture}
-        className="absolute top-2 right-2 bg-red-600 text-white text-sm p-1 rounded-full shadow-md hover:bg-red-700 transition-all duration-200"
-      >
-        &times;
-      </button>
+          <div className="mt-6 flex flex-col items-center">
+      <label className="text-lg font-medium text-gray-800 mb-4">Profile Picture</label>
+
+      {/* Check if there's a profile picture preview */}
+      {profilePicturePreview ? (
+        <div className="relative group">
+          <img
+            src={profilePicturePreview} // Display the uploaded preview
+            alt="Profile Preview"
+            className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
+          />
+          <button
+            type="button"
+            onClick={handleRemoveProfilePicture}
+            className="absolute top-2 right-2 bg-red-600 text-white text-sm p-1 rounded-full shadow-md hover:bg-red-700 transition-all duration-200"
+          >
+            &times;
+          </button>
+        </div>
+      ) : formData.profile_picture ? ( // If no preview, check for existing profile picture
+        <div className="relative group">
+          <img
+            src={formData.profile_picture} // Display the existing profile picture
+            alt="Current Profile Picture"
+            className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
+          />
+          <button
+            type="button"
+            onClick={handleRemoveProfilePicture}
+            className="absolute top-2 right-2 bg-red-600 text-white text-sm p-1 rounded-full shadow-md hover:bg-red-700 transition-all duration-200"
+          >
+            &times;
+          </button>
+        </div>
+      ) : (
+        // If no picture is available, show the upload button
+        <label
+          htmlFor="profilePictureUpload"
+          className="mt-2 flex flex-col justify-center items-center w-48 h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 hover:border-blue-500 transition-all duration-200"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-10 w-10 text-gray-500 mb-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 16l4-4m0 0l-4-4m4 4H8m8 4v6m0-6H8"
+            />
+          </svg>
+          <span className="text-gray-500 text-sm">Upload Profile Picture</span>
+          <input
+            type="file"
+            id="profilePictureUpload"
+            accept="image/*"
+            onChange={handleProfilePictureChange} // Handle the file upload
+            className="hidden"
+          />
+        </label>
+      )}
     </div>
-  ) : formData.profile_picture ? (
-    <div className="relative group">
-      <img
-        src={formData.profile_picture}
-        alt="Current Profile Picture"
-        className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
-      />
-      <button
-        type="button"
-        onClick={handleRemoveProfilePicture}
-        className="absolute top-2 right-2 bg-red-600 text-white text-sm p-1 rounded-full shadow-md hover:bg-red-700 transition-all duration-200"
-      >
-        &times;
-      </button>
-    </div>
-  ) : (
-    <label
-      htmlFor="profilePictureUpload"
-      className="mt-2 flex flex-col justify-center items-center w-48 h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 hover:border-blue-500 transition-all duration-200"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-10 w-10 text-gray-500 mb-2"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M12 16l4-4m0 0l-4-4m4 4H8m8 4v6m0-6H8"
-        />
-      </svg>
-      <span className="text-gray-500 text-sm">Upload Profile Picture</span>
-      <input
-        type="file"
-        id="profilePictureUpload"
-        accept="image/*"
-        onChange={handleProfilePictureChange}
-        className="hidden"
-      />
-    </label>
-  )}
-</div>
 
          
           {/* Address (Kuwait) Section */}
