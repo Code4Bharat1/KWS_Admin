@@ -27,6 +27,9 @@ const EditMember = () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/get/${userId}`);
         const userData = response.data.data;
+//         console.log('profilePicturePreview:', profilePicturePreview);
+// console.log('formData.profile_picture:', userData.profile_picture);
+
   
         // Format date of birth if available
         if (userData.dob) {
@@ -445,10 +448,10 @@ const EditMember = () => {
             &times;
           </button>
         </div>
-      ) : formData.profile_picture ? ( // If no preview, check for existing profile picture
+      ) : userData.profile_picture ? ( // If no preview, check for existing profile picture
         <div className="relative group">
           <img
-            src={formData.profile_picture} // Display the existing profile picture
+            src={userData.profile_picture} // Display the existing profile picture
             alt="Current Profile Picture"
             className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
           />
