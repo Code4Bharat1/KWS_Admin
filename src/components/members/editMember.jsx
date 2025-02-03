@@ -55,7 +55,7 @@ const EditMember = () => {
     fetchMemberData();
   }, [userId]);
 
-
+  // console.log(userData.profile_picture);
   
 
 
@@ -78,21 +78,23 @@ const EditMember = () => {
 
       setFormData((prevData) => ({
         ...prevData,
-        profile_picture: file, // File to be sent to the backend
+        profile_picture: file,
       }));
 
       setProfilePicturePreview(URL.createObjectURL(file)); // Preview the image
       setErrorMessage(""); // Clear any previous error message
     }
   };
-
   // Remove profile picture
-  const handleRemoveProfilePicture = () => {
-    setFormData((prevData) => ({ ...prevData, profile_picture: null }));
-    setProfilePicturePreview(null);
-  };
+ const handleRemoveProfilePicture = () => {
+  setFormData((prevData) => ({ ...prevData, profile_picture: null }));
+  setProfilePicturePreview(null); // Remove the preview
+};
+const handleRemoveScannedForm = () => {
+  setFormData((prevData) => ({ ...prevData, form_scanned: null }));
+};
 
-  // Handle adding images (e.g., scanned forms)
+
   const handleImageChange = (e) => {
     const file = e.target.files[0]; // Only pick the first file
     const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
@@ -103,7 +105,6 @@ const EditMember = () => {
         return;
       }
 
-      // Update the form data with the file object
       setFormData((prevData) => ({
         ...prevData,
         form_scanned: file, // Save the file
@@ -112,10 +113,9 @@ const EditMember = () => {
     }
   };
 
-  // Remove scanned form
-  const handleRemoveScannedForm = () => {
-    setFormData((prevData) => ({ ...prevData, form_scanned: null }));
-  };
+
+ 
+
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -435,7 +435,7 @@ const EditMember = () => {
             </div>
           </div>
 
-         {/* Profile Picture Section */}
+       {/* Profile Picture Section */}
 <div className="mt-6 flex flex-col items-center">
   <label className="text-lg font-medium text-gray-800 mb-4">Profile Picture</label>
 
@@ -454,6 +454,21 @@ const EditMember = () => {
       >
         &times;
       </button>
+
+      {/* Profile Picture Upload Button */}
+      <label
+        htmlFor="profilePictureUpload"
+        className="mt-2 flex items-center justify-center w-48 h-12 border-2 border-blue-500 rounded-lg cursor-pointer hover:bg-blue-100 transition-all duration-200"
+      >
+        <span className="text-blue-500">Change Picture</span>
+        <input
+          type="file"
+          id="profilePictureUpload"
+          accept="image/*"
+          onChange={handleProfilePictureChange}
+          className="hidden"
+        />
+      </label>
     </div>
   ) : userData.profile_picture ? ( // If no preview, check for existing profile picture
     <div className="relative group">
@@ -470,7 +485,20 @@ const EditMember = () => {
         &times;
       </button>
       
-      
+      {/* Profile Picture Upload Button */}
+      <label
+        htmlFor="profilePictureUpload"
+        className="mt-2 flex items-center justify-center w-48 h-12 border-2 border-black rounded-lg cursor-pointer hover:bg-blue-100 transition-all duration-200"
+      >
+        <span className="text-black">Change Picture</span>
+        <input
+          type="file"
+          id="profilePictureUpload"
+          accept="image/*"
+          onChange={handleProfilePictureChange}
+          className="hidden"
+        />
+      </label>
     </div>
   ) : (
     // If no picture is available, show the upload button
@@ -503,6 +531,8 @@ const EditMember = () => {
     </label>
   )}
 </div>
+
+
 
 
          
@@ -1361,10 +1391,10 @@ const EditMember = () => {
           Remove
         </button>
       </div>
-    ) : formData.form_scanned ? (
+    ) : userData.form_scanned ? (
       <div className="relative mb-4">
         <img
-          src={formData.form_scanned}
+          src={userData.form_scanned}
           alt="Uploaded Scanned Form"
           className="w-full h-auto rounded-lg border"
         />
