@@ -9,6 +9,7 @@ const EditMember = () => {
   const searchParams = useSearchParams();
   const userId = searchParams.get("id"); // Extract the member ID from query parameters
 
+  const [userData, setUserData] = useState({});
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
@@ -26,21 +27,22 @@ const EditMember = () => {
     const fetchMemberData = async () => {
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/get/${userId}`);
-        const userData = response.data.data;
-//         console.log('profilePicturePreview:', profilePicturePreview);
-// console.log('formData.profile_picture:', userData.profile_picture);
+        const userDataFetched  = response.data.data;
+      
+  //         console.log('profilePicturePreview:', profilePicturePreview);
+  // console.log('formData.profile_picture:', userData.profile_picture);
 
   
         // Format date of birth if available
-        if (userData.dob) {
-          userData.dob = new Date(userData.dob).toISOString().split("T")[0];
+        if (userDataFetched .dob) {
+          userDataFetched .dob = new Date(userDataFetched .dob).toISOString().split("T")[0];
         }
-  
-        setFormData(userData);
+        setUserData(userDataFetched );
+        setFormData(userDataFetched );
   
         // Set profile picture preview if available
-        if (userData.profile_picture) {
-          setProfilePicturePreview(userData.profile_picture);
+        if (userDataFetched.profile_picture) {
+          setProfilePicturePreview(userDataFetched.profile_picture);
         }
       } catch (error) {
         console.error("Error fetching member data:", error);
@@ -52,6 +54,11 @@ const EditMember = () => {
   
     fetchMemberData();
   }, [userId]);
+
+
+  
+
+
   // Handle form field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -428,72 +435,75 @@ const EditMember = () => {
             </div>
           </div>
 
-          {/* Profile Picture Section */}
-          <div className="mt-6 flex flex-col items-center">
-      <label className="text-lg font-medium text-gray-800 mb-4">Profile Picture</label>
+         {/* Profile Picture Section */}
+<div className="mt-6 flex flex-col items-center">
+  <label className="text-lg font-medium text-gray-800 mb-4">Profile Picture</label>
 
-      {/* Check if there's a profile picture preview */}
-      {profilePicturePreview ? (
-        <div className="relative group">
-          <img
-            src={profilePicturePreview} // Display the uploaded preview
-            alt="Profile Preview"
-            className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
-          />
-          <button
-            type="button"
-            onClick={handleRemoveProfilePicture}
-            className="absolute top-2 right-2 bg-red-600 text-white text-sm p-1 rounded-full shadow-md hover:bg-red-700 transition-all duration-200"
-          >
-            &times;
-          </button>
-        </div>
-      ) : userData.profile_picture ? ( // If no preview, check for existing profile picture
-        <div className="relative group">
-          <img
-            src={userData.profile_picture} // Display the existing profile picture
-            alt="Current Profile Picture"
-            className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
-          />
-          <button
-            type="button"
-            onClick={handleRemoveProfilePicture}
-            className="absolute top-2 right-2 bg-red-600 text-white text-sm p-1 rounded-full shadow-md hover:bg-red-700 transition-all duration-200"
-          >
-            &times;
-          </button>
-        </div>
-      ) : (
-        // If no picture is available, show the upload button
-        <label
-          htmlFor="profilePictureUpload"
-          className="mt-2 flex flex-col justify-center items-center w-48 h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 hover:border-blue-500 transition-all duration-200"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-10 w-10 text-gray-500 mb-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 16l4-4m0 0l-4-4m4 4H8m8 4v6m0-6H8"
-            />
-          </svg>
-          <span className="text-gray-500 text-sm">Upload Profile Picture</span>
-          <input
-            type="file"
-            id="profilePictureUpload"
-            accept="image/*"
-            onChange={handleProfilePictureChange} // Handle the file upload
-            className="hidden"
-          />
-        </label>
-      )}
+  {/* Check if there's a profile picture preview */}
+  {profilePicturePreview ? (
+    <div className="relative group">
+      <img
+        src={profilePicturePreview} // Display the uploaded preview
+        alt="Profile Preview"
+        className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
+      />
+      <button
+        type="button"
+        onClick={handleRemoveProfilePicture}
+        className="absolute top-2 right-2 bg-red-600 text-white text-sm p-1 rounded-full shadow-md hover:bg-red-700 transition-all duration-200"
+      >
+        &times;
+      </button>
     </div>
+  ) : userData.profile_picture ? ( // If no preview, check for existing profile picture
+    <div className="relative group">
+      <img
+        src={userData.profile_picture} // Display the existing profile picture from userData
+        alt="Current Profile Picture"
+        className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
+      />
+      <button
+        type="button"
+        onClick={handleRemoveProfilePicture}
+        className="absolute top-2 right-2 bg-red-600 text-white text-sm p-1 rounded-full shadow-md hover:bg-red-700 transition-all duration-200"
+      >
+        &times;
+      </button>
+      
+      
+    </div>
+  ) : (
+    // If no picture is available, show the upload button
+    <label
+      htmlFor="profilePictureUpload"
+      className="mt-2 flex flex-col justify-center items-center w-48 h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 hover:border-blue-500 transition-all duration-200"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-10 w-10 text-gray-500 mb-2"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M12 16l4-4m0 0l-4-4m4 4H8m8 4v6m0-6H8"
+        />
+      </svg>
+      <span className="text-gray-500 text-sm">Upload Profile Picture</span>
+      <input
+        type="file"
+        id="profilePictureUpload"
+        accept="image/*"
+        onChange={handleProfilePictureChange} // Handle the file upload
+        className="hidden"
+      />
+    </label>
+  )}
+</div>
+
 
          
           {/* Address (Kuwait) Section */}
