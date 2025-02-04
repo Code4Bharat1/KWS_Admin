@@ -399,7 +399,7 @@ const Register = () => {
                   <div className="mb-6">
                     <div className="border border-gray-300 rounded-lg overflow-hidden h-[400px] md:h-[600px]">
                       <iframe
-                        src="/disclaimer2.pdf#toolbar=0&view=FitH"
+                        src="/disclaimerr.pdf#toolbar=0&view=FitH"
                         title="Disclaimer"
                         className="w-full h-full"
                         frameBorder="0"
