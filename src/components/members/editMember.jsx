@@ -1290,6 +1290,7 @@ const handleRemoveScannedForm = () => {
                     <option value="DONORS">DONORS</option>
                     <option value="EC MEMBER">EC MEMBER</option>
                     <option value="ELITE MEMBER">ELITE MEMBER</option>
+                    <option value="LIFETIME MEMBER">LIFETIME MEMBER</option>
                     <option value="SENIOR VICE PRESIDENT">SENIOR VICE PRESIDENT</option>
     <option value="ASSISTANT GENERAL SECRETARY"> ASSISTANT GENERAL SECRETARY </option>
     <option value="ASSISTANT TREASURER">ASSISTANT TREASURER</option>
