@@ -232,6 +232,10 @@ const Search = () => {
             <option value="donors">DONORS</option>
             <option value="ec member">EC MEMBER</option>
             <option value="elite member">ELITE MEMBER</option>
+            <option value="LIFETIME MEMBER">LIFETIME MEMBER</option>
+            <option value="SENIOR VICE PRESIDENT">SENIOR VICE PRESIDENT</option>
+    <option value="ASSISTANT GENERAL SECRETARY"> ASSISTANT GENERAL SECRETARY </option>
+    <option value="ASSISTANT TREASURER">ASSISTANT TREASURER</option>
             <option value="ex officio president">EX OFFICIO PRESIDENT</option>
             <option value="general secretary">GENERAL SECRETARY</option>
             <option value="joint general secretary">JOINT GENERAL SECRETARY</option>
