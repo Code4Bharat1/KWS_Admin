@@ -9,13 +9,20 @@ const EditMember = () => {
   const searchParams = useSearchParams();
   const userId = searchParams.get("id"); // Extract the member ID from query parameters
 
+
   const [userData, setUserData] = useState({});
+  const [kwsidError, setKwsidError] = useState("");
+  const [isKwsidChanged, setIsKwsidChanged] = useState(false); 
+
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
 
+
+
+  
   // Fetch member data based on userId
   useEffect(() => {
     if (!userId) {
@@ -58,11 +65,56 @@ const EditMember = () => {
   // console.log(userData.profile_picture);
   
 
+  useEffect(() => {
+    if (!formData.kwsid || !isKwsidChanged) {
+      setKwsidError(""); // Clear error when empty or not changed
+      return;
+    }
+  
+    const source = axios.CancelToken.source();
+  
+    const checkKWSID = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/auth/kwsid`,
+          {
+            params: { kwsid: formData.kwsid },
+            cancelToken: source.token,
+          }
+        );
+  
+        if (response.data.exists) {
+          setKwsidError("KWS ID already exists."); // Show error only if ID exists
+        } else {
+          setKwsidError(""); // Clear error if unique
+        }
+      } catch (error) {
+        if (!axios.isCancel(error)) {
+          console.error("Error checking KWS ID:", error);
+        }
+      }
+    };
+  
+    const delayDebounceFn = setTimeout(checkKWSID, 500);
+  
+    return () => {
+      clearTimeout(delayDebounceFn);
+      source.cancel();
+    };
+  }, [formData.kwsid, isKwsidChanged]);
+
+
 
   // Handle form field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
+  
     setFormData((prev) => ({ ...prev, [name]: value }));
+  
+    // If user modifies the KWS ID, mark it as changed
+    if (name === "kwsid") {
+      setIsKwsidChanged(true);
+    }
   };
 
   // Handle profile picture upload
@@ -1518,18 +1570,29 @@ const handleRemoveScannedForm = () => {
                 </div>
 
 
-                <div>
-                  <label htmlFor="kwsid" className="block text-sm font-medium text-gray-700">
-KWS ID                  </label>
-                  <input
-                    type="text"
-                    name="kwsid"
-                    id="kwsid"
-                    value={formData.kwsid || ""}
-                    onChange={handleChange}
-                    className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
+               {/* KWS ID Field */}
+{/* KWS ID Field */}
+<div>
+  <label htmlFor="kwsid" className="block text-sm font-medium text-gray-700">
+    KWS ID
+  </label>
+  <input
+    type="text"
+    name="kwsid"
+    id="kwsid"
+    value={formData.kwsid || ""}
+    onChange={handleChange}
+    className={`mt-1 p-2 block w-full rounded-lg border-2 
+      ${kwsidError ? "border-red-500 focus:border-red-500" : "border-gray-300"} 
+      shadow-sm focus:ring-blue-500`}
+  />
+  
+  {/* Show error message only if the user has changed the field */}
+  {isKwsidChanged && kwsidError && (
+    <p className="text-red-500 text-sm mt-1">{kwsidError}</p>
+  )}
+</div>
+
               </div>
             </div>
             </div>
