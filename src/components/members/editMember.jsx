@@ -477,13 +477,13 @@ const handleRemoveScannedForm = () => {
         alt="Current Profile Picture"
         className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
       />
-      <button
+      {/* <button
         type="button"
         onClick={handleRemoveProfilePicture}
         className="absolute top-2 right-2 bg-red-600 text-white text-sm p-1 rounded-full shadow-md hover:bg-red-700 transition-all duration-200"
       >
         &times;
-      </button>
+      </button> */}
       
       {/* Profile Picture Upload Button */}
       <label
