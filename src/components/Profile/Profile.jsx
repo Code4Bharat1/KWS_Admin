@@ -85,7 +85,23 @@ const Profile = () => {
           <p className="text-black text-xl font-semibold mt-4">{core_kwsmember?.typeOfMember || "Member"}</p>
           <p className="text-black text-xl font-semibold mt-4">{username || "Member"}</p>
          <p className="text-green-600 text-xl font-semibold mt-4">Card Validity:-</p>
-          <p className="text-black text-xl font-semibold mt-4">{core_kwsmember?.cardPrinted || "NA"} - {core_kwsmember?.cardExpiry || "NA"}</p>
+         <p className="text-black text-xl font-semibold mt-4">
+  {core_kwsmember?.cardPrinted
+    ? new Date(core_kwsmember.cardPrinted).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "NA"}{" "}
+  -{" "}
+  {core_kwsmember?.cardExpiry
+    ? new Date(core_kwsmember.cardExpiry).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "NA"}
+</p>
         </div>
         {/* QR Code Section */}
         <div className="p-6 bg-white text-center">
