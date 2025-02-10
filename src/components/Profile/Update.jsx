@@ -225,29 +225,37 @@ const Update = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Marital Status
-              </label>
-              <input
-                type="text"
-                name="marital_status"
-                value={formData.marital_status || ""}
-                onChange={handleChange}
-                className="w-full border rounded p-2"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Family in Kuwait
-              </label>
-              <input
-                type="text"
-                name="family_in_kuwait"
-                value={formData.family_in_kuwait || ""}
-                onChange={handleChange}
-                className="w-full border rounded p-2"
-              />
-            </div>
+  <label className="block text-sm font-medium text-gray-700">
+    Marital Status
+  </label>
+  <select
+    name="marital_status"
+    value={formData.marital_status || ""}
+    onChange={handleChange}
+    className="w-full border rounded p-2"
+  >
+    <option value="">Select Marital Status</option>
+    <option value="Single">Single</option>
+    <option value="Married">Married</option>
+  </select>
+</div>
+
+<div>
+  <label className="block text-sm font-medium text-gray-700">
+    Family in Kuwait
+  </label>
+  <select
+    name="family_in_kuwait"
+    value={formData.family_in_kuwait || ""}
+    onChange={handleChange}
+    className="w-full border rounded p-2"
+  >
+    <option value="">Select</option>
+    <option value="Yes">Yes</option>
+    <option value="No">No</option>
+  </select>
+</div>
+
           </div>
         </div>
 

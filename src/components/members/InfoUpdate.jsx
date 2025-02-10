@@ -79,6 +79,7 @@ const InfoUpdate = () => {
               <th className="border px-4 py-2">Request ID</th>
               <th className="border px-4 py-2">Date Requested</th>
               <th className="border px-4 py-2">Username</th>
+              <th className="border px-4 py-2">Name</th>
               <th className="border px-4 py-2">Zone</th>
               <th className="border px-4 py-2">Type of Member</th>
               <th className="border px-4 py-2">Action</th>
@@ -90,6 +91,7 @@ const InfoUpdate = () => {
                 <td className="border px-4 py-2">{request.id}</td>
                 <td className="border px-4 py-2">{request.requested_date}</td>
                 <td className="border px-4 py-2">{request.username}</td>
+                <td className="border px-4 py-2">{request.name}</td>
                 <td className="border px-4 py-2">{request.zone_member}</td>
                 <td className="border px-4 py-2">{request.type_of_member}</td>
                 <td className="border px-4 py-2">
@@ -108,40 +110,71 @@ const InfoUpdate = () => {
 
       {/* Modal for Reviewing the Request */}
       {selectedRequest && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-3xl overflow-y-auto max-h-[80vh]">
-            <h3 className="text-xl font-bold mb-4">Review Update Request</h3>
-            <div className="space-y-4">
-              <p><strong>Username:</strong> {selectedRequest.username || "N/A"}</p>
-              <p><strong>Type of Member:</strong> {selectedRequest.type_of_member || "N/A"}</p>
-              <p><strong>Zone:</strong> {selectedRequest.zone_member || "N/A"}</p>
-              <p><strong>Date Requested:</strong> {selectedRequest.requested_date}</p>
-              <div className="space-y-2">
-                <p><strong>Profile Information:</strong></p>
-                {selectedRequest.data && Object.keys(selectedRequest.data).map((key) => (
-                  <p key={key}><strong>{key}:</strong> {selectedRequest.data[key]}</p>
-                ))}
-              </div>
-            </div>
-            <div className="flex justify-between mt-6">
-           
-              <button
-                onClick={handleApprove}
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                disabled={isProcessing}
-              >
-                {isProcessing ? "Processing..." : "Approve"}
-              </button>
-              <button
-                onClick={() => setSelectedRequest(null)}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              >
-                Close
-              </button>
-            </div>
-          </div>
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="bg-white p-6 rounded-lg w-full max-w-3xl overflow-y-auto max-h-[80vh]">
+      <h3 className="text-xl font-bold mb-4">Review Update Request</h3>
+      <div className="space-y-4">
+        <p><strong>Username:</strong> {selectedRequest.username || "N/A"}</p>
+        <p><strong>Type of Member:</strong> {selectedRequest.type_of_member || "N/A"}</p>
+        <p><strong>Zone:</strong> {selectedRequest.zone_member || "N/A"}</p>
+        <p><strong>Date Requested:</strong> {selectedRequest.requested_date}</p>
+        <div className="space-y-2">
+          <p><strong>Profile Information:</strong></p>
+          {selectedRequest.data && Object.keys(selectedRequest.data).map((key) => (
+            <p key={key}><strong>{key}:</strong> {selectedRequest.data[key]}</p>
+          ))}
         </div>
-      )}
+
+        {/* Table for Previous vs Requested Data */}
+        <div className="overflow-x-auto mt-4">
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border px-4 py-2">Field</th>
+                <th className="border px-4 py-2">Previous Value</th>
+                <th className="border px-4 py-2">Requested Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Iterate over the keys in requested_data */}
+              {Object.keys(selectedRequest.requested_data || {}).map((key) => (
+                <tr key={key} className="text-center">
+                  {/* Display key */}
+                  <td className="border px-4 py-2">{key.replace(/_/g, " ")}</td>
+                  {/* Display previous data if available */}
+                  <td className="border px-4 py-2">{selectedRequest.previous_data?.[key] || "N/A"}</td>
+                  {/* Display requested data */}
+                  <td className="border px-4 py-2 text-blue-500 font-semibold">
+                    {selectedRequest.requested_data[key] || "N/A"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      {/* Modal Buttons */}
+      <div className="flex justify-between mt-6">
+        <button
+          onClick={handleApprove}
+          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          disabled={isProcessing}
+        >
+          {isProcessing ? "Processing..." : "Approve"}
+        </button>
+        <button
+          onClick={() => setSelectedRequest(null)}
+          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
