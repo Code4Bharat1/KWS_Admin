@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+import Select from "react-select";
+
 const Review = () => {
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -9,6 +11,50 @@ const Review = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
 
+
+
+  const memberOptions = [
+    { value: "PRIVILEGE MEMBER", label: "PRIVILEGE MEMBER" },
+    { value: "ADVISOR", label: "ADVISOR" },
+    { value: "CC MEMBER", label: "CC MEMBER" },
+    { value: "DONORS", label: "DONORS" },
+    { value: "LIFETIME MEMBER", label: "LIFETIME MEMBER" },
+    { value: "SENIOR VICE PRESIDENT", label: "SENIOR VICE PRESIDENT" },
+    { value: "ASSISTANT GENERAL SECRETARY", label: "ASSISTANT GENERAL SECRETARY" },
+    { value: "ASSISTANT TREASURER", label: "ASSISTANT TREASURER" },
+    { value: "EC MEMBER", label: "EC MEMBER" },
+    { value: "ELITE MEMBER", label: "ELITE MEMBER" },
+    { value: "EX OFFICIO PRESIDENT", label: "EX OFFICIO PRESIDENT" },
+    { value: "GENERAL SECRETARY", label: "GENERAL SECRETARY" },
+    { value: "JOINT GENERAL SECRETARY", label: "JOINT GENERAL SECRETARY" },
+    { value: "JOINT TREASURER", label: "JOINT TREASURER" },
+    { value: "LADIES EC MEMBER", label: "LADIES EC MEMBER" },
+    { value: "PATRON", label: "PATRON" },
+    { value: "PRESIDENT", label: "PRESIDENT" },
+    { value: "TREASURER", label: "TREASURER" },
+    { value: "VENDORS", label: "VENDORS" },
+    { value: "VICE PRESIDENT", label: "VICE PRESIDENT" },
+    { value: "VC MEMBER", label: "VC MEMBER" },
+    { value: "LADIES CC MEMBER", label: "LADIES CC MEMBER" },
+    { value: "LADIES VC MEMBER", label: "LADIES VC MEMBER" },
+    { value: "LADIES ELITE MEMBER", label: "LADIES ELITE MEMBER" },
+    { value: "LADIES PRIVILEGE MEMBER", label: "LADIES PRIVILEGE MEMBER" },
+  ];
+
+
+  const handleMemberTypeChange = (selectedOptions) => {
+    if (selectedOptions.length > 2) {
+      alert("You can select a maximum of 2 types.");
+      return;
+    }
+  
+    const selectedValues = selectedOptions.map((option) => option.value);
+    setFormData((prev) => ({
+      ...prev,
+      type_of_member: selectedValues.join(","), // Store as comma-separated string
+    }));
+  };
+  
 
 // Function to handle adding images
 const handleImageChange = (e) => {
@@ -442,10 +488,29 @@ const handleRemoveImage = (indexToRemove) => {
               
             </div>
 
-           {/* Profile Picture Section */}
-           <div className="mt-6 flex flex-col items-center">
+          {/* Profile Picture Section */}
+<div className="mt-6 flex flex-col items-center">
   <label className="text-lg font-medium text-gray-800 mb-4">Profile Picture</label>
-  {profilePicturePreview ? (
+  
+  {/* If user has stored profile picture, show it */}
+  {formData.profile_picture && typeof formData.profile_picture === "string" ? (
+    <div className="relative group">
+      <img
+        src={`https://api.kwskwt.com/${formData.profile_picture}`} 
+        alt="Profile Picture"
+        className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
+      />
+      <button
+        type="button"
+        onClick={() => {
+          setFormData((prevData) => ({ ...prevData, profile_picture: null }));
+        }}
+        className="absolute top-2 right-2 bg-red-600 text-white text-sm p-1 rounded-full shadow-md hover:bg-red-700 transition-all duration-200"
+      >
+        &times;
+      </button>
+    </div>
+  ) : profilePicturePreview ? (
     <div className="relative group">
       <img
         src={profilePicturePreview}
@@ -492,6 +557,8 @@ const handleRemoveImage = (indexToRemove) => {
       />
     </label>
   )}
+  
+  {errorMessage.includes("Profile picture") && <p className="text-red-500 text-sm mt-2">{errorMessage}</p>}
 </div>
 
 <h3 className="text-2xl text-gray-800 font-semibold mb-4">Address (Kuwait)</h3>
@@ -1241,44 +1308,18 @@ const handleRemoveImage = (indexToRemove) => {
 
        {/* Type of Member Dropdown */}
        <div>
-  <label htmlFor="type_of_member" className="block text-sm font-medium text-gray-700">
-    Type of Member
-  </label>
-  <select
-    name="type_of_member"
-    id="type_of_member"
-    value={formData.type_of_member || ""}
-    onChange={handleChange}
-    className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-  >
-    <option value="" disabled>Select</option>
-    <option value="PRIVILEGE MEMBER">PRIVILEGE MEMBER</option>
-    <option value="ADVISOR">ADVISOR</option>
-    <option value="CC MEMBER">CC MEMBER</option>
-    <option value="DONORS">DONORS</option>
-    <option value="LIFETIME MEMBER">LIFETIME MEMBER</option>
-    <option value="SENIOR VICE PRESIDENT">SENIOR VICE PRESIDENT</option>
-    <option value="ASSISTANT GENERAL SECRETARY"> ASSISTANT GENERAL SECRETARY </option>
-    <option value="ASSISTANT TREASURER">ASSISTANT TREASURER</option>
-    <option value="EC MEMBER">EC MEMBER</option>
-    <option value="ELITE MEMBER">ELITE MEMBER</option>
-    <option value="EX OFFICIO PRESIDENT">EX OFFICIO PRESIDENT</option>
-    <option value="GENERAL SECRETARY">GENERAL SECRETARY</option>
-    <option value="JOINT GENERAL SECRETARY">JOINT GENERAL SECRETARY</option>
-    <option value="JOINT TREASURER">JOINT TREASURER</option>
-    <option value="LADIES EC MEMBER">LADIES EC MEMBER</option>
-    <option value="PATRON">PATRON</option>
-    <option value="PRESIDENT">PRESIDENT</option>
-    <option value="TREASURER">TREASURER</option>
-    <option value="VENDORS">VENDORS</option>
-    <option value="VICE PRESIDENT">VICE PRESIDENT</option>
-    <option value="VC MEMBER">VC MEMBER</option>
-    <option value="LADIES CC MEMBER">LADIES CC MEMBER</option>
-    <option value="LADIES VC MEMBER">LADIES VC MEMBER</option>
-    <option value="LADIES ELITE MEMBER">LADIES ELITE MEMBER</option>
-    <option value="LADIES PRIVILEGE MEMBER">LADIES PRIVILEGE MEMBER</option>
-  </select>
-</div>
+    <label className="block text-sm font-medium text-gray-700">
+      Type of Member (Select up to 2)
+    </label>
+    <Select
+      options={memberOptions}
+      isMulti
+      value={formData.type_of_member ? formData.type_of_member.split(",").map(value => ({ value, label: value })) : []}
+      onChange={handleMemberTypeChange}
+      className="mt-1"
+      placeholder="Select up to 2..."
+    />
+  </div>
 
 
     {/* Amount in KWD */}
@@ -1325,6 +1366,7 @@ const handleRemoveImage = (indexToRemove) => {
     onChange={handleImageChange}
     className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
   />
+  
   <div className="mt-4">
   {formData.form_scanned instanceof File ? (
   <div className="relative mb-4">
@@ -1344,6 +1386,7 @@ const handleRemoveImage = (indexToRemove) => {
 ) : (
   <p className="text-gray-500">No scanned form uploaded.</p>
 )}
+  {errorMessage.includes("Scanned form") && <p className="text-red-500 text-sm mt-2">{errorMessage}</p>}
 
   </div>
 </div>
