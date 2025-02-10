@@ -21,6 +21,7 @@ const Register = () => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [backendErrors, setBackendErrors] = useState([]);
+  const [profileError, setProfileError] = useState("");
   
   const totalSteps = 4;
 
@@ -136,12 +137,29 @@ const Register = () => {
 
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
+
     if (file) {
+      const fileSizeMB = file.size / 1024 / 1024; 
+      const validExtensions = ["image/jpeg", "image/jpg", "image/png"];
+
+      if (!validExtensions.includes(file.type)) {
+        setProfileError("Only JPG, JPEG, and PNG formats are allowed.");
+        setProfilePicture(null);
+        return;
+      }
+
+      if (fileSizeMB > 2) {
+        setProfileError("File size must be 2MB or less.");
+        setProfilePicture(null);
+        return;
+      }
+
       setProfilePicture(file);
+      setProfileError(""); 
     }
   };
 
-  // Define required field names per step (asterisk fields).
+
   const getStepFields = (step) => {
   const requiredFieldsByStep = {
     1: ["acceptDisclaimer"],
@@ -234,6 +252,12 @@ const Register = () => {
 
 
   const handleConfirmSubmit = async () => {
+   
+    if (profileError) {
+      setErrorModalOpen(true);
+      return;
+    }
+
     setIsLoading(true);
     try {
       const multipartFormData = new FormData();
@@ -617,14 +641,19 @@ const Register = () => {
                     {gender === "Male" && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700" htmlFor="profile_picture">
-                          Upload Profile Picture
+                          Upload Profile Picture (Max 2MB)
                         </label>
                         <input
                     type="file"
+                    accept="image/jpeg, image/jpg, image/png"
                     {...register("profile_picture")}
                     onChange={handleProfilePictureChange}
                     className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
+
+{profileError && (
+    <p className="text-red-500 text-sm mt-2">{profileError}</p>
+  )}
                         {errors.profile_picture && (
                           <p className="text-red-500 text-sm mt-2">{errors.profile_picture.message}</p>
                         )}

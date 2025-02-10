@@ -4,6 +4,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import Select from "react-select";
+
+
 const EditMember = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -21,8 +24,46 @@ const EditMember = () => {
   const [successMessage, setSuccessMessage] = useState("");
 
 
+  const memberOptions = [
+    { value: "PRIVILEGE MEMBER", label: "PRIVILEGE MEMBER" },
+    { value: "ADVISOR", label: "ADVISOR" },
+    { value: "CC MEMBER", label: "CC MEMBER" },
+    { value: "DONORS", label: "DONORS" },
+    { value: "LIFETIME MEMBER", label: "LIFETIME MEMBER" },
+    { value: "SENIOR VICE PRESIDENT", label: "SENIOR VICE PRESIDENT" },
+    { value: "ASSISTANT GENERAL SECRETARY", label: "ASSISTANT GENERAL SECRETARY" },
+    { value: "ASSISTANT TREASURER", label: "ASSISTANT TREASURER" },
+    { value: "EC MEMBER", label: "EC MEMBER" },
+    { value: "ELITE MEMBER", label: "ELITE MEMBER" },
+    { value: "EX OFFICIO PRESIDENT", label: "EX OFFICIO PRESIDENT" },
+    { value: "GENERAL SECRETARY", label: "GENERAL SECRETARY" },
+    { value: "JOINT GENERAL SECRETARY", label: "JOINT GENERAL SECRETARY" },
+    { value: "JOINT TREASURER", label: "JOINT TREASURER" },
+    { value: "LADIES EC MEMBER", label: "LADIES EC MEMBER" },
+    { value: "PATRON", label: "PATRON" },
+    { value: "PRESIDENT", label: "PRESIDENT" },
+    { value: "TREASURER", label: "TREASURER" },
+    { value: "VENDORS", label: "VENDORS" },
+    { value: "VICE PRESIDENT", label: "VICE PRESIDENT" },
+    { value: "VC MEMBER", label: "VC MEMBER" },
+    { value: "LADIES CC MEMBER", label: "LADIES CC MEMBER" },
+    { value: "LADIES VC MEMBER", label: "LADIES VC MEMBER" },
+    { value: "LADIES ELITE MEMBER", label: "LADIES ELITE MEMBER" },
+    { value: "LADIES PRIVILEGE MEMBER", label: "LADIES PRIVILEGE MEMBER" },
+  ];
 
+  const handleMemberTypeChange = (selectedOptions) => {
+    if (selectedOptions.length > 2) {
+      alert("You can select a maximum of 2 types.");
+      return;
+    }
   
+    const selectedValues = selectedOptions.map((option) => option.value);
+    setFormData((prev) => ({
+      ...prev,
+      type_of_member: selectedValues.join(","), // Store as comma-separated string
+    }));
+  };
   // Fetch member data based on userId
   useEffect(() => {
     if (!userId) {
@@ -121,12 +162,21 @@ const EditMember = () => {
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
     const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
+    const allowedFileTypes = ["image/jpeg", "image/jpg", "image/png"];
+
+
 
     if (file) {
-      if (file.size > maxSizeInBytes) {
-        setErrorMessage(`Profile picture exceeds the 2MB size limit.`);
-        return;
-      }
+    // Check file type
+    if (!allowedFileTypes.includes(file.type)) {
+      setErrorMessage("Invalid file type. Only JPG, JPEG, and PNG are allowed.");
+      return;
+    }
+
+    if (file.size > maxSizeInBytes) {
+      setErrorMessage("Profile picture exceeds the 2MB size limit.");
+      return;
+    }
 
       setFormData((prevData) => ({
         ...prevData,
@@ -489,8 +539,8 @@ const handleRemoveScannedForm = () => {
 
        {/* Profile Picture Section */}
 <div className="mt-6 flex flex-col items-center">
-  <label className="text-lg font-medium text-gray-800 mb-4">Profile Picture</label>
-
+  <label className="text-lg font-medium text-gray-800 mb-4">Profile Picture (2MB Max)</label>
+<h1 className="mb-4 text-red-500">Only JPG/ JPEG / PNG images are allowed*</h1>
   {/* Check if there's a profile picture preview */}
   {profilePicturePreview ? (
     <div className="relative group">
@@ -1322,48 +1372,18 @@ const handleRemoveScannedForm = () => {
 
                 {/* Type of Member Dropdown */}
                 <div>
-                  <label htmlFor="type_of_member" className="block text-sm font-medium text-gray-700">
-                    Type of Member
-                  </label>
-                  <select
-                    name="type_of_member"
-                    id="type_of_member"
-                    value={formData.type_of_member || ""}
-                    onChange={handleChange}
-                    className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    // required
-                  >
-                    <option value="" disabled>
-                      Select
-                    </option>
-                    <option value="PRIVILEGE MEMBER">PRIVILEGE MEMBER</option>
-                    <option value="ADVISOR">ADVISOR</option>
-                    <option value="CC MEMBER">CC MEMBER</option>
-                    <option value="DONORS">DONORS</option>
-                    <option value="EC MEMBER">EC MEMBER</option>
-                    <option value="ELITE MEMBER">ELITE MEMBER</option>
-                    <option value="LIFETIME MEMBER">LIFETIME MEMBER</option>
-                    <option value="SENIOR VICE PRESIDENT">SENIOR VICE PRESIDENT</option>
-    <option value="ASSISTANT GENERAL SECRETARY"> ASSISTANT GENERAL SECRETARY </option>
-    <option value="ASSISTANT TREASURER">ASSISTANT TREASURER</option>
-                    <option value="EX OFFICIO PRESIDENT">EX OFFICIO PRESIDENT</option>
-                    <option value="GENERAL SECRETARY">GENERAL SECRETARY</option>
-                    <option value="JOINT GENERAL SECRETARY">JOINT GENERAL SECRETARY</option>
-                    <option value="JOINT TREASURER">JOINT TREASURER</option>
-                    <option value="LADIES EC MEMBER">LADIES EC MEMBER</option>
-                    <option value="PATRON">PATRON</option>
-                    <option value="PRESIDENT">PRESIDENT</option>
-                    <option value="TREASURER">TREASURER</option>
-                    <option value="VENDORS">VENDORS</option>
-                    <option value="VICE PRESIDENT">VICE PRESIDENT</option>
-                    <option value="VC MEMBER">VC MEMBER</option>
-                    <option value="LADIES CC MEMBER">LADIES CC MEMBER</option>
-                    <option value="LADIES VC MEMBER">LADIES VC MEMBER</option>
-                    <option value="LADIES ELITE MEMBER">LADIES ELITE MEMBER</option>
-                    <option value="LADIES PRIVILEGE MEMBER">LADIES PRIVILEGE MEMBER</option>
-                  </select>
-                </div>
-
+    <label className="block text-sm font-medium text-gray-700">
+      Type of Member (Select up to 2)
+    </label>
+    <Select
+      options={memberOptions}
+      isMulti
+      value={formData.type_of_member ? formData.type_of_member.split(",").map(value => ({ value, label: value })) : []}
+      onChange={handleMemberTypeChange}
+      className="mt-1"
+      placeholder="Select up to 2..."
+    />
+  </div>
                 {/* Admin Charges Dropdown */}
                 <div>
                   <label htmlFor="admin_charges" className="block text-sm font-medium text-gray-700">
