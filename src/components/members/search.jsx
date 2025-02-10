@@ -122,10 +122,18 @@
         const matchesKwsId = filters.kwsId
           ? member.kwsid?.toLowerCase().includes(filters.kwsId.toLowerCase())
           : true;
-        const matchesLookUp = filters.lookUp
-          ? member.name?.toLowerCase().includes(filters.lookUp.toLowerCase()) ||
-            member.contact?.includes(filters.lookUp)
+          const matchesLookUp = filters.lookUp
+          ? filters.lookUp
+              .toLowerCase()
+              .trim()
+              .split(" ") 
+              .every(word => 
+                member.name?.toLowerCase().includes(word) || 
+                member.contact?.includes(word) || 
+                member.civil_id?.includes(word)
+              )
           : true;
+        
         const matchesZone =
           filters.zone === "all" ||
           member.zone?.toLowerCase() === filters.zone.toLowerCase();
@@ -239,7 +247,7 @@
               name="lookUp"
               value={filters.lookUp}
               onChange={handleFilterChange}
-              placeholder="Enter Name or Contact"
+              placeholder="Enter Name or Contact or Civil Id"
               className="border p-2 rounded w-full"
             />
           </div>
