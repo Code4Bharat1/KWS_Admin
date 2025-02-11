@@ -99,55 +99,58 @@ const Update = () => {
   };
 
   // Handle form submission for updating details
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsUpdating(true);
-    setErrorMessage("");
-    setSuccessMessage("");
-  
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsUpdating(true);
+  setErrorMessage("");
+  setSuccessMessage("");
+
+  // Check if there are any pending update requests for this user
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/check/${userId}` // New endpoint to check for pending requests
+    );
+
+    if (response.data.pending) {
+      setErrorMessage("There is already a pending update request for this member.");
+      setIsUpdating(false);
+      return; // Prevent form submission if there's a pending request
+    }
+
     // Create an object to store only changed data
     const changedData = {};
-  
+
     // Iterate over all fields in the form and compare with initial values
     for (let key in formData) {
       if (formData[key] !== initialFormData[key]) {
         changedData[key] = formData[key]; // Add changed field to the object
       }
     }
-  
+
     // If no data has changed, exit early
     if (Object.keys(changedData).length === 0) {
       setErrorMessage("No changes detected.");
       setIsUpdating(false);
       return;
     }
-  
-    try {
-      const memberId = userId;
-      // Send the changed data to the backend to create an update request
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/update-request`, // New endpoint
-        {
-          memberId: memberId,
-          formData: changedData, // Send only the changed fields
-        }
-      );
-      setSuccessMessage("Profile update request submitted successfully!");
-    } catch (error) {
-      console.error("Error submitting update request:", error);
-      setErrorMessage("Failed to submit update request. Please try again later.");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-  // If still loading data from API...
-  if (isLoading) {
-    return <div className="text-center text-lg">Loading...</div>;
-  }
 
-  if (errorMessage) {
-    return <div className="text-center text-red-500">{errorMessage}</div>;
+    const memberId = userId;
+    // Send the changed data to the backend to create an update request
+    const updateResponse = await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/update-request`,
+      {
+        memberId: memberId,
+        formData: changedData, // Send only the changed fields
+      }
+    );
+    setSuccessMessage("Profile update request submitted successfully!");
+  } catch (error) {
+    console.error("Error submitting update request:", error);
+    setErrorMessage("Failed to submit update request. Please try again later.");
+  } finally {
+    setIsUpdating(false);
   }
+};
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -808,7 +811,7 @@ const Update = () => {
             disabled={isUpdating}
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           >
-            {isUpdating ? "Updating..." : "Update"}
+            {isUpdating ? "Submitting..." : " Submit Update Request"}
           </button>
         </div>
       </form>
