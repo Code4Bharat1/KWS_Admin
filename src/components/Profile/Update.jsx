@@ -673,7 +673,7 @@ const Update = () => {
               </label>
               <input
                 type="tel"
-                name="mobile_1"
+                name="mobile_2"
                 value={formData.mobile_2 || ""}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
@@ -692,7 +692,7 @@ const Update = () => {
               </label>
               <input
                 type="text"
-                name="full_name_1"
+                name="full_name_3"
                 value={formData.full_name_3 || ""}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
@@ -704,7 +704,7 @@ const Update = () => {
               </label>
               <input
                 type="text"
-                name="relation_1"
+                name="relation_3"
                 value={formData.relation_3 || ""}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
@@ -716,7 +716,7 @@ const Update = () => {
               </label>
               <input
                 type="number"
-                name="percentage_1"
+                name="percentage_3"
                 value={formData.percentage_3 || ""}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
@@ -724,12 +724,12 @@ const Update = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Nominee 4 Contact
+                Nominee 3 Contact
               </label>
               <input
                 type="tel"
-                name="mobile_1"
-                value={formData.mobile_4 || ""}
+                name="mobile_3"
+                value={formData.mobile_3 || ""}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
               />
@@ -746,7 +746,7 @@ const Update = () => {
               </label>
               <input
                 type="text"
-                name="full_name_1"
+                name="full_name_4"
                 value={formData.full_name_4 || ""}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
@@ -758,7 +758,7 @@ const Update = () => {
               </label>
               <input
                 type="text"
-                name="relation_1"
+                name="relation_4"
                 value={formData.relation_4 || ""}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
@@ -770,7 +770,7 @@ const Update = () => {
               </label>
               <input
                 type="number"
-                name="percentage_1"
+                name="percentage_4"
                 value={formData.percentage_4 || ""}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
@@ -782,7 +782,7 @@ const Update = () => {
               </label>
               <input
                 type="tel"
-                name="mobile_1"
+                name="mobile_4"
                 value={formData.mobile_4 || ""}
                 onChange={handleChange}
                 className="w-full border rounded p-2"
