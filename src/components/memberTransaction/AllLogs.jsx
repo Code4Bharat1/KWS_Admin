@@ -23,7 +23,7 @@ const AllLogs = () => {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/viewlogs/${id}`
       );
-      console.log("Response data:", response.data);
+      // console.log("Response data:", response.data);
       // Assuming response.data is an array of log objects.
       setLogs(response.data || []);
     } catch (error) {

@@ -32,7 +32,7 @@ const InfoUpdate = () => {
   const handleReview = (requestId) => {
     const request = pendingRequests.find(req => req.id === requestId);
     setSelectedRequest(request); // Set the selected request for review
-    console.log("Selected Request for Review:", request); // Debugging log to inspect the selected request
+    // console.log("Selected Request for Review:", request); // Debugging log to inspect the selected request
   };
 
   // Handle approve action

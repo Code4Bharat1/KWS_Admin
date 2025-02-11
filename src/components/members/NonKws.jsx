@@ -25,7 +25,7 @@ const NonKws = () => {
     try {
       const params = { ...filters };
       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/nonkws/getlist`, { params });
-      console.log("Fetched Data:", response.data);
+      // console.log("Fetched Data:", response.data);
       setList(response.data);
     } catch (error) {
       console.error("Error fetching non-KWS list:", error);
@@ -79,7 +79,7 @@ const NonKws = () => {
     try {
       await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/nonkws/deletenonkws/${id}`);
       setList((prevList) => prevList.filter(item => item.ID !== id)); // Remove the deleted item from the list
-      console.log(`Item with ID ${id} deleted successfully.`);
+      // console.log(`Item with ID ${id} deleted successfully.`);
     } catch (error) {
       console.error("Error deleting the item:", error);
     }

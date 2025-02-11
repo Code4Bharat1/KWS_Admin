@@ -144,8 +144,8 @@ const handleRemoveImage = (indexToRemove) => {
       // Set membership_status, ensuring it overwrites any previous entry
       formDataToSend.set("membership_status", status); // Use .set to overwrite existing values
   
-      console.log("Membership status being sent:", status); // Debug log
-      console.log("FormData to be sent:", Array.from(formDataToSend.entries())); // Debug log
+      // console.log("Membership status being sent:", status); // Debug log
+      // console.log("FormData to be sent:", Array.from(formDataToSend.entries())); // Debug log
   
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/update/${formData.user_id}`,

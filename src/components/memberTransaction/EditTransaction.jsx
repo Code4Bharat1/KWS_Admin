@@ -76,7 +76,7 @@ const EditTransaction = () => {
     };
   
     // Logging cleaned data to verify before sending the request
-    console.log("Cleaned Data:", cleanedData);
+    // console.log("Cleaned Data:", cleanedData);
   
     try {
       await axios.put(
