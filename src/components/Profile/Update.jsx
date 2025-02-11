@@ -99,59 +99,76 @@ const Update = () => {
   };
 
   // Handle form submission for updating details
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsUpdating(true);
-  setErrorMessage("");
-  setSuccessMessage("");
-
-  // Check if there are any pending update requests for this user
-  try {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/check/${userId}` // New endpoint to check for pending requests
-    );
-
-    if (response.data.pending) {
-      setErrorMessage("There is already a pending update request for this member.");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsUpdating(true);
+    setErrorMessage("");  // Reset any error message
+    setSuccessMessage(""); // Reset any success message
+  
+    // Ensure userId is available in localStorage
+    const userId = localStorage.getItem("userId");
+  
+    if (!userId) {
+      setErrorMessage("User not logged in.");
       setIsUpdating(false);
-      return; // Prevent form submission if there's a pending request
+      return; // Prevent further execution if userId is not available
     }
-
-    // Create an object to store only changed data
-    const changedData = {};
-
-    // Iterate over all fields in the form and compare with initial values
-    for (let key in formData) {
-      if (formData[key] !== initialFormData[key]) {
-        changedData[key] = formData[key]; // Add changed field to the object
+  
+    // Check if there are any pending update requests for this user
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/check/${userId}` // Pass the userId to the backend
+      );
+  
+      // If there's already a pending request, show an error and stop the form submission
+      if (response.data.pending) {
+        setErrorMessage("There is already a pending update request for this member.");
+        setIsUpdating(false);
+        return; // Prevent form submission if there's a pending request
       }
-    }
-
-    // If no data has changed, exit early
-    if (Object.keys(changedData).length === 0) {
-      setErrorMessage("No changes detected.");
+  
+      // If there is no pending request, proceed with submitting the form
+      const changedData = {};
+  
+      // Collect only the changed fields
+      for (let key in formData) {
+        if (formData[key] !== initialFormData[key]) {
+          changedData[key] = formData[key];
+        }
+      }
+  
+      // If no data has changed, exit early
+      if (Object.keys(changedData).length === 0) {
+        setErrorMessage("No changes detected.");
+        setIsUpdating(false);
+        return;
+      }
+  
+      // Proceed with creating an update request if changes are detected
+      const updateResponse = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/update-request`,
+        {
+          memberId: userId,
+          formData: changedData, // Send only the changed fields
+        }
+      );
+  
+      setSuccessMessage("Profile update request submitted successfully!");
+  
+    } catch (error) {
+      console.error("Error submitting update request:", error);
+  
+      // Check if the error has a response and display a specific message
+      if (error.response && error.response.data) {
+        setErrorMessage(error.response.data.message || "Failed to submit update request.");
+      } else {
+        setErrorMessage("Failed to submit update request. Please try again later.");
+      }
+    } finally {
       setIsUpdating(false);
-      return;
     }
-
-    const memberId = userId;
-    // Send the changed data to the backend to create an update request
-    const updateResponse = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/update-request`,
-      {
-        memberId: memberId,
-        formData: changedData, // Send only the changed fields
-      }
-    );
-    setSuccessMessage("Profile update request submitted successfully!");
-  } catch (error) {
-    console.error("Error submitting update request:", error);
-    setErrorMessage("Failed to submit update request. Please try again later.");
-  } finally {
-    setIsUpdating(false);
-  }
-};
-
+  };
+  
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <h2 className="text-3xl text-green-700 font-bold text-center mb-8">Update Profile</h2>
