@@ -144,9 +144,8 @@ const MemberTransaction = () => {
 
       const filterParams = {
         kwsId: filters.kwsId || undefined,
-        category: filters.category || undefined,
+        category: filters.category?.trim() || undefined,
         fromDate: filters.fromDate || undefined,
-        // Default to today's date if not provided
         toDate: filters.toDate || new Date().toISOString().split("T")[0],
       };
 
@@ -480,7 +479,11 @@ const MemberTransaction = () => {
               >
                 <option value="NEW">NEW</option>
                 <option value="RENEWAL">RENEWAL</option>
+                <option value="ELITE NEW">ELITE NEW</option>
                 <option value="ELITE RENEWAL">ELITE RENEWAL</option>
+                <option value="PRIVILEGE NEW">PRIVILEGE NEW</option>
+                <option value="PRIVILEGE RENEWAL">PRIVILEGE RENEWAL</option>
+             <option value="LIFE MEMBERSHIP">LIFE MEMBERSHIP</option>
                 <option value="MBS1">MBS1</option>
                 <option value="MBS2">MBS2</option>
                 <option value="MBS3">MBS3</option>
@@ -636,5 +639,4 @@ const MemberTransaction = () => {
   );
 };
 
-// Note: The standalone ViewDropdown and FullDropdown components are defined above inside the MemberTransaction component
 export default MemberTransaction;

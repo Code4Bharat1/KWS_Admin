@@ -125,7 +125,12 @@ const EditTransaction = () => {
             >
               <option value="NEW">NEW</option>
               <option value="RENEWAL">RENEWAL</option>
-              <option value="ELITE RENEWAL">ELITE RENEWAL</option>
+              <option value="ELITE NEW">ELITE NEW</option>
+                <option value="ELITE RENEWAL">ELITE RENEWAL</option>
+                <option value="PRIVILEGE NEW">PRIVILEGE NEW</option>
+                <option value="PRIVILEGE RENEWAL">PRIVILEGE RENEWAL</option>
+                
+             <option value="LIFE MEMBERSHIP">LIFE MEMBERSHIP</option>
               <option value="MBS1">MBS1</option>
               <option value="MBS2">MBS2</option>
               <option value="MBS3">MBS3</option>

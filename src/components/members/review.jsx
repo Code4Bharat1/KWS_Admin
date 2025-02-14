@@ -1260,17 +1260,21 @@ const handleRemoveImage = (indexToRemove) => {
                   <div className="mb-6">
   <h3 className="text-4xl mb-4 text-center border-b-4 border-black">Office Use</h3>
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    {/* Application Date (Printed Only) */}
     <div>
   <label htmlFor="application_date" className="block text-sm font-medium text-gray-700">
     Application Date
   </label>
   <p className="text-gray-900">
     {formData.application_date
-      ? new Date(formData.application_date).toLocaleDateString("en-US") // Format to date only
+      ? new Date(formData.application_date).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short", 
+          year: "numeric",
+        })
       : "N/A"}
   </p>
 </div>
+
 
 
 <div>

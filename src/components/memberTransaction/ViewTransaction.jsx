@@ -96,6 +96,11 @@ const ViewTransaction = () => {
               <p>{transactionDetails.AmountKWD}</p>
             </div>
             <div>
+              
+              <p className="font-bold">Category:</p>
+              <p>{transactionDetails.Category}</p>
+            </div>
+            <div>
               <p className="font-bold">Date:</p>
               <p>{formatDate(transactionDetails.Date)}</p> {/* Normal Date */}
             </div>
