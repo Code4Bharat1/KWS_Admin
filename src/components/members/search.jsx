@@ -8,7 +8,7 @@
     AiOutlineDown ,
   } from "react-icons/ai";
   import axios from "axios";
-  import { CSVLink } from "react-csv";
+  import * as XLSX from "xlsx"; 
   import { useRouter } from "next/navigation";
 
   const Search = () => {
@@ -217,6 +217,13 @@
     // Check if user has 'All' role
     const hasAllRole = staffRoles?.All === true;
 
+    const exportToExcel = () => {
+      const worksheet = XLSX.utils.json_to_sheet(filteredResults);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Members");
+      XLSX.writeFile(workbook, "members.xlsx");
+    };
+
     // Check if user has any zone roles
     const hasAnyZoneRole = zoneRoles.some((zone) => staffRoles?.[zone]);
 
@@ -330,24 +337,12 @@
           >
             <AiOutlineSearch size={20} /> <span>Search</span>
           </button>
-          <CSVLink
-            data={filteredResults}
-            headers={[
-              { label: "KWS ID", key: "kwsid" },
-              { label: "Civil ID", key: "civil_id" },
-              { label: "Name", key: "name" },
-              { label: "Zone", key: "zone" },
-              { label: "Contact", key: "contact" },
-              { label: "Type of Member", key: "typeOfMember" },
-              { label: "Card Printed Date", key: "cardPrinted" },
-              { label: "Card Validity Date", key: "cardValidty" },
-              { label: "Status", key: "status" },
-            ]}
-            filename={"members.csv"}
-            className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            <AiOutlinePrinter size={20} /> <span>Export CSV</span>
-          </CSVLink>
+          <button
+          onClick={exportToExcel}
+          className="flex items-center space-x-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >
+          <AiOutlinePrinter size={20} /> <span>Export to Excel</span>
+        </button>
           <button
             onClick={handleRefresh}
             className="flex items-center space-x-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
