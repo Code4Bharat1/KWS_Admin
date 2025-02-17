@@ -10,7 +10,7 @@ import Select from "react-select";
 const EditMember = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const userId = searchParams.get("id"); // Extract the member ID from query parameters
+  const userId = searchParams.get("id"); 
 
 
   const [userData, setUserData] = useState({});
@@ -77,9 +77,7 @@ const EditMember = () => {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/get/${userId}`);
         const userDataFetched  = response.data.data;
       
-  //         console.log('profilePicturePreview:', profilePicturePreview);
-  // console.log('formData.profile_picture:', userData.profile_picture);
-
+ 
   
         // Format date of birth if available
         if (userDataFetched .dob) {
@@ -103,8 +101,18 @@ const EditMember = () => {
     fetchMemberData();
   }, [userId]);
 
-  // console.log(userData.profile_picture);
   
+
+
+  const handleNext = () => {
+    const nextId = parseInt(userId) + 1;
+    router.push(`/members/edit-member?id=${nextId}`);
+  };
+
+  const handlePrevious = () => {
+    const prevId = parseInt(userId) - 1;
+    router.push(`/members/edit-member?id=${prevId}`);
+  };
 
   useEffect(() => {
     if (!formData.kwsid || !isKwsidChanged) {
@@ -1658,6 +1666,22 @@ const handleRemoveScannedForm = () => {
                 Update Member
               </button>
             </div>
+            <div className="mt-6 flex justify-between">
+            <button
+              type="button"
+              onClick={handlePrevious}
+              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-200"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              onClick={handleNext}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+            >
+              Next
+            </button>
+          </div>
           </form>
         </div>
       </div>
