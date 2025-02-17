@@ -91,8 +91,8 @@ const EditMember = () => {
           setProfilePicturePreview(userDataFetched.profile_picture);
         }
       } catch (error) {
-        console.error("Error fetching member data:", error);
-        setErrorMessage("Error fetching member data.");
+        console.error("Member Not Found", error);
+        setErrorMessage("Member Not Found");
       } finally {
         setLoading(false);
       }
@@ -104,15 +104,7 @@ const EditMember = () => {
   
 
 
-  const handleNext = () => {
-    const nextId = parseInt(userId) + 1;
-    router.push(`/members/edit-member?id=${nextId}`);
-  };
-
-  const handlePrevious = () => {
-    const prevId = parseInt(userId) - 1;
-    router.push(`/members/edit-member?id=${prevId}`);
-  };
+ 
 
   useEffect(() => {
     if (!formData.kwsid || !isKwsidChanged) {
@@ -1666,22 +1658,7 @@ const handleRemoveScannedForm = () => {
                 Update Member
               </button>
             </div>
-            <div className="mt-6 flex justify-between">
-            <button
-              type="button"
-              onClick={handlePrevious}
-              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-200"
-            >
-              Previous
-            </button>
-            <button
-              type="button"
-              onClick={handleNext}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
-            >
-              Next
-            </button>
-          </div>
+          
           </form>
         </div>
       </div>

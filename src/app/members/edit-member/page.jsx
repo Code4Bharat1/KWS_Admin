@@ -5,6 +5,7 @@ import { Suspense } from 'react'
 import EditMember from '@/components/members/editMember'
 
 import React from 'react'
+import Nextprevbuttons from '@/components/members/Nextprevbuttons'
 
 const page = () => {
   return (
@@ -12,6 +13,7 @@ const page = () => {
         <Navbar/>
          <Suspense fallback={<div>Loading...</div>}>
         <EditMember/>
+        <Nextprevbuttons/>
         </Suspense>
     </div>
   )
