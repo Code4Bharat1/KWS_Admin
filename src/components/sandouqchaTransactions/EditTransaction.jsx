@@ -295,7 +295,7 @@ const EditTransaction = () => {
           {(() => {
             if (typeof window !== "undefined") {
               const roles = JSON.parse(localStorage.getItem("staffRoles") || "{}");
-              if (roles.Auditor === true || roles.All === true) {
+              if (roles.Auditor === true || roles.All === true || roles.Registrar === true || roles.Treasurer === true) {
                 return (
                   <div className="mt-4">
                     <label className="block text-gray-700 font-semibold mb-1">Slip Status</label>

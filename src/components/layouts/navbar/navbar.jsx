@@ -117,7 +117,7 @@ const Navbar = () => {
     staffRoles.Farwaniya ||
     staffRoles.Jleeb ||
     staffRoles.Hawally ||
-    staffRoles.Salmiya;
+    staffRoles.Salmiya ;
 
   return (
     <nav className="bg-[#DDFFBC] shadow-lg">
@@ -164,7 +164,7 @@ const Navbar = () => {
             )}
 
             {/* Members Dropdown (Visible for Registrar role and zones) */}
-            {(showAllMenus || showRegistrarMenus || showZoneMenus) && (
+            {(showAllMenus || showRegistrarMenus || showTreasurerMenus ||showZoneMenus) && (
               <div className="relative">
                 <button
                   onClick={() => toggleDropdown("members", "desktop")}
@@ -178,7 +178,7 @@ const Navbar = () => {
                 {activeDropdown === "members" && (
                   <div className="absolute top-full mt-2 w-48 bg-white text-black rounded-lg shadow-lg z-30">
                     {/* Show submenus based on roles */}
-                    {showZoneMenus ? (
+                    {(showZoneMenus || showTreasurerMenus) ? (
                       <>
                         <Link href="/members/overview" className="block px-4 py-2 hover:bg-gray-100" onClick={handleDesktopLinkClick}>
                           Overview
@@ -222,7 +222,7 @@ const Navbar = () => {
             )}
 
             {/* Sandouqcha Dropdown (Visible for Sandouqcha and Auditor roles) */}
-            {(showAllMenus || showSandouqchaMenus || showAuditorMenus) && (
+            {(showAllMenus || showSandouqchaMenus || showAuditorMenus || showRegistrarMenus ||showZoneMenus || showTreasurerMenus) && (
               <div className="relative">
                 <button
                   onClick={() => toggleDropdown("sandouqcha", "desktop")}
@@ -305,7 +305,7 @@ const Navbar = () => {
             )}
 
             {/* Members Dropdown in Mobile */}
-            {(showAllMenus || showRegistrarMenus || showZoneMenus) && (
+            {(showAllMenus || showRegistrarMenus ) && (
               <div>
                 <button
                   onClick={() => toggleDropdown("members-mobile", "mobile")}
@@ -315,7 +315,7 @@ const Navbar = () => {
                 </button>
                 {activeMobileDropdown === "members-mobile" && (
                   <div className="bg-white text-black p-2 rounded-lg shadow-lg">
-                    {showZoneMenus ? (
+                    {(showZoneMenus || showTreasurerMenus) ? (
                       <>
                         <Link href="/members/overview" className="block py-2 hover:bg-gray-100" onClick={handleMobileLinkClick}>
                           Overview
@@ -359,7 +359,7 @@ const Navbar = () => {
             )}
 
             {/* Sandouqcha Dropdown in Mobile */}
-            {(showAllMenus || showSandouqchaMenus || showAuditorMenus) && (
+            {(showAllMenus || showSandouqchaMenus || showAuditorMenus || showRegistrarMenus || showZoneMenus || showTreasurerMenus ) && (
               <div>
                 <button
                   onClick={() => toggleDropdown("sandouqcha-mobile", "mobile")}

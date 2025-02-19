@@ -33,15 +33,36 @@ const MemberTransaction = () => {
 
   // State for form visibility and new transaction data
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [paymentFields, setPaymentFields] = useState([{ paymentFor: "", amountPaid: "" }]);
+
   const [newTransaction, setNewTransaction] = useState({
     kwsId: "",
-    paymentFor: "NEW",
     cardPrintedDate: "",
     cardExpiryDate: "",
-    amountPaid: "",
     date: "",
     remarks: "",
   });
+
+
+  const calculateTotal = () => {
+    return paymentFields.reduce((total, field) => total + (parseFloat(field.amountPaid) || 0), 0).toFixed(3);
+  };
+
+  const handlePaymentFieldChange = (e, index, field) => {
+    const updatedFields = [...paymentFields];
+    updatedFields[index][field] = e.target.value;
+    setPaymentFields(updatedFields);
+  };
+
+  const handleAddPaymentField = () => {
+    setPaymentFields([...paymentFields, { paymentFor: "", amountPaid: "" }]);
+  };
+
+  const handleRemovePaymentField = (index) => {
+    const updatedFields = paymentFields.filter((_, i) => i !== index);
+    setPaymentFields(updatedFields);
+  };
+
 
   // State for active dropdown
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -77,7 +98,7 @@ const MemberTransaction = () => {
   }, []);
 
   // Determine if the user has 'All' role
-  const hasAllRole = staffRoles?.All === true;
+  const hasAllRole = (staffRoles?.All || staffRoles?.Registrar || staffRoles?.Treasurer )  === true;
 
   // Define the handleRedirect function
   const handleRedirect = (id, action) => {
@@ -164,12 +185,8 @@ const MemberTransaction = () => {
       // Make the request
       const response = await axios.get(query);
 
-      // Check what comes back
-      // console.log("Search Response:", response.data);
-
-      // IMPORTANT: set the 'list' state to 'response.data.transactions'
+  
       setList(response.data.transactions);
-      // Also update total transactions if your backend returns it
       setTotalTransactions(response.data.totalTransactions);
     } catch (error) {
       console.error("Error applying filters:", error);
@@ -196,27 +213,33 @@ const MemberTransaction = () => {
 
     const committedId = localStorage.getItem("userId");
     try {
+      for (const payment of paymentFields) {
+
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/addtransactions`,
         {
           kwsId: newTransaction.kwsId,
-          paymentFor: newTransaction.paymentFor,
+          paymentFor:payment.paymentFor,
           cardPrintedDate: newTransaction.cardPrintedDate,
           cardExpiryDate: newTransaction.cardExpiryDate,
-          amountKWD: newTransaction.amountPaid,
+          amountKWD:payment.amountPaid,
           date: newTransaction.date,
           remarks: newTransaction.remarks,
           committedId,
         }
       );
-      // console.log("Added Transaction:", response.data); // Debugging log
       setList((prev) => [...prev, response.data.transaction]);
+
+    }
+      // console.log("Added Transaction:", response.data); // Debugging log
+      setPaymentFields([{ paymentFor: "", amountPaid: "" }]);
+
       setNewTransaction({
         kwsId: "",
-        paymentFor: "NEW",
+     
         cardPrintedDate: "",
         cardExpiryDate: "",
-        amountPaid: "",
+   
         date: "",
         remarks: "",
       });
@@ -303,6 +326,8 @@ const MemberTransaction = () => {
   const toggleDropdown = (index) => {
     setActiveDropdown((prevIndex) => (prevIndex === index ? null : index));
   };
+
+
 
   // Define Dropdown Components
   const ViewDropdown = ({ item }) => (
@@ -436,7 +461,7 @@ const MemberTransaction = () => {
     <span>Refresh</span>
   </button>
   {/* Conditionally render the Add button based on user roles */}
-  {hasAllRole && (
+  
     <button
       onClick={() => setIsFormVisible(true)}
       className="flex items-center justify-center space-x-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full sm:w-auto"
@@ -444,7 +469,6 @@ const MemberTransaction = () => {
       <AiOutlinePlus size={20} />
       <span>Add</span>
     </button>
-  )}
 </div>
 
 
@@ -469,26 +493,15 @@ const MemberTransaction = () => {
               />
             </div>
             <div>
-              <label className="block mb-2 font-bold">Payment For*</label>
-              <select
-                name="paymentFor"
-                value={newTransaction.paymentFor}
+              <label className="block mb-2 font-bold">Date*</label>
+              <input
+                type="date"
+                name="date"
+                value={newTransaction.date}
                 onChange={handleFormChange}
                 className="border p-2 rounded w-full"
                 required
-              >
-                <option value="NEW">NEW</option>
-                <option value="RENEWAL">RENEWAL</option>
-                <option value="ELITE NEW">ELITE NEW</option>
-                <option value="ELITE RENEWAL">ELITE RENEWAL</option>
-                <option value="PRIVILEGE NEW">PRIVILEGE NEW</option>
-                <option value="PRIVILEGE RENEWAL">PRIVILEGE RENEWAL</option>
-             <option value="LIFE MEMBERSHIP">LIFE MEMBERSHIP</option>
-                <option value="MBS1">MBS1</option>
-                <option value="MBS2">MBS2</option>
-                <option value="MBS3">MBS3</option>
-                <option value="MBS4">MBS4</option>
-              </select>
+              />
             </div>
             <div>
               <label className="block mb-2 font-bold">Card Printed Date</label>
@@ -510,29 +523,8 @@ const MemberTransaction = () => {
                 className="border p-2 rounded w-full"
               />
             </div>
-            <div>
-              <label className="block mb-2 font-bold">Amount Paid (KWD)*</label>
-              <input
-                type="number"
-                name="amountPaid"
-                value={newTransaction.amountPaid}
-                onChange={handleFormChange}
-                placeholder="Enter Amount"
-                className="border p-2 rounded w-full"
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-2 font-bold">Date*</label>
-              <input
-                type="date"
-                name="date"
-                value={newTransaction.date}
-                onChange={handleFormChange}
-                className="border p-2 rounded w-full"
-                required
-              />
-            </div>
+           
+            
             <div className="col-span-2">
               <label className="block mb-2 font-bold">Remarks</label>
               <textarea
@@ -544,6 +536,89 @@ const MemberTransaction = () => {
               ></textarea>
             </div>
           </div>
+
+           {/* Payment For and Amount Paid Fields */}
+        <div>
+          <label className="block  mb-2 font-bold">Number of Payments</label>
+          <select
+            value={paymentFields.length}
+            onChange={(e) => {
+              const numFields = parseInt(e.target.value, 10);
+              const updatedFields = Array.from({ length: numFields }, () => ({
+                paymentFor: "",
+                amountPaid: "",
+              }));
+              setPaymentFields(updatedFields);
+            }}
+            className="border p-2 mb-4 rounded w-full"
+          >
+            <option value={1}>1</option>
+            <option value={2}>2</option>
+            <option value={3}>3</option>
+            <option value={4}>4</option>
+            <option value={5}>5</option>
+          </select>
+        </div>
+
+        {paymentFields.map((field, index) => (
+          <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <div>
+              <label className="block mb-2 font-bold">Payment For*</label>
+              <select
+                name={`paymentFor-${index}`}
+                value={field.paymentFor}
+                onChange={(e) => handlePaymentFieldChange(e, index, "paymentFor")}
+                className="border p-2 rounded w-full"
+                required
+              >
+                <option value="NEW">NEW</option>
+                <option value="RENEWAL">RENEWAL</option>
+                <option value="ELITE NEW">ELITE NEW</option>
+                <option value="ELITE RENEWAL">ELITE RENEWAL</option>
+                <option value="PRIVILEGE NEW">PRIVILEGE NEW</option>
+                <option value="PRIVILEGE RENEWAL">PRIVILEGE RENEWAL</option>
+                <option value="MBS1">MBS1</option>
+              <option value="MBS2">MBS2</option>
+              <option value="MBS3">MBS3</option>
+              <option value="MBS4">MBS4</option>
+                <option value="LIFE MEMBERSHIP">LIFE MEMBERSHIP</option>
+              </select>
+            </div>
+            <div>
+              <label className="block mb-2 font-bold">Amount Paid (KWD)*</label>
+              <input
+                type="number"
+                name={`amountPaid-${index}`}
+                value={field.amountPaid}
+                onChange={(e) => handlePaymentFieldChange(e, index, "amountPaid")}
+                placeholder="Enter Amount"
+                className="border p-2 rounded w-full"
+                required
+              />
+            </div>
+            {index > 0 && (
+              <button
+                type="button"
+                onClick={() => handleRemovePaymentField(index)}
+                className="text-red-500 hover:text-red-700 mt-4"
+              >
+                Remove Payment
+              </button>
+            )}
+          </div>
+          
+        ))}
+        {/* Display Total Amount Paid */}
+  <div className="flex justify-start mt-4">
+    <label className="mt-2 font-bold">Total Amount Paid (KWD):</label>
+    <h1 className="ml-4 text-3xl font-semibold">{calculateTotal()}</h1>
+  </div>
+        
+
+
+
+
+
           <div className="flex justify-end space-x-4">
             <button
               type="button"
@@ -589,17 +664,9 @@ const MemberTransaction = () => {
               // Determine if user has role for this zone
               const userHasRoleForZone = staffRoles?.[memberZone] === true;
 
-              // Define when to show full dropdown vs view-only
-              // According to your request:
-              // - If user has specific zone role (userHasRoleForZone), show only View dropdown
-              // - Else, show full dropdown (if hasAllRole)
               const showViewOnlyDropdown = userHasRoleForZone;
               const showFullDropdown = hasAllRole && !showViewOnlyDropdown;
 
-              // // Debugging logs
-              // console.log(
-              //   `Transaction UID: ${item.UID}, Original Zone: ${item.For}, Normalized Zone: ${memberZone}, Is Restricted: ${isRestrictedZone}, User Has Role for Zone: ${userHasRoleForZone}, Has All Role: ${hasAllRole}`
-              // );
 
               return (
                 <tr key={index} className="text-center">

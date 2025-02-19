@@ -215,14 +215,34 @@
     ];
 
     // Check if user has 'All' role
-    const hasAllRole = staffRoles?.All === true;
+    const hasAllRole = (staffRoles?.All || staffRoles?.Registrar) === true;
 
     const exportToExcel = () => {
-      const worksheet = XLSX.utils.json_to_sheet(filteredResults);
+      // Ensure the date format is dd mm yyyy, or "-" if invalid
+      const formattedResults = filteredResults.map((item) => {
+        const formatDate = (dateValue) => {
+          if (!dateValue) return "-"; // If date is null/undefined, return "-"
+          
+          const parsedDate = new Date(dateValue);
+          return isNaN(parsedDate.getTime()) ? "-" : parsedDate.toLocaleDateString("en-GB"); 
+          // If date is invalid, return "-", otherwise format as dd/mm/yyyy
+        };
+    
+        return {
+          ...item,
+          cardValidty: formatDate(item.cardValidty),
+          cardPrinted: formatDate(item.cardPrinted),
+        };
+      });
+    
+      const worksheet = XLSX.utils.json_to_sheet(formattedResults);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Members");
       XLSX.writeFile(workbook, "members.xlsx");
     };
+    
+    
+    
 
     // Check if user has any zone roles
     const hasAnyZoneRole = zoneRoles.some((zone) => staffRoles?.[zone]);

@@ -48,6 +48,8 @@ const Transactions = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [restrictedUser, setRestrictedUser] = useState(false);
+
 
   const router = useRouter();
 
@@ -95,6 +97,31 @@ const Transactions = () => {
     fetchTransactions();
   }, []);
 
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Define allowed (restricted) zones exactly as they appear in your stored object
+      const allowedZones = ["Jleeb", "Hawally", "Salmiya", "Fahaheel", "Farwaniya"];
+      try {
+        const storedRole = localStorage.getItem("staffRoles");
+        // console.log("storedRole:", storedRole);
+        if (storedRole) {
+          const staffRoleData = JSON.parse(storedRole);
+          // console.log("staffRoleData:", staffRoleData);
+          // Check if any allowed zone has a value of true
+          const isRestricted = allowedZones.some(zone => staffRoleData[zone] === true);
+          // console.log("Restricted user:", isRestricted);
+          setRestrictedUser(isRestricted);
+        }
+      } catch (error) {
+        console.error("Error parsing staffRoles from localStorage:", error);
+      }
+    }
+  }, []);
+  
+  
+
+  
   // Handle filter changes
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -683,7 +710,7 @@ const Transactions = () => {
           <h2 className="text-lg font-bold mb-4">Add New Transaction</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="block mb-2 font-bold">Box Number</label>
+              <label className="block mb-2 font-bold">Box Number*</label>
               <input
                 type="number"
                 name="boxNumber"
@@ -707,7 +734,7 @@ const Transactions = () => {
               />
             </div>
             <div>
-              <label className="block mb-2 font-bold">Transaction Date</label>
+              <label className="block mb-2 font-bold">Transaction Date*</label>
               <input
                 type="date"
                 name="transactionDate"
@@ -718,7 +745,7 @@ const Transactions = () => {
               />
             </div>
             <div>
-              <label className="block mb-2 font-bold">Collected By (KWSID)</label>
+              <label className="block mb-2 font-bold">Collected By (KWSID)*</label>
               <input
                 type="text"
                 name="collectedByKwsid"
@@ -816,6 +843,7 @@ const Transactions = () => {
                 <th className="border px-4 py-2">Date</th>
                 <th className="border px-4 py-2">Status</th>
                 <th className="border px-4 py-2">Transaction Slip</th>
+                <th className="border px-4 py-2">Collected By</th>
                 <th className="border px-4 py-2">Amount (Total)</th>
                 <th className="border px-4 py-2">Options</th>
               </tr>
@@ -853,6 +881,8 @@ const Transactions = () => {
                         "No Slip"
                       )}
                     </td>
+                    <td className="border px-4 py-2">{item.collectedBy}</td>
+
                     <td className="border px-4 py-2">{parseFloat(item.total).toFixed(3)} KWD</td>
                     <td className="border px-4 py-2 relative">
                       <button
@@ -862,43 +892,45 @@ const Transactions = () => {
                         <AiOutlineEllipsis size={20} />
                       </button>
                       {activeDropdown === index && (
-                        <div className="absolute bg-white border shadow-md right-0 mt-2 z-10">
-                          <button
-                            onClick={() => handleOptionClick("View", item.id)}
-                            className="block px-4 py-2 text-blue-500 hover:bg-gray-100 w-full text-left"
-                          >
-                            View
-                          </button>
-                          <button
-                            onClick={() => handleOptionClick("Edit", item.id)}
-                            className="block px-4 py-2 text-green-500 hover:bg-gray-100 w-full text-left"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleOptionClick("Logs", item.id)}
-                            className="block px-4 py-2 text-yellow-500 hover:bg-gray-100 w-full text-left"
-                          >
-                            Logs
-                          </button>
-                          <button
-                            onClick={() => handleOptionClick("Delete", item.id)}
-                            className="block px-4 py-2 text-red-500 hover:bg-gray-100 w-full text-left"
-                          >
-                            Delete
-                          </button>
-                          <button
-                            onClick={() => handleOptionClick("Download Report", item.id)}
-                            className="block px-4 py-2 text-purple-500 hover:bg-gray-100 w-full text-left"
-                          >
-                            Download Report
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
+  <div className="absolute bg-white border shadow-md right-0 mt-2 z-10">
+    {(restrictedUser
+      ? [
+          { label: "View", value: "View" },
+          { label: "Download Report", value: "Download Report" },
+        ]
+      : [
+          { label: "View", value: "View" },
+          { label: "Edit", value: "Edit" },
+          { label: "Logs", value: "Logs" },
+          { label: "Delete", value: "Delete" },
+          { label: "Download Report", value: "Download Report" },
+        ]
+    ).map((optionObj, i) => (
+      <button
+        key={i}
+        onClick={() => handleOptionClick(optionObj.value, item.id)}
+        className={`block px-4 py-2 hover:bg-gray-100 w-full text-left ${
+          optionObj.value === "View"
+            ? "text-blue-500"
+            : optionObj.value === "Edit"
+            ? "text-green-500"
+            : optionObj.value === "Logs"
+            ? "text-yellow-500"
+            : optionObj.value === "Delete"
+            ? "text-red-500"
+            : "text-purple-500"
+        }`}
+      >
+        {optionObj.label}
+      </button>
+    ))}
+  </div>
+)}
+
+        </td>
+      </tr>
+    ))
+  )}
             </tbody>
           </table>
         )}
