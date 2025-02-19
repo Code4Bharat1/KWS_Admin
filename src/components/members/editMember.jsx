@@ -286,6 +286,7 @@ const handleRemoveScannedForm = () => {
       <h1 className="text-3xl md:text-5xl text-[#355F2E] font-syne font-bold text-center mb-6">
         Edit Member
       </h1>
+      <h1  className="text-xl md:text-3xl text-[#355F2E] font-semibold text-center mb-6">KWS ID : {formData.kwsid}</h1>
 
       {/* Edit Form */}
       <div className="bg-white p-6 rounded-lg shadow-md">
