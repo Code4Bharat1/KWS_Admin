@@ -63,7 +63,11 @@ const AllDetails = () => {
             {displayField("Membership Type", formData.type_of_member)}
             {displayField("Card Expiry", formData.card_expiry_date)}
             {displayField("Email", formData.email)}
-            {displayField("Date of Birth", formData.dob)}
+            {displayField("Date of Birth", new Date(formData.dob).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+}))}
             {displayField("Gender", formData.gender)}
             {displayField("Blood Group", formData.blood_group)}
             {displayField("Education Qualification", formData.education_qualification)}

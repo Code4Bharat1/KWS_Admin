@@ -9,7 +9,7 @@ const AssignStaff = () => {
   const [filters, setFilters] = useState({
     search: "",
     roles: {
-      All: false, // Changed from 'all' to 'All' to match backend
+      All: false, 
       Registrar: false,
       Treasurer: false,
       Sandouqcha: false,
@@ -98,11 +98,13 @@ const AssignStaff = () => {
   
     // Filter logic
     const filteredList = allStaff.filter((staff) => {
+
+      const searchTerm = filters.search.toLowerCase().trim(); 
       // Matches search term (KWS ID/Name)
       const matchesSearch =
-        staff.username.toLowerCase().includes(filters.search.toLowerCase()) ||
-        staff.fullName.toLowerCase().includes(filters.search.toLowerCase()) ||
-        staff.kwsid.toLowerCase().includes(filters.search.toLowerCase());
+        staff.username.toLowerCase().includes(searchTerm) ||
+        staff.fullName.toLowerCase().includes(searchTerm) ||
+        staff.kwsid.toLowerCase().includes(searchTerm);
   
       // Convert staff's roles object to an array of active roles
       const staffRoles = Object.keys(staff.roles).filter((role) => staff.roles[role]);
