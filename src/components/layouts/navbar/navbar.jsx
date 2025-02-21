@@ -305,7 +305,7 @@ const Navbar = () => {
             )}
 
             {/* Members Dropdown in Mobile */}
-            {(showAllMenus || showRegistrarMenus ) && (
+            {(showAllMenus || showRegistrarMenus|| showTreasurerMenus ||showZoneMenus ) && (
               <div>
                 <button
                   onClick={() => toggleDropdown("members-mobile", "mobile")}

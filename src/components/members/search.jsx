@@ -769,67 +769,91 @@ const Search = () => {
             </table>
 
             {/* Pagination */}
-            <div className="flex justify-center items-center space-x-2 mt-4">
-              <button
-                onClick={handlePrevPage}
-                disabled={currentPage === 1}
-                className={`px-4 py-2 rounded ${
-                  currentPage === 1
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-blue-500 text-white hover:bg-blue-600"
-                }`}
-              >
-                Prev
-              </button>
-              <button
-                onClick={() => handlePageChange(1)}
-                className={`px-4 py-2 rounded ${
-                  currentPage === 1
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-300 hover:bg-blue-500 hover:text-white"
-                }`}
-              >
-                1
-              </button>
-              {totalPages > 1 && (
-                <button
-                  onClick={() => handlePageChange(2)}
-                  className={`px-4 py-2 rounded ${
-                    currentPage === 2
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-300 hover:bg-blue-500 hover:text-white"
-                  }`}
-                >
-                  2
-                </button>
-              )}
-              {totalPages > 2 && (
-                <>
-                  <span className="px-4 py-2">...</span>
-                  <button
-                    onClick={() => handlePageChange(totalPages)}
-                    className={`px-4 py-2 rounded ${
-                      currentPage === totalPages
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-300 hover:bg-blue-500 hover:text-white"
-                    }`}
-                  >
-                    {totalPages}
-                  </button>
-                </>
-              )}
-              <button
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-                className={`px-4 py-2 rounded ${
-                  currentPage === totalPages
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : "bg-blue-500 text-white hover:bg-blue-600"
-                }`}
-              >
-                Next
-              </button>
-            </div>
+           {/* Pagination */}
+<div className="flex justify-center items-center space-x-2 mt-4">
+  {/* Previous Button */}
+  <button
+    onClick={handlePrevPage}
+    disabled={currentPage === 1}
+    className={`px-4 py-2 rounded ${
+      currentPage === 1
+        ? "bg-gray-300 cursor-not-allowed"
+        : "bg-blue-500 text-white hover:bg-blue-600"
+    }`}
+  >
+    Prev
+  </button>
+
+  {/* First Page */}
+  <button
+    onClick={() => handlePageChange(1)}
+    className={`px-4 py-2 rounded ${
+      currentPage === 1
+        ? "bg-green-700 text-white"
+        : "bg-gray-300 hover:bg-blue-500 hover:text-white"
+    }`}
+  >
+    1
+  </button>
+
+  {/* Second Page */}
+  {totalPages > 1 && (
+    <button
+      onClick={() => handlePageChange(2)}
+      className={`px-4 py-2 rounded ${
+        currentPage === 2
+          ? "bg-green-700 text-white"
+          : "bg-gray-300 hover:bg-blue-500 hover:text-white"
+      }`}
+    >
+      2
+    </button>
+  )}
+
+  {/* Ellipsis before current page if far from start */}
+  {currentPage > 3 && <span className="px-4 py-2">...</span>}
+
+  {/* Current Page Box */}
+  {currentPage > 2 && currentPage < totalPages - 1 && (
+    <button
+      className="px-4 py-2 rounded bg-green-700 text-white"
+      disabled
+    >
+      {currentPage}
+    </button>
+  )}
+
+  {/* Ellipsis after current page if far from end */}
+  {currentPage < totalPages - 2 && <span className="px-4 py-2">...</span>}
+
+  {/* Last Page */}
+  {totalPages > 2 && (
+    <button
+      onClick={() => handlePageChange(totalPages)}
+      className={`px-4 py-2 rounded ${
+        currentPage === totalPages
+          ? "bg-green-700 text-white"
+          : "bg-gray-300 hover:bg-blue-500 hover:text-white"
+      }`}
+    >
+      {totalPages}
+    </button>
+  )}
+
+  {/* Next Button */}
+  <button
+    onClick={handleNextPage}
+    disabled={currentPage === totalPages}
+    className={`px-4 py-2 rounded ${
+      currentPage === totalPages
+        ? "bg-gray-300 cursor-not-allowed"
+        : "bg-blue-500 text-white hover:bg-blue-600"
+    }`}
+  >
+    Next
+  </button>
+</div>
+
           </>
         )}
       </div>
