@@ -47,12 +47,17 @@ const MemberTransaction = () => {
   const calculateTotal = () => {
     return paymentFields.reduce((total, field) => total + (parseFloat(field.amountPaid) || 0), 0).toFixed(3);
   };
-
   const handlePaymentFieldChange = (e, index, field) => {
-    const updatedFields = [...paymentFields];
-    updatedFields[index][field] = e.target.value;
-    setPaymentFields(updatedFields);
+    const { value } = e.target;
+  
+    setPaymentFields((prevFields) =>
+      prevFields.map((fieldData, i) =>
+        i === index ? { ...fieldData, [field]: value } : fieldData
+      )
+    );
   };
+  
+  
 
   const handleAddPaymentField = () => {
     setPaymentFields([...paymentFields, { paymentFor: "", amountPaid: "" }]);
@@ -214,7 +219,12 @@ const MemberTransaction = () => {
     const committedId = localStorage.getItem("userId");
     try {
       for (const payment of paymentFields) {
-
+        
+        if (!payment.paymentFor || !payment.amountPaid) {
+          alert("Both 'Payment For' and 'Amount Paid' are required.");
+          return;
+        }
+  
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/addtransactions`,
         {
@@ -571,6 +581,7 @@ const MemberTransaction = () => {
                 className="border p-2 rounded w-full"
                 required
               >
+                <option value="">Select Payment Category</option>
                 <option value="NEW">NEW</option>
                 <option value="RENEWAL">RENEWAL</option>
                 <option value="ELITE NEW">ELITE NEW</option>
@@ -649,6 +660,11 @@ const MemberTransaction = () => {
               <th className="border px-4 py-2">Date</th>
               <th className="border px-4 py-2">Category</th>
               <th className="border px-4 py-2">For</th>
+              <th className="border px-4 py-2">Status</th>
+              <th className="border px-4 py-2">Added By</th>
+
+              <th className="border px-4 py-2">Approved By</th>
+
               <th className="border px-4 py-2">Amount (KWD)</th>
               <th className="border px-4 py-2">Options</th>
             </tr>
@@ -674,6 +690,10 @@ const MemberTransaction = () => {
                   <td className="border px-4 py-2">{item.Date}</td>
                   <td className="border px-4 py-2">{item.Category}</td>
                   <td className="border px-4 py-2">{item.For}</td>
+                  <td className="border px-4 py-2">{item.status}</td>
+                  <td className="border px-4 py-2">{item.CommittedBy}</td>
+                  <td className="border px-4 py-2">{item.approvedByKwsid}</td>
+
                   <td className="border px-4 py-2">{item.AmountKWD}</td>
                   <td className="border px-4 py-2 relative">
                     <button
