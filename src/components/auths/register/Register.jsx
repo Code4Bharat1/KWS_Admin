@@ -199,6 +199,11 @@ const Register = () => {
 
   // Navigation handlers.
   const handleNext = async () => {
+    if (currentStep === 2 && gender === "Male" && !profilePicture) {
+      setProfileError("Profile picture is required for male.");
+      return;
+    }
+  
     const isStepValid = await trigger(getStepFields(currentStep));
     if (isStepValid && currentStep < totalSteps) {
       setCurrentStep((prev) => prev + 1);
@@ -641,7 +646,7 @@ const Register = () => {
                     {gender === "Male" && (
                       <div>
                         <label className="block text-sm font-medium text-gray-700" htmlFor="profile_picture">
-                          Upload Profile Picture (Max 2MB)
+                          Upload Profile Picture * (Max 2MB)
                         </label>
                         <input
                     type="file"
