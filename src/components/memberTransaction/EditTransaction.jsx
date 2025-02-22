@@ -11,6 +11,8 @@ const EditTransaction = () => {
   const [transactionData, setTransactionData] = useState({
     kwsId: "",
     paymentFor: "",
+    status:"",
+    approvedByKwsid:"",
     cardPrintedDate: "",
     cardExpiryDate: "",
     amountPaid: "",
@@ -31,10 +33,12 @@ const EditTransaction = () => {
       // Set form data with existing transaction values
       setTransactionData({
         kwsId: data.KWSID,
+        status:data.status,
         paymentFor: data.Category,
         cardPrintedDate: data.CardPrintedDate || "",
         cardExpiryDate: data.CardExpiryDate || "",
         amountPaid: data.AmountKWD,
+        approvedByKwsid:data.approvedByKwsid,
         date: data.Date,
         remarks: data.Remarks || "",
       });
@@ -67,10 +71,12 @@ const EditTransaction = () => {
     // Clean the data: If card dates are "Not Available", send null instead
     const cleanedData = {
       category: transactionData.paymentFor,
+      status:transactionData.status,
       cardPrintedDate: transactionData.cardPrintedDate === "Not Available" ? null : transactionData.cardPrintedDate,
       cardExpiryDate: transactionData.cardExpiryDate === "Not Available" ? null : transactionData.cardExpiryDate,
       amountKWD: parseFloat(transactionData.amountPaid), // Ensure amount is a number
       date: transactionData.date,
+      approvedByKwsid:transactionData.approvedByKwsid,
       remarks: transactionData.remarks,
       committedId,
     };
@@ -179,6 +185,35 @@ const EditTransaction = () => {
               required
             />
           </div>
+          <div>
+            <label className="block mb-2 font-bold">Status</label>
+            <select
+              name="status"
+              value={transactionData.status}
+              onChange={handleChange}
+              className="border p-2 rounded w-full"
+              required
+            >
+             
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+            </select>
+          </div>
+          <div>
+          <label className="block text-gray-700 font-semibold mb-1">Approved By (KWSID)</label>
+            <input
+              type="text"
+              name="approvedByKwsid"
+              value={transactionData.approvedByKwsid}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border rounded-lg"
+            />
+
+          </div>
+
+
+         
+          
           <div className="col-span-2">
             <label className="block mb-2 font-bold">Remarks</label>
             <textarea

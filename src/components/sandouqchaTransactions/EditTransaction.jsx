@@ -14,6 +14,7 @@ const EditTransaction = () => {
     date: "",
     boxNumber: "",
     collectedByKwsid: "",
+    approvedByKwsid: "",
     notes: {
       note_20: 0,
       note_10: 0,
@@ -89,6 +90,7 @@ const EditTransaction = () => {
           },
           transactionSlipUrl: response.data.transactionSlipUrl || "",
           collectedByKwsid: response.data.collectedByKwsid || "",
+          approvedByKwsid: response.data.approvedByKwsid || "",
           status: response.data.status || "pending",
         });
         setError(null);
@@ -167,6 +169,7 @@ const EditTransaction = () => {
       formData.append("date", transaction.date);
       formData.append("boxId", transaction.boxNumber);
       formData.append("collectedByKwsid", transaction.collectedByKwsid);
+      formData.append("approvedByKwsid", transaction.approvedByKwsid);
       formData.append("note_20", transaction.notes.note_20);
       formData.append("note_10", transaction.notes.note_10);
       formData.append("note_5", transaction.notes.note_5);
@@ -309,7 +312,21 @@ const EditTransaction = () => {
                       <option value="approved">Approved</option>
                       <option value="rejected">Rejected</option>
                     </select>
+
+                    <label className="block text-gray-700 font-semibold mb-1">Approved By (KWSID)</label>
+            <input
+              type="text"
+              name="approvedByKwsid"
+              value={transaction.approvedByKwsid}
+              onChange={handleInputChange}
+              className="w-full px-4 py-2 border rounded-lg"
+            />
+
                   </div>
+
+
+                  
+                  
                 );
               }
             }

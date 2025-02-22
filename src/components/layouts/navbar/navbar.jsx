@@ -162,7 +162,7 @@ const Navbar = () => {
                 <span>Assign Staff</span>
               </Link>
             )}
-
+            
             {/* Members Dropdown (Visible for Registrar role and zones) */}
             {(showAllMenus || showRegistrarMenus || showTreasurerMenus ||showZoneMenus) && (
               <div className="relative">

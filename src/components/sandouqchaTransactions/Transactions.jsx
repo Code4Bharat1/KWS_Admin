@@ -27,6 +27,7 @@ const Transactions = () => {
     boxNumber: "",
     transactionDate: "",
     collectedByKwsid: "",
+    approvedByKwsid: null,
     notes20: 0,
     notes10: 0,
     notes5: 0,
@@ -844,6 +845,7 @@ const Transactions = () => {
                 <th className="border px-4 py-2">Status</th>
                 <th className="border px-4 py-2">Transaction Slip</th>
                 <th className="border px-4 py-2">Collected By</th>
+                <th className="border px-4 py-2">Approved By</th>
                 <th className="border px-4 py-2">Amount (Total)</th>
                 <th className="border px-4 py-2">Options</th>
               </tr>
@@ -882,7 +884,7 @@ const Transactions = () => {
                       )}
                     </td>
                     <td className="border px-4 py-2">{item.collectedBy}</td>
-
+                    <td className="border px-4 py-2">{item.approvedByKwsid || "Not Approved"}</td>
                     <td className="border px-4 py-2">{parseFloat(item.total).toFixed(3)} KWD</td>
                     <td className="border px-4 py-2 relative">
                       <button
