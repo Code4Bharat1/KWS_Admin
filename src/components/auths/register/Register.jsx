@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useForm, FormProvider, useWatch } from "react-hook-form";
 import axios from "axios";
 
+import areaData from '../../../data/area.json'
+
 
 const Register = () => {
   const methods = useForm({
@@ -24,6 +26,36 @@ const Register = () => {
   const [profileError, setProfileError] = useState("");
   
   const totalSteps = 4;
+  const districtPinMap = {
+    "Mumbai": "400001",
+    "Navi Mumbai": "400614",
+    "Thane": "400601",
+    "Ratnagiri": "415612",
+    "Raigad": "402201",
+    "Sindhudurg": "416602"
+  };
+
+  const selectedDistrict = watch("district");
+
+  // Update PIN when the district changes
+  useEffect(() => {
+    if (selectedDistrict && districtPinMap[selectedDistrict]) {
+      setValue("native_pin_no", districtPinMap[selectedDistrict]);
+    } else {
+      setValue("native_pin_no", ""); // Clear if invalid
+    }
+  }, [selectedDistrict, setValue]);
+
+  const onAreaChange = (e) => {
+    const selectedArea = e.target.value;
+    const found = areaData.find((item) => item.area === selectedArea);
+    if (found) {
+      // Automatically set the PIN code field when an area is selected
+      setValue("pin_no_india", found.pincode);
+    } else {
+      setValue("pin_no_india", "");
+    }
+  };
 
   // Watch dynamic fields.
   const numberOfNominations = useWatch({
@@ -818,28 +850,37 @@ const Register = () => {
 
                         {/* Area */}
                         <div>
-                          <label className="block text-sm font-medium text-gray-700" htmlFor="area2">
-                            Area
-                          </label>
-                          <input
-                            type="text"
-                            {...register("area2")}
-                            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                          />
-                        </div>
+        <label className="block text-sm font-medium text-gray-700" htmlFor="area2">
+          Area
+        </label>
+        <select
+          {...register("area2", { onChange: onAreaChange })}
+          className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        >
+          <option value="">Select Area</option>
+          {areaData.map((item, index) => (
+            <option key={index} value={item.area}>
+              {item.area}
+            </option>
+          ))}
+        </select>
+      </div>
 
-                        {/* PIN Code */}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700" htmlFor="pin_no_india">
-                            PIN No.*
-                          </label>
-                          <input
-                            type="number"
-                            {...register("pin_no_india", { required: "PIN Code is required." })}
-                            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                          />
-                          {errors.pin_no_india && <p className="text-red-500 text-sm mt-2">{errors.pin_no_india.message}</p>}
-                        </div>
+      {/* PIN Code Field */}
+      <div className="mt-0">
+        <label className="block text-sm font-medium text-gray-700" htmlFor="pin_no_india">
+          PIN No.*
+        </label>
+        <input
+          type="number"
+          {...register("pin_no_india", { required: "PIN Code is required." })}
+          className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          
+        />
+        {errors.pin_no_india && (
+          <p className="text-red-500 text-sm mt-2">{errors.pin_no_india.message}</p>
+        )}
+      </div>
                       </div>
                     </div>
                     {/* Address (Permanent Native) */}

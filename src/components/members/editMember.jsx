@@ -548,7 +548,7 @@ const handleRemoveScannedForm = () => {
       <img
         src={profilePicturePreview} // Display the uploaded preview
         alt="Profile Preview"
-        className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
+        className="w-36 h-44  object-cover shadow-md border-2 border-gray-300"
       />
       {/* <button
         type="button"
