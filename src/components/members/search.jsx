@@ -89,10 +89,7 @@ const Search = () => {
   // Calculate the total amount based on the payment fields
   const calculateTotal = () => {
     return transactionPaymentFields
-      .reduce(
-        (total, field) => total + (parseFloat(field.amountPaid) || 0),
-        0
-      )
+      .reduce((total, field) => total + (parseFloat(field.amountPaid) || 0), 0)
       .toFixed(3);
   };
 
@@ -113,7 +110,9 @@ const Search = () => {
 
   // Remove a payment field
   const handleRemovePaymentField = (index) => {
-    const updatedFields = transactionPaymentFields.filter((_, i) => i !== index);
+    const updatedFields = transactionPaymentFields.filter(
+      (_, i) => i !== index
+    );
     setTransactionPaymentFields(updatedFields);
   };
 
@@ -247,16 +246,24 @@ const Search = () => {
         member.zone?.toLowerCase() === filters.zone.toLowerCase();
       const matchesType =
         filters.membershipType.length === 0 ||
-        member.typeOfMember?.split(",").some((memberType) =>
-          filters.membershipType.includes(memberType.trim())
-        );
+        member.typeOfMember
+          ?.split(",")
+          .some((memberType) =>
+            filters.membershipType.includes(memberType.trim())
+          );
       const matchesStatus =
         filters.membershipStatus === "all" ||
         (filters.membershipStatus === "active" &&
           member.status?.toLowerCase() === "active") ||
         (filters.membershipStatus === "inactive" &&
           member.status?.toLowerCase() === "inactive");
-      return matchesKwsId && matchesLookUp && matchesZone && matchesType && matchesStatus;
+      return (
+        matchesKwsId &&
+        matchesLookUp &&
+        matchesZone &&
+        matchesType &&
+        matchesStatus
+      );
     });
     setFilteredResults(results);
     setCurrentPage(1); // Reset to the first page after filtering
@@ -518,6 +525,11 @@ const Search = () => {
                     ?.toLowerCase()
                     .includes("inactive");
 
+                  const splittedCardValidity = item?.cardValidty.split(" ");
+                  const finalCardValidity = splittedCardValidity
+                    ?.slice(1)
+                    .join(" ");
+
                   return (
                     <React.Fragment key={index}>
                       <tr
@@ -536,7 +548,9 @@ const Search = () => {
                           ))}
                         </td>
                         <td className="border px-4 py-2">{item.cardPrinted}</td>
-                        <td className="border px-4 py-2">{item.cardValidty}</td>
+                        <td className="border px-4 py-2">
+                          {finalCardValidity}
+                        </td>
                         <td className="border px-4 py-2">{item.status}</td>
                         <td className="border px-4 py-2 relative">
                           <button
@@ -620,7 +634,9 @@ const Search = () => {
                                     <input
                                       type="date"
                                       name="cardPrintedDate"
-                                      value={transactionFormData.cardPrintedDate}
+                                      value={
+                                        transactionFormData.cardPrintedDate
+                                      }
                                       onChange={handleTransactionFormChange}
                                       className="border p-2 rounded w-full"
                                     />
@@ -659,12 +675,20 @@ const Search = () => {
                                   <select
                                     value={transactionPaymentFields.length}
                                     onChange={(e) => {
-                                      const numFields = parseInt(e.target.value, 10);
-                                      const updatedFields = Array.from({ length: numFields }, () => ({
-                                        paymentFor: "",
-                                        amountPaid: "",
-                                      }));
-                                      setTransactionPaymentFields(updatedFields);
+                                      const numFields = parseInt(
+                                        e.target.value,
+                                        10
+                                      );
+                                      const updatedFields = Array.from(
+                                        { length: numFields },
+                                        () => ({
+                                          paymentFor: "",
+                                          amountPaid: "",
+                                        })
+                                      );
+                                      setTransactionPaymentFields(
+                                        updatedFields
+                                      );
                                     }}
                                     className="border p-2 mb-4 rounded w-full"
                                   >
@@ -689,7 +713,11 @@ const Search = () => {
                                         name={`paymentFor-${idx}`}
                                         value={field.paymentFor}
                                         onChange={(e) =>
-                                          handlePaymentFieldChange(e, idx, "paymentFor")
+                                          handlePaymentFieldChange(
+                                            e,
+                                            idx,
+                                            "paymentFor"
+                                          )
                                         }
                                         className="border p-2 rounded w-full"
                                         required
@@ -697,15 +725,25 @@ const Search = () => {
                                         <option value="">Select</option>
                                         <option value="NEW">NEW</option>
                                         <option value="RENEWAL">RENEWAL</option>
-                                        <option value="ELITE NEW">ELITE NEW</option>
-                                        <option value="ELITE RENEWAL">ELITE RENEWAL</option>
-                                        <option value="PRIVILEGE NEW">PRIVILEGE NEW</option>
-                                        <option value="PRIVILEGE RENEWAL">PRIVILEGE RENEWAL</option>
+                                        <option value="ELITE NEW">
+                                          ELITE NEW
+                                        </option>
+                                        <option value="ELITE RENEWAL">
+                                          ELITE RENEWAL
+                                        </option>
+                                        <option value="PRIVILEGE NEW">
+                                          PRIVILEGE NEW
+                                        </option>
+                                        <option value="PRIVILEGE RENEWAL">
+                                          PRIVILEGE RENEWAL
+                                        </option>
                                         <option value="MBS1">MBS1</option>
                                         <option value="MBS2">MBS2</option>
                                         <option value="MBS3">MBS3</option>
                                         <option value="MBS4">MBS4</option>
-                                        <option value="LIFE MEMBERSHIP">LIFE MEMBERSHIP</option>
+                                        <option value="LIFE MEMBERSHIP">
+                                          LIFE MEMBERSHIP
+                                        </option>
                                       </select>
                                     </div>
                                     <div>
@@ -717,7 +755,11 @@ const Search = () => {
                                         name={`amountPaid-${idx}`}
                                         value={field.amountPaid}
                                         onChange={(e) =>
-                                          handlePaymentFieldChange(e, idx, "amountPaid")
+                                          handlePaymentFieldChange(
+                                            e,
+                                            idx,
+                                            "amountPaid"
+                                          )
                                         }
                                         placeholder="Enter Amount"
                                         className="border p-2 rounded w-full"
@@ -727,7 +769,9 @@ const Search = () => {
                                     {idx > 0 && (
                                       <button
                                         type="button"
-                                        onClick={() => handleRemovePaymentField(idx)}
+                                        onClick={() =>
+                                          handleRemovePaymentField(idx)
+                                        }
                                         className="text-red-500 hover:text-red-700 mt-4"
                                       >
                                         Remove Payment
@@ -769,91 +813,92 @@ const Search = () => {
             </table>
 
             {/* Pagination */}
-           {/* Pagination */}
-<div className="flex justify-center items-center space-x-2 mt-4">
-  {/* Previous Button */}
-  <button
-    onClick={handlePrevPage}
-    disabled={currentPage === 1}
-    className={`px-4 py-2 rounded ${
-      currentPage === 1
-        ? "bg-gray-300 cursor-not-allowed"
-        : "bg-blue-500 text-white hover:bg-blue-600"
-    }`}
-  >
-    Prev
-  </button>
+            {/* Pagination */}
+            <div className="flex justify-center items-center space-x-2 mt-4">
+              {/* Previous Button */}
+              <button
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                className={`px-4 py-2 rounded ${
+                  currentPage === 1
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-blue-500 text-white hover:bg-blue-600"
+                }`}
+              >
+                Prev
+              </button>
 
-  {/* First Page */}
-  <button
-    onClick={() => handlePageChange(1)}
-    className={`px-4 py-2 rounded ${
-      currentPage === 1
-        ? "bg-green-700 text-white"
-        : "bg-gray-300 hover:bg-blue-500 hover:text-white"
-    }`}
-  >
-    1
-  </button>
+              {/* First Page */}
+              <button
+                onClick={() => handlePageChange(1)}
+                className={`px-4 py-2 rounded ${
+                  currentPage === 1
+                    ? "bg-green-700 text-white"
+                    : "bg-gray-300 hover:bg-blue-500 hover:text-white"
+                }`}
+              >
+                1
+              </button>
 
-  {/* Second Page */}
-  {totalPages > 1 && (
-    <button
-      onClick={() => handlePageChange(2)}
-      className={`px-4 py-2 rounded ${
-        currentPage === 2
-          ? "bg-green-700 text-white"
-          : "bg-gray-300 hover:bg-blue-500 hover:text-white"
-      }`}
-    >
-      2
-    </button>
-  )}
+              {/* Second Page */}
+              {totalPages > 1 && (
+                <button
+                  onClick={() => handlePageChange(2)}
+                  className={`px-4 py-2 rounded ${
+                    currentPage === 2
+                      ? "bg-green-700 text-white"
+                      : "bg-gray-300 hover:bg-blue-500 hover:text-white"
+                  }`}
+                >
+                  2
+                </button>
+              )}
 
-  {/* Ellipsis before current page if far from start */}
-  {currentPage > 3 && <span className="px-4 py-2">...</span>}
+              {/* Ellipsis before current page if far from start */}
+              {currentPage > 3 && <span className="px-4 py-2">...</span>}
 
-  {/* Current Page Box */}
-  {currentPage > 2 && currentPage < totalPages - 1 && (
-    <button
-      className="px-4 py-2 rounded bg-green-700 text-white"
-      disabled
-    >
-      {currentPage}
-    </button>
-  )}
+              {/* Current Page Box */}
+              {currentPage > 2 && currentPage < totalPages - 1 && (
+                <button
+                  className="px-4 py-2 rounded bg-green-700 text-white"
+                  disabled
+                >
+                  {currentPage}
+                </button>
+              )}
 
-  {/* Ellipsis after current page if far from end */}
-  {currentPage < totalPages - 2 && <span className="px-4 py-2">...</span>}
+              {/* Ellipsis after current page if far from end */}
+              {currentPage < totalPages - 2 && (
+                <span className="px-4 py-2">...</span>
+              )}
 
-  {/* Last Page */}
-  {totalPages > 2 && (
-    <button
-      onClick={() => handlePageChange(totalPages)}
-      className={`px-4 py-2 rounded ${
-        currentPage === totalPages
-          ? "bg-green-700 text-white"
-          : "bg-gray-300 hover:bg-blue-500 hover:text-white"
-      }`}
-    >
-      {totalPages}
-    </button>
-  )}
+              {/* Last Page */}
+              {totalPages > 2 && (
+                <button
+                  onClick={() => handlePageChange(totalPages)}
+                  className={`px-4 py-2 rounded ${
+                    currentPage === totalPages
+                      ? "bg-green-700 text-white"
+                      : "bg-gray-300 hover:bg-blue-500 hover:text-white"
+                  }`}
+                >
+                  {totalPages}
+                </button>
+              )}
 
-  {/* Next Button */}
-  <button
-    onClick={handleNextPage}
-    disabled={currentPage === totalPages}
-    className={`px-4 py-2 rounded ${
-      currentPage === totalPages
-        ? "bg-gray-300 cursor-not-allowed"
-        : "bg-blue-500 text-white hover:bg-blue-600"
-    }`}
-  >
-    Next
-  </button>
-</div>
-
+              {/* Next Button */}
+              <button
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+                className={`px-4 py-2 rounded ${
+                  currentPage === totalPages
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-blue-500 text-white hover:bg-blue-600"
+                }`}
+              >
+                Next
+              </button>
+            </div>
           </>
         )}
       </div>
