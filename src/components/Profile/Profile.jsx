@@ -59,6 +59,8 @@ const Profile = () => {
   const { username, core_kwsmember } = userData || {};
   const profilePic = core_kwsmember?.profilePicture;
 
+  const typeOfMember = (core_kwsmember?.typeOfMember).split(",").join(",  ");
+
   const handlePrint = () => {
     window.print();
   };
@@ -70,9 +72,7 @@ const Profile = () => {
         <div className="bg-green-700 h-40"></div>
         <div className="relative -mt-20 flex justify-center">
           <img
-            src={
-              profilePic || "https://via.placeholder.com/150?text=No+Image"
-            }
+            src={profilePic || "https://via.placeholder.com/150?text=No+Image"}
             alt="Profile Picture"
             className="w-56 h-56 rounded-full border-4 border-white object-cover"
           />
@@ -80,28 +80,41 @@ const Profile = () => {
         <div className="p-6 bg-gray-100 text-center">
           <h1 className="text-2xl font-bold text-green-600 ">KWS ID</h1>
           <h1 className="mt-8 text-3xl font-bold text-gray-800">
-            {core_kwsmember?.firstName || "N/A"} {core_kwsmember?.middleName || ""} {core_kwsmember?.lastName || ""}
+            {core_kwsmember?.firstName || "N/A"}{" "}
+            {core_kwsmember?.middleName || ""} {core_kwsmember?.lastName || ""}
           </h1>
-          <p className="text-black text-xl font-semibold mt-4">{core_kwsmember?.typeOfMember || "Member"}</p>
-          <p className="text-black text-xl font-semibold mt-4">{username || "Member"}</p>
-         <p className="text-green-600 text-xl font-semibold mt-4">Card Validity:-</p>
-         <p className="text-black text-xl font-semibold mt-4">
-  {core_kwsmember?.cardPrinted
-    ? new Date(core_kwsmember.cardPrinted).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      })
-    : "NA"}{" "}
-  -{" "}
-  {core_kwsmember?.cardExpiry
-    ? new Date(core_kwsmember.cardExpiry).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      })
-    : "NA"}
-</p>
+          <p className="text-black text-xl font-semibold mt-4">
+            {typeOfMember || "Member"}
+          </p>
+          <p className="text-black text-xl font-semibold mt-4">
+            {username || "Member"}
+          </p>
+          <p className="text-green-600 text-xl font-semibold mt-4">
+            Card Validity:-
+          </p>
+          <p className="text-black text-xl font-semibold mt-4">
+            {core_kwsmember?.cardPrinted
+              ? new Date(core_kwsmember.cardPrinted).toLocaleDateString(
+                  "en-GB",
+                  {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  }
+                )
+              : "NA"}{" "}
+            -{" "}
+            {core_kwsmember?.cardExpiry
+              ? new Date(core_kwsmember.cardExpiry).toLocaleDateString(
+                  "en-GB",
+                  {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  }
+                )
+              : "NA"}
+          </p>
         </div>
         {/* QR Code Section */}
         <div className="p-6 bg-white text-center">
@@ -114,7 +127,9 @@ const Profile = () => {
                 fgColor="#000000" // Foreground color
               />
             ) : (
-              <p className="text-gray-500">No username available for QR code.</p>
+              <p className="text-gray-500">
+                No username available for QR code.
+              </p>
             )}
           </div>
         </div>
