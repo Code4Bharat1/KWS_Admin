@@ -256,7 +256,9 @@ const Search = () => {
         (filters.membershipStatus === "active" &&
           member.status?.toLowerCase() === "active") ||
         (filters.membershipStatus === "inactive" &&
-          member.status?.toLowerCase() === "inactive");
+          member.status?.toLowerCase() === "inactive") ||
+        (filters.membershipStatus === "rejected" &&
+          member.status?.toLowerCase() === "rejected");
       return (
         matchesKwsId &&
         matchesLookUp &&
@@ -465,6 +467,7 @@ const Search = () => {
             <option value="all">All</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
+            <option value="rejected">Rejected</option>
           </select>
         </div>
       </div>

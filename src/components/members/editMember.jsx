@@ -6,23 +6,20 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import Select from "react-select";
 
-
 const EditMember = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const userId = searchParams.get("id"); 
-
+  const userId = searchParams.get("id");
 
   const [userData, setUserData] = useState({});
   const [kwsidError, setKwsidError] = useState("");
-  const [isKwsidChanged, setIsKwsidChanged] = useState(false); 
+  const [isKwsidChanged, setIsKwsidChanged] = useState(false);
 
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
-
 
   const memberOptions = [
     { value: "PRIVILEGE MEMBER", label: "PRIVILEGE MEMBER" },
@@ -31,7 +28,10 @@ const EditMember = () => {
     { value: "DONORS", label: "DONORS" },
     { value: "LIFETIME MEMBER", label: "LIFETIME MEMBER" },
     { value: "SENIOR VICE PRESIDENT", label: "SENIOR VICE PRESIDENT" },
-    { value: "ASSISTANT GENERAL SECRETARY", label: "ASSISTANT GENERAL SECRETARY" },
+    {
+      value: "ASSISTANT GENERAL SECRETARY",
+      label: "ASSISTANT GENERAL SECRETARY",
+    },
     { value: "ASSISTANT TREASURER", label: "ASSISTANT TREASURER" },
     { value: "EC MEMBER", label: "EC MEMBER" },
     { value: "ELITE MEMBER", label: "ELITE MEMBER" },
@@ -57,7 +57,7 @@ const EditMember = () => {
       alert("You can select a maximum of 2 types.");
       return;
     }
-  
+
     const selectedValues = selectedOptions.map((option) => option.value);
     setFormData((prev) => ({
       ...prev,
@@ -71,21 +71,23 @@ const EditMember = () => {
       setLoading(false);
       return;
     }
-  
+
     const fetchMemberData = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/get/${userId}`);
-        const userDataFetched  = response.data.data;
-      
- 
-  
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/get/${userId}`
+        );
+        const userDataFetched = response.data.data;
+
         // Format date of birth if available
-        if (userDataFetched .dob) {
-          userDataFetched .dob = new Date(userDataFetched .dob).toISOString().split("T")[0];
+        if (userDataFetched.dob) {
+          userDataFetched.dob = new Date(userDataFetched.dob)
+            .toISOString()
+            .split("T")[0];
         }
-        setUserData(userDataFetched );
-        setFormData(userDataFetched );
-  
+        setUserData(userDataFetched);
+        setFormData(userDataFetched);
+
         // Set profile picture preview if available
         if (userDataFetched.profile_picture) {
           setProfilePicturePreview(userDataFetched.profile_picture);
@@ -97,23 +99,18 @@ const EditMember = () => {
         setLoading(false);
       }
     };
-  
+
     fetchMemberData();
   }, [userId]);
-
-  
-
-
- 
 
   useEffect(() => {
     if (!formData.kwsid || !isKwsidChanged) {
       setKwsidError(""); // Clear error when empty or not changed
       return;
     }
-  
+
     const source = axios.CancelToken.source();
-  
+
     const checkKWSID = async () => {
       try {
         const response = await axios.get(
@@ -123,7 +120,7 @@ const EditMember = () => {
             cancelToken: source.token,
           }
         );
-  
+
         if (response.data.exists) {
           setKwsidError("KWS ID already exists."); // Show error only if ID exists
         } else {
@@ -135,23 +132,21 @@ const EditMember = () => {
         }
       }
     };
-  
+
     const delayDebounceFn = setTimeout(checkKWSID, 500);
-  
+
     return () => {
       clearTimeout(delayDebounceFn);
       source.cancel();
     };
   }, [formData.kwsid, isKwsidChanged]);
 
-
-
   // Handle form field changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-  
+
     setFormData((prev) => ({ ...prev, [name]: value }));
-  
+
     // If user modifies the KWS ID, mark it as changed
     if (name === "kwsid") {
       setIsKwsidChanged(true);
@@ -164,19 +159,19 @@ const EditMember = () => {
     const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
     const allowedFileTypes = ["image/jpeg", "image/jpg", "image/png"];
 
-
-
     if (file) {
-    // Check file type
-    if (!allowedFileTypes.includes(file.type)) {
-      setErrorMessage("Invalid file type. Only JPG, JPEG, and PNG are allowed.");
-      return;
-    }
+      // Check file type
+      if (!allowedFileTypes.includes(file.type)) {
+        setErrorMessage(
+          "Invalid file type. Only JPG, JPEG, and PNG are allowed."
+        );
+        return;
+      }
 
-    if (file.size > maxSizeInBytes) {
-      setErrorMessage("Profile picture exceeds the 2MB size limit.");
-      return;
-    }
+      if (file.size > maxSizeInBytes) {
+        setErrorMessage("Profile picture exceeds the 2MB size limit.");
+        return;
+      }
 
       setFormData((prevData) => ({
         ...prevData,
@@ -188,14 +183,13 @@ const EditMember = () => {
     }
   };
   // Remove profile picture
- const handleRemoveProfilePicture = () => {
-  setFormData((prevData) => ({ ...prevData, profile_picture: null }));
-  setProfilePicturePreview(null); // Remove the preview
-};
-const handleRemoveScannedForm = () => {
-  setFormData((prevData) => ({ ...prevData, form_scanned: null }));
-};
-
+  const handleRemoveProfilePicture = () => {
+    setFormData((prevData) => ({ ...prevData, profile_picture: null }));
+    setProfilePicturePreview(null); // Remove the preview
+  };
+  const handleRemoveScannedForm = () => {
+    setFormData((prevData) => ({ ...prevData, form_scanned: null }));
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]; // Only pick the first file
@@ -215,19 +209,15 @@ const handleRemoveScannedForm = () => {
     }
   };
 
-
- 
-
-
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
-  
+
     try {
       const formDataToSend = new FormData();
-  
+
       // Append form fields to FormData
       for (const key in formData) {
         if (key === "form_scanned" && formData[key] instanceof File) {
@@ -238,7 +228,7 @@ const handleRemoveScannedForm = () => {
           formDataToSend.append(key, formData[key]);
         }
       }
-  
+
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/editprofile/${userId}`,
         formDataToSend,
@@ -248,16 +238,21 @@ const handleRemoveScannedForm = () => {
           },
         }
       );
-  
+
       // console.log("Update response:", response.data);
       setSuccessMessage("Member information updated successfully.");
     } catch (error) {
-      console.error("Error updating member data:", error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.message || "An error occurred while updating the member data.");
+      console.error(
+        "Error updating member data:",
+        error.response?.data || error.message
+      );
+      setErrorMessage(
+        error.response?.data?.message ||
+          "An error occurred while updating the member data."
+      );
       window.location.reload();
     }
   };
-  
 
   // Function to format dates
   const formatDate = (dateString) => {
@@ -286,7 +281,9 @@ const handleRemoveScannedForm = () => {
       <h1 className="text-3xl md:text-5xl text-[#355F2E] font-syne font-bold text-center mb-6">
         Edit Member
       </h1>
-      <h1  className="text-xl md:text-3xl text-[#355F2E] font-semibold text-center mb-6">KWS ID : {formData.kwsid}</h1>
+      <h1 className="text-xl md:text-3xl text-[#355F2E] font-semibold text-center mb-6">
+        KWS ID : {formData.kwsid}
+      </h1>
 
       {/* Edit Form */}
       <div className="bg-white p-6 rounded-lg shadow-md">
@@ -297,7 +294,10 @@ const handleRemoveScannedForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Civil ID */}
               <div>
-                <label htmlFor="civil_id" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="civil_id"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Civil ID
                 </label>
                 <input
@@ -313,7 +313,10 @@ const handleRemoveScannedForm = () => {
 
               {/* First Name */}
               <div>
-                <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="first_name"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   First Name
                 </label>
                 <input
@@ -329,7 +332,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Middle Name */}
               <div>
-                <label htmlFor="middle_name" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="middle_name"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Middle Name
                 </label>
                 <input
@@ -344,7 +350,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Last Name */}
               <div>
-                <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="last_name"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Last Name
                 </label>
                 <input
@@ -360,7 +369,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Email Address */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Email Address
                 </label>
                 <input
@@ -376,7 +388,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Date of Birth */}
               <div>
-                <label htmlFor="dob" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="dob"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Date of Birth
                 </label>
                 <input
@@ -391,7 +406,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Blood Group */}
               <div>
-                <label htmlFor="blood_group" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="blood_group"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Blood Group
                 </label>
                 <select
@@ -418,7 +436,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Education Qualification */}
               <div>
-                <label htmlFor="education_qualification" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="education_qualification"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Education Qualification
                 </label>
                 <input
@@ -433,7 +454,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Profession */}
               <div>
-                <label htmlFor="profession" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="profession"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Profession
                 </label>
                 <input
@@ -448,7 +472,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Kuwait Contact */}
               <div>
-                <label htmlFor="kuwait_contact" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="kuwait_contact"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Kuwait Contact
                 </label>
                 <input
@@ -463,7 +490,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Kuwait Whatsapp */}
               <div>
-                <label htmlFor="kuwait_whatsapp" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="kuwait_whatsapp"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Kuwait Whatsapp
                 </label>
                 <input
@@ -478,7 +508,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Gender */}
               <div>
-                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="gender"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Gender
                 </label>
                 <select
@@ -498,7 +531,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Marital Status */}
               <div>
-                <label htmlFor="marital_status" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="marital_status"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Marital Status
                 </label>
                 <select
@@ -518,7 +554,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Family in Kuwait */}
               <div>
-                <label htmlFor="family_in_kuwait" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="family_in_kuwait"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Family in Kuwait
                 </label>
                 <select
@@ -538,19 +577,23 @@ const handleRemoveScannedForm = () => {
             </div>
           </div>
 
-       {/* Profile Picture Section */}
-<div className="mt-6 flex flex-col items-center">
-  <label className="text-lg font-medium text-gray-800 mb-4">Profile Picture (2MB Max)</label>
-<h1 className="mb-4 text-red-500">Only JPG/ JPEG / PNG images are allowed*</h1>
-  {/* Check if there's a profile picture preview */}
-  {profilePicturePreview ? (
-    <div className="relative group">
-      <img
-        src={profilePicturePreview} // Display the uploaded preview
-        alt="Profile Preview"
-        className="w-36 h-44  object-cover shadow-md border-2 border-gray-300"
-      />
-      {/* <button
+          {/* Profile Picture Section */}
+          <div className="mt-6 flex flex-col items-center">
+            <label className="text-lg font-medium text-gray-800 mb-4">
+              Profile Picture (2MB Max)
+            </label>
+            <h1 className="mb-4 text-red-500">
+              Only JPG/ JPEG / PNG images are allowed*
+            </h1>
+            {/* Check if there's a profile picture preview */}
+            {profilePicturePreview ? (
+              <div className="relative group">
+                <img
+                  src={profilePicturePreview} // Display the uploaded preview
+                  alt="Profile Preview"
+                  className="w-36 h-44  object-cover shadow-md border-2 border-gray-300"
+                />
+                {/* <button
         type="button"
         onClick={handleRemoveProfilePicture}
         className="absolute top-2 right-2 bg-red-600 text-white text-sm p-1 rounded-full shadow-md hover:bg-red-700 transition-all duration-200"
@@ -558,94 +601,95 @@ const handleRemoveScannedForm = () => {
         &times;
       </button> */}
 
-      {/* Profile Picture Upload Button */}
-      <label
-        htmlFor="profilePictureUpload"
-        className="mt-2 flex items-center justify-center w-48 h-12 border-2 border-blue-500 rounded-lg cursor-pointer hover:bg-blue-100 transition-all duration-200"
-      >
-        <span className="text-blue-500">Change Picture</span>
-        <input
-          type="file"
-          id="profilePictureUpload"
-          accept="image/*"
-          onChange={handleProfilePictureChange}
-          className="hidden"
-        />
-      </label>
-    </div>
-  ) : userData.profile_picture ? ( // If no preview, check for existing profile picture
-    <div className="relative group">
-      <img
-        src={userData.profile_picture} // Display the existing profile picture from userData
-        alt="Current Profile Picture"
-        className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
-      />
-      <button
-        type="button"
-        onClick={handleRemoveProfilePicture}
-        className="absolute top-2 right-2 bg-red-600 text-white text-sm p-1 rounded-full shadow-md hover:bg-red-700 transition-all duration-200"
-      >
-        &times;
-      </button>
-      
-      {/* Profile Picture Upload Button */}
-      <label
-        htmlFor="profilePictureUpload"
-        className="mt-2 flex items-center justify-center w-48 h-12 border-2 border-black rounded-lg cursor-pointer hover:bg-blue-100 transition-all duration-200"
-      >
-        <span className="text-black">Change Picture</span>
-        <input
-          type="file"
-          id="profilePictureUpload"
-          accept="image/*"
-          onChange={handleProfilePictureChange}
-          className="hidden"
-        />
-      </label>
-    </div>
-  ) : (
-    // If no picture is available, show the upload button
-    <label
-      htmlFor="profilePictureUpload"
-      className="mt-2 flex flex-col justify-center items-center w-48 h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 hover:border-blue-500 transition-all duration-200"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-10 w-10 text-gray-500 mb-2"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M12 16l4-4m0 0l-4-4m4 4H8m8 4v6m0-6H8"
-        />
-      </svg>
-      <span className="text-gray-500 text-sm">Upload Profile Picture</span>
-      <input
-        type="file"
-        id="profilePictureUpload"
-        accept="image/*"
-        onChange={handleProfilePictureChange} // Handle the file upload
-        className="hidden"
-      />
-    </label>
-  )}
-</div>
+                {/* Profile Picture Upload Button */}
+                <label
+                  htmlFor="profilePictureUpload"
+                  className="mt-2 flex items-center justify-center w-48 h-12 border-2 border-blue-500 rounded-lg cursor-pointer hover:bg-blue-100 transition-all duration-200"
+                >
+                  <span className="text-blue-500">Change Picture</span>
+                  <input
+                    type="file"
+                    id="profilePictureUpload"
+                    accept="image/*"
+                    onChange={handleProfilePictureChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            ) : userData.profile_picture ? ( // If no preview, check for existing profile picture
+              <div className="relative group">
+                <img
+                  src={userData.profile_picture} // Display the existing profile picture from userData
+                  alt="Current Profile Picture"
+                  className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveProfilePicture}
+                  className="absolute top-2 right-2 bg-red-600 text-white text-sm p-1 rounded-full shadow-md hover:bg-red-700 transition-all duration-200"
+                >
+                  &times;
+                </button>
 
+                {/* Profile Picture Upload Button */}
+                <label
+                  htmlFor="profilePictureUpload"
+                  className="mt-2 flex items-center justify-center w-48 h-12 border-2 border-black rounded-lg cursor-pointer hover:bg-blue-100 transition-all duration-200"
+                >
+                  <span className="text-black">Change Picture</span>
+                  <input
+                    type="file"
+                    id="profilePictureUpload"
+                    accept="image/*"
+                    onChange={handleProfilePictureChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            ) : (
+              // If no picture is available, show the upload button
+              <label
+                htmlFor="profilePictureUpload"
+                className="mt-2 flex flex-col justify-center items-center w-48 h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 hover:border-blue-500 transition-all duration-200"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-10 w-10 text-gray-500 mb-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 16l4-4m0 0l-4-4m4 4H8m8 4v6m0-6H8"
+                  />
+                </svg>
+                <span className="text-gray-500 text-sm">
+                  Upload Profile Picture
+                </span>
+                <input
+                  type="file"
+                  id="profilePictureUpload"
+                  accept="image/*"
+                  onChange={handleProfilePictureChange} // Handle the file upload
+                  className="hidden"
+                />
+              </label>
+            )}
+          </div>
 
-
-
-         
           {/* Address (Kuwait) Section */}
           <div className="mt-6">
             <h2 className="text-2xl font-semibold mb-4">Address (Kuwait)</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Flat No */}
               <div>
-                <label htmlFor="flat_no" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="flat_no"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Flat No
                 </label>
                 <input
@@ -660,7 +704,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Floor No */}
               <div>
-                <label htmlFor="floor_no" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="floor_no"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Floor No
                 </label>
                 <input
@@ -675,7 +722,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Block No */}
               <div>
-                <label htmlFor="block_no" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="block_no"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Block No
                 </label>
                 <input
@@ -690,7 +740,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Building Name No */}
               <div>
-                <label htmlFor="building_name_no" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="building_name_no"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Building Name No
                 </label>
                 <input
@@ -705,7 +758,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Street Name No. */}
               <div>
-                <label htmlFor="street_no_name" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="street_no_name"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Street Name No.
                 </label>
                 <input
@@ -720,7 +776,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Area */}
               <div>
-                <label htmlFor="area" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="area"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Area
                 </label>
                 <input
@@ -741,7 +800,10 @@ const handleRemoveScannedForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Complete Indian Address */}
               <div>
-                <label htmlFor="residence_complete_address" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="residence_complete_address"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Complete Indian Address
                 </label>
                 <input
@@ -756,7 +818,10 @@ const handleRemoveScannedForm = () => {
 
               {/* PIN No. */}
               <div>
-                <label htmlFor="pin_no_india" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="pin_no_india"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   PIN No.
                 </label>
                 <input
@@ -773,11 +838,16 @@ const handleRemoveScannedForm = () => {
 
           {/* Address (Permanent Native) Section */}
           <div className="mt-6">
-            <h2 className="text-2xl font-semibold mb-4">Address (Permanent Native)</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Address (Permanent Native)
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Mohalla or Village */}
               <div>
-                <label htmlFor="mohalla_village" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="mohalla_village"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Mohalla or Village
                 </label>
                 <input
@@ -792,7 +862,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Taluka */}
               <div>
-                <label htmlFor="taluka" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="taluka"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Taluka
                 </label>
                 <input
@@ -807,7 +880,10 @@ const handleRemoveScannedForm = () => {
 
               {/* District */}
               <div>
-                <label htmlFor="district" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="district"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   District
                 </label>
                 <input
@@ -822,7 +898,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Native PIN No. */}
               <div>
-                <label htmlFor="native_pin_no" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="native_pin_no"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Native PIN No.
                 </label>
                 <input
@@ -839,11 +918,16 @@ const handleRemoveScannedForm = () => {
 
           {/* Contact Numbers (India) Section */}
           <div className="mt-6">
-            <h2 className="text-2xl font-semibold mb-4">Contact Numbers (India)</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Contact Numbers (India)
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Indian Contact No. 1 */}
               <div>
-                <label htmlFor="indian_contact_no_1" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="indian_contact_no_1"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Indian Contact No. 1
                 </label>
                 <input
@@ -858,7 +942,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Indian Contact No. 2 */}
               <div>
-                <label htmlFor="indian_contact_no_2" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="indian_contact_no_2"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Indian Contact No. 2
                 </label>
                 <input
@@ -873,7 +960,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Indian Contact No. 3 */}
               <div>
-                <label htmlFor="indian_contact_no_3" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="indian_contact_no_3"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Indian Contact No. 3
                 </label>
                 <input
@@ -890,11 +980,16 @@ const handleRemoveScannedForm = () => {
 
           {/* Emergency Contacts (Kuwait) Section */}
           <div className="mt-6">
-            <h2 className="text-2xl font-semibold mb-4">Emergency Contact (Kuwait)</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Emergency Contact (Kuwait)
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Emergency Name (Kuwait) */}
               <div>
-                <label htmlFor="emergency_name_kuwait" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="emergency_name_kuwait"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Emergency Name (Kuwait)
                 </label>
                 <input
@@ -909,7 +1004,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Emergency Contact (Kuwait) */}
               <div>
-                <label htmlFor="emergency_contact_kuwait" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="emergency_contact_kuwait"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Emergency Contact (Kuwait)
                 </label>
                 <input
@@ -926,11 +1024,16 @@ const handleRemoveScannedForm = () => {
 
           {/* Emergency Contacts (India) Section */}
           <div className="mt-6">
-            <h2 className="text-2xl font-semibold mb-4">Emergency Contact (India)</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Emergency Contact (India)
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Emergency Name (India) */}
               <div>
-                <label htmlFor="emergency_name_india" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="emergency_name_india"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Emergency Name (India)
                 </label>
                 <input
@@ -945,7 +1048,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Emergency Contact (India) */}
               <div>
-                <label htmlFor="emergency_contact_india" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="emergency_contact_india"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Emergency Contact (India)
                 </label>
                 <input
@@ -966,7 +1072,10 @@ const handleRemoveScannedForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Father's Name */}
               <div>
-                <label htmlFor="father_name" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="father_name"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Father's Name
                 </label>
                 <input
@@ -981,7 +1090,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Mother's Name */}
               <div>
-                <label htmlFor="mother_name" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="mother_name"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Mother's Name
                 </label>
                 <input
@@ -996,7 +1108,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Spouse's Name */}
               <div>
-                <label htmlFor="spouse_name" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="spouse_name"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Spouse's Name
                 </label>
                 <input
@@ -1011,7 +1126,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Name of First Child */}
               <div>
-                <label htmlFor="child_name_1" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="child_name_1"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Name of First Child
                 </label>
                 <input
@@ -1026,7 +1144,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Name of Second Child */}
               <div>
-                <label htmlFor="child_name_2" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="child_name_2"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Name of Second Child
                 </label>
                 <input
@@ -1041,7 +1162,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Name of Third Child */}
               <div>
-                <label htmlFor="child_name_3" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="child_name_3"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Name of Third Child
                 </label>
                 <input
@@ -1056,7 +1180,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Name of Fourth Child */}
               <div>
-                <label htmlFor="child_name_4" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="child_name_4"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Name of Fourth Child
                 </label>
                 <input
@@ -1071,7 +1198,10 @@ const handleRemoveScannedForm = () => {
 
               {/* Name of Fifth Child */}
               <div>
-                <label htmlFor="child_name_5" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="child_name_5"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Name of Fifth Child
                 </label>
                 <input
@@ -1088,11 +1218,16 @@ const handleRemoveScannedForm = () => {
 
           {/* Additional Information Section */}
           <div className="mt-6">
-            <h2 className="text-2xl font-semibold mb-4">Additional Information</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Additional Information
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
               {/* Additional Information */}
               <div>
-                <label htmlFor="additional_information" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="additional_information"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Any additional information to pass to KWS on registration
                 </label>
                 <input
@@ -1114,7 +1249,10 @@ const handleRemoveScannedForm = () => {
             {/* First Nominee */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
-                <label htmlFor="full_name_1" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="full_name_1"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Name of First MBS Nominee
                 </label>
                 <input
@@ -1128,7 +1266,10 @@ const handleRemoveScannedForm = () => {
               </div>
 
               <div>
-                <label htmlFor="relation_1" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="relation_1"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Relationship
                 </label>
                 <input
@@ -1142,7 +1283,10 @@ const handleRemoveScannedForm = () => {
               </div>
 
               <div>
-                <label htmlFor="percentage_1" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="percentage_1"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Percentage
                 </label>
                 <input
@@ -1158,7 +1302,10 @@ const handleRemoveScannedForm = () => {
               </div>
 
               <div>
-                <label htmlFor="mobile_1" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="mobile_1"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Contact
                 </label>
                 <input
@@ -1175,7 +1322,10 @@ const handleRemoveScannedForm = () => {
             {/* Second Nominee */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
-                <label htmlFor="full_name_2" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="full_name_2"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Name of Second MBS Nominee
                 </label>
                 <input
@@ -1189,7 +1339,10 @@ const handleRemoveScannedForm = () => {
               </div>
 
               <div>
-                <label htmlFor="relation_2" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="relation_2"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Relationship
                 </label>
                 <input
@@ -1203,7 +1356,10 @@ const handleRemoveScannedForm = () => {
               </div>
 
               <div>
-                <label htmlFor="percentage_2" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="percentage_2"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Percentage
                 </label>
                 <input
@@ -1219,7 +1375,10 @@ const handleRemoveScannedForm = () => {
               </div>
 
               <div>
-                <label htmlFor="mobile_2" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="mobile_2"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Contact
                 </label>
                 <input
@@ -1236,7 +1395,10 @@ const handleRemoveScannedForm = () => {
             {/* Third Nominee */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
-                <label htmlFor="full_name_3" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="full_name_3"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Name of Third MBS Nominee
                 </label>
                 <input
@@ -1250,7 +1412,10 @@ const handleRemoveScannedForm = () => {
               </div>
 
               <div>
-                <label htmlFor="relation_3" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="relation_3"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Relationship
                 </label>
                 <input
@@ -1264,7 +1429,10 @@ const handleRemoveScannedForm = () => {
               </div>
 
               <div>
-                <label htmlFor="percentage_3" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="percentage_3"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Percentage
                 </label>
                 <input
@@ -1280,7 +1448,10 @@ const handleRemoveScannedForm = () => {
               </div>
 
               <div>
-                <label htmlFor="mobile_3" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="mobile_3"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Contact
                 </label>
                 <input
@@ -1297,7 +1468,10 @@ const handleRemoveScannedForm = () => {
             {/* Fourth Nominee */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 border-b-4 border-black pb-4">
               <div>
-                <label htmlFor="full_name_4" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="full_name_4"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Name of Fourth MBS Nominee
                 </label>
                 <input
@@ -1311,7 +1485,10 @@ const handleRemoveScannedForm = () => {
               </div>
 
               <div>
-                <label htmlFor="relation_4" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="relation_4"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Relationship
                 </label>
                 <input
@@ -1325,7 +1502,10 @@ const handleRemoveScannedForm = () => {
               </div>
 
               <div>
-                <label htmlFor="percentage_4" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="percentage_4"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Percentage
                 </label>
                 <input
@@ -1341,7 +1521,10 @@ const handleRemoveScannedForm = () => {
               </div>
 
               <div>
-                <label htmlFor="mobile_4" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="mobile_4"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Contact
                 </label>
                 <input
@@ -1357,11 +1540,16 @@ const handleRemoveScannedForm = () => {
 
             {/* Office Use Section */}
             <div className="mt-6">
-              <h2 className="text-4xl mb-4 text-center border-b-4 border-black">Office Use</h2>
+              <h2 className="text-4xl mb-4 text-center border-b-4 border-black">
+                Office Use
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Application Date (Printed Only) */}
                 <div>
-                  <label htmlFor="application_date" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="application_date"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Application Date
                   </label>
                   <p className="text-gray-900">
@@ -1373,21 +1561,30 @@ const handleRemoveScannedForm = () => {
 
                 {/* Type of Member Dropdown */}
                 <div>
-    <label className="block text-sm font-medium text-gray-700">
-      Type of Member (Select up to 2)
-    </label>
-    <Select
-      options={memberOptions}
-      isMulti
-      value={formData.type_of_member ? formData.type_of_member.split(",").map(value => ({ value, label: value })) : []}
-      onChange={handleMemberTypeChange}
-      className="mt-1"
-      placeholder="Select up to 2..."
-    />
-  </div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Type of Member (Select up to 2)
+                  </label>
+                  <Select
+                    options={memberOptions}
+                    isMulti
+                    value={
+                      formData.type_of_member
+                        ? formData.type_of_member
+                            .split(",")
+                            .map((value) => ({ value, label: value }))
+                        : []
+                    }
+                    onChange={handleMemberTypeChange}
+                    className="mt-1"
+                    placeholder="Select up to 2..."
+                  />
+                </div>
                 {/* Admin Charges Dropdown */}
                 <div>
-                  <label htmlFor="admin_charges" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="admin_charges"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Admin Charges
                   </label>
                   <select
@@ -1407,7 +1604,10 @@ const handleRemoveScannedForm = () => {
 
                 {/* Amount in KWD */}
                 <div>
-                  <label htmlFor="amount_in_kwd" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="amount_in_kwd"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Amount (KWD) paid as admin charges
                   </label>
                   <input
@@ -1423,7 +1623,10 @@ const handleRemoveScannedForm = () => {
 
                 {/* Form Received By */}
                 <div>
-                  <label htmlFor="form_recieved_by" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="form_recieved_by"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Form Received By
                   </label>
                   <input
@@ -1437,58 +1640,64 @@ const handleRemoveScannedForm = () => {
                 </div>
 
                 {/* Form Scanned Section */}
-<div className="mt-6">
-  <label htmlFor="form_scanned" className="block text-sm font-medium text-gray-700">
-    Scanned Form
-  </label>
-  <input
-    type="file"
-    name="form_scanned"
-    id="form_scanned"
-    accept="image/*"
-    onChange={handleImageChange}
-    className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-  />
-  <div className="mt-4">
-    {formData.form_scanned instanceof File ? (
-      <div className="relative mb-4">
-        <img
-          src={URL.createObjectURL(formData.form_scanned)}
-          alt="Scanned Form"
-          className="w-full h-auto rounded-lg border"
-        />
-        <button
-          type="button"
-          onClick={handleRemoveScannedForm}
-          className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded"
-        >
-          Remove
-        </button>
-      </div>
-    ) : userData.form_scanned ? (
-      <div className="relative mb-4">
-        <img
-          src={userData.form_scanned}
-          alt="Uploaded Scanned Form"
-          className="w-full h-auto rounded-lg border"
-        />
-        <button
-          type="button"
-          onClick={handleRemoveScannedForm}
-          className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded"
-        >
-          Remove
-        </button>
-      </div>
-    ) : (
-      <p className="text-gray-500">No scanned form uploaded.</p>
-    )}
-  </div>
-</div>
+                <div className="mt-6">
+                  <label
+                    htmlFor="form_scanned"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Scanned Form
+                  </label>
+                  <input
+                    type="file"
+                    name="form_scanned"
+                    id="form_scanned"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <div className="mt-4">
+                    {formData.form_scanned instanceof File ? (
+                      <div className="relative mb-4">
+                        <img
+                          src={URL.createObjectURL(formData.form_scanned)}
+                          alt="Scanned Form"
+                          className="w-full h-auto rounded-lg border"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRemoveScannedForm}
+                          className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : userData.form_scanned ? (
+                      <div className="relative mb-4">
+                        <img
+                          src={userData.form_scanned}
+                          alt="Uploaded Scanned Form"
+                          className="w-full h-auto rounded-lg border"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRemoveScannedForm}
+                          className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-gray-500">No scanned form uploaded.</p>
+                    )}
+                  </div>
+                </div>
 
                 {/* Card Printed Dropdown */}
                 <div>
-                  <label htmlFor="card_printed" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="card_printed"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Card Printed?
                   </label>
                   <select
@@ -1508,7 +1717,10 @@ const handleRemoveScannedForm = () => {
 
                 {/* Card Printed Date */}
                 <div>
-                  <label htmlFor="card_printed_date" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="card_printed_date"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Card Printed Date
                   </label>
                   <input
@@ -1523,7 +1735,10 @@ const handleRemoveScannedForm = () => {
 
                 {/* Card Expiry Date */}
                 <div>
-                  <label htmlFor="card_expiry_date" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="card_expiry_date"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Card Expiry Date
                   </label>
                   <input
@@ -1538,7 +1753,10 @@ const handleRemoveScannedForm = () => {
 
                 {/* Zone Member Dropdown */}
                 <div>
-                  <label htmlFor="zone_member" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="zone_member"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Zone Member
                   </label>
                   <select
@@ -1561,7 +1779,10 @@ const handleRemoveScannedForm = () => {
 
                 {/* Follow Up Member */}
                 <div>
-                  <label htmlFor="follow_up_member" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="follow_up_member"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Member for Follow Up
                   </label>
                   <input
@@ -1576,7 +1797,10 @@ const handleRemoveScannedForm = () => {
 
                 {/* Office Comments */}
                 <div>
-                  <label htmlFor="office_comments" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="office_comments"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Comments for Internal Use
                   </label>
                   <textarea
@@ -1590,80 +1814,87 @@ const handleRemoveScannedForm = () => {
                   ></textarea>
                 </div>
 
-
-               {/* KWS ID Field */}
-{/* KWS ID Field */}
-<div>
-  <label htmlFor="kwsid" className="block text-sm font-medium text-gray-700">
-    KWS ID
-  </label>
-  <input
-    type="text"
-    name="kwsid"
-    id="kwsid"
-    value={formData.kwsid || ""}
-    onChange={handleChange}
-    className={`mt-1 p-2 block w-full rounded-lg border-2 
+                {/* KWS ID Field */}
+                {/* KWS ID Field */}
+                <div>
+                  <label
+                    htmlFor="kwsid"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    KWS ID
+                  </label>
+                  <input
+                    type="text"
+                    name="kwsid"
+                    id="kwsid"
+                    value={formData.kwsid || ""}
+                    onChange={handleChange}
+                    className={`mt-1 p-2 block w-full rounded-lg border-2 
       ${kwsidError ? "border-red-500 focus:border-red-500" : "border-gray-300"} 
       shadow-sm focus:ring-blue-500`}
-  />
-  
-  {/* Show error message only if the user has changed the field */}
-  {isKwsidChanged && kwsidError && (
-    <p className="text-red-500 text-sm mt-1">{kwsidError}</p>
-  )}
-</div>
+                  />
 
+                  {/* Show error message only if the user has changed the field */}
+                  {isKwsidChanged && kwsidError && (
+                    <p className="text-red-500 text-sm mt-1">{kwsidError}</p>
+                  )}
+                </div>
               </div>
             </div>
+          </div>
+          <div className="mt-6">
+            <h2 className="text-2xl font-semibold mb-4">Membership Status</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="membership_status"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Membership Status
+                </label>
+                <select
+                  name="membership_status"
+                  id="membership_status"
+                  value={formData.membership_status || ""}
+                  onChange={handleChange}
+                  className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  // required
+                >
+                  <option value="" disabled>
+                    Select Status
+                  </option>
+                  <option value="approved">Approved</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
             </div>
-            <div className="mt-6">
-  <h2 className="text-2xl font-semibold mb-4">Membership Status</h2>
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <label htmlFor="membership_status" className="block text-sm font-medium text-gray-700">
-        Membership Status
-      </label>
-      <select
-        name="membership_status"
-        id="membership_status"
-        value={formData.membership_status || ""}
-        onChange={handleChange}
-        className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-        // required
-      >
-        <option value="" disabled>
-          Select Status
-        </option>
-        <option value="approved">Approved</option>
-        <option value="inactive">Inactive</option>
-      </select>
-    </div>
-  </div>
-</div>
+          </div>
 
-            {/* Error and Success Messages */}
-            {errorMessage && (
-              <div className="text-red-500 text-center text-sm mt-4">{errorMessage}</div>
-            )}
-            {successMessage && (
-              <div className="text-green-500 text-center text-sm mt-4">{successMessage}</div>
-            )}
-
-            {/* Submit Button */}
-            <div className="text-center mt-6">
-              <button
-                type="submit"
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
-              >
-                Update Member
-              </button>
+          {/* Error and Success Messages */}
+          {errorMessage && (
+            <div className="text-red-500 text-center text-sm mt-4">
+              {errorMessage}
             </div>
-          
-          </form>
-        </div>
+          )}
+          {successMessage && (
+            <div className="text-green-500 text-center text-sm mt-4">
+              {successMessage}
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <div className="text-center mt-6">
+            <button
+              type="submit"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+            >
+              Update Member
+            </button>
+          </div>
+        </form>
       </div>
-    );
+    </div>
+  );
 };
 
 export default EditMember;
