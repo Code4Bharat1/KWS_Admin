@@ -15,7 +15,9 @@ const InfoUpdate = () => {
     const fetchPendingRequests = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/pending-updates`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/pending-updates`
+        );
         setPendingRequests(response.data.updateRequests);
       } catch (error) {
         console.error("Error fetching pending requests:", error);
@@ -30,7 +32,7 @@ const InfoUpdate = () => {
 
   // Handle Review button click
   const handleReview = (requestId) => {
-    const request = pendingRequests.find(req => req.id === requestId);
+    const request = pendingRequests.find((req) => req.id === requestId);
     setSelectedRequest(request); // Set the selected request for review
     // console.log("Selected Request for Review:", request); // Debugging log to inspect the selected request
   };
@@ -40,12 +42,17 @@ const InfoUpdate = () => {
     if (!selectedRequest) return;
     setIsProcessing(true);
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/approve`, {
-        updateRequestId: selectedRequest.id,
-        approvedBy: "Admin", // You can dynamically fetch admin details
-      });
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/approve`,
+        {
+          updateRequestId: selectedRequest.id,
+          approvedBy: "Admin", // You can dynamically fetch admin details
+        }
+      );
       setSelectedRequest(null); // Close the modal after approval
-      setPendingRequests(prev => prev.filter(req => req.id !== selectedRequest.id)); // Remove approved request from the list
+      setPendingRequests((prev) =>
+        prev.filter((req) => req.id !== selectedRequest.id)
+      ); // Remove approved request from the list
       setErrorMessage(""); // Clear any errors
     } catch (error) {
       console.error("Error approving the request:", error);
@@ -110,71 +117,90 @@ const InfoUpdate = () => {
 
       {/* Modal for Reviewing the Request */}
       {selectedRequest && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white p-6 rounded-lg w-full max-w-3xl overflow-y-auto max-h-[80vh]">
-      <h3 className="text-xl font-bold mb-4">Review Update Request</h3>
-      <div className="space-y-4">
-        <p><strong>Username:</strong> {selectedRequest.username || "N/A"}</p>
-        <p><strong>Type of Member:</strong> {selectedRequest.type_of_member || "N/A"}</p>
-        <p><strong>Zone:</strong> {selectedRequest.zone_member || "N/A"}</p>
-        <p><strong>Date Requested:</strong> {selectedRequest.requested_date}</p>
-        <div className="space-y-2">
-          <p><strong>Profile Information:</strong></p>
-          {selectedRequest.data && Object.keys(selectedRequest.data).map((key) => (
-            <p key={key}><strong>{key}:</strong> {selectedRequest.data[key]}</p>
-          ))}
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-3xl overflow-y-auto max-h-[80vh]">
+            <h3 className="text-xl font-bold mb-4">Review Update Request</h3>
+            <div className="space-y-4">
+              <p>
+                <strong>Username:</strong> {selectedRequest.username || "N/A"}
+              </p>
+              <p>
+                <strong>Type of Member:</strong>{" "}
+                {selectedRequest.type_of_member || "N/A"}
+              </p>
+              <p>
+                <strong>Zone:</strong> {selectedRequest.zone_member || "N/A"}
+              </p>
+              <p>
+                <strong>Date Requested:</strong>{" "}
+                {selectedRequest.requested_date}
+              </p>
+              <div className="space-y-2">
+                <p>
+                  <strong>Profile Information:</strong>
+                </p>
+                {selectedRequest.data &&
+                  Object.keys(selectedRequest.data).map((key) => (
+                    <p key={key}>
+                      <strong>{key}:</strong> {selectedRequest.data[key]}
+                    </p>
+                  ))}
+              </div>
+
+              {/* Table for Previous vs Requested Data */}
+              <div className="overflow-x-auto mt-4">
+                <table className="w-full border-collapse border border-gray-300">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="border px-4 py-2">Field</th>
+                      <th className="border px-4 py-2">Previous Value</th>
+                      <th className="border px-4 py-2">Requested Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Iterate over the keys in requested_data */}
+                    {Object.keys(selectedRequest.requested_data || {}).map(
+                      (key) => (
+                        <tr key={key} className="text-center">
+                          {/* Display key */}
+                          <td className="border px-4 py-2">
+                            {key.replace(/_/g, " ")}
+                          </td>
+                          {/* Display previous data if available */}
+                          <td className="border px-4 py-2">
+                            {selectedRequest.previous_data?.[key] || "N/A"}
+                          </td>
+                          {/* Display requested data */}
+                          <td className="border px-4 py-2 text-blue-500 font-semibold">
+                            {selectedRequest.requested_data[key] || "N/A"}
+                          </td>
+                        </tr>
+                      )
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Modal Buttons */}
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={handleApprove}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Processing..." : "Approve"}
+              </button>
+              <button
+                onClick={() => setSelectedRequest(null)}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
-
-        {/* Table for Previous vs Requested Data */}
-        <div className="overflow-x-auto mt-4">
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border px-4 py-2">Field</th>
-                <th className="border px-4 py-2">Previous Value</th>
-                <th className="border px-4 py-2">Requested Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {/* Iterate over the keys in requested_data */}
-              {Object.keys(selectedRequest.requested_data || {}).map((key) => (
-                <tr key={key} className="text-center">
-                  {/* Display key */}
-                  <td className="border px-4 py-2">{key.replace(/_/g, " ")}</td>
-                  {/* Display previous data if available */}
-                  <td className="border px-4 py-2">{selectedRequest.previous_data?.[key] || "N/A"}</td>
-                  {/* Display requested data */}
-                  <td className="border px-4 py-2 text-blue-500 font-semibold">
-                    {selectedRequest.requested_data[key] || "N/A"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-      </div>
-
-      {/* Modal Buttons */}
-      <div className="flex justify-between mt-6">
-        <button
-          onClick={handleApprove}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          disabled={isProcessing}
-        >
-          {isProcessing ? "Processing..." : "Approve"}
-        </button>
-        <button
-          onClick={() => setSelectedRequest(null)}
-          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+      )}
     </div>
   );
 };

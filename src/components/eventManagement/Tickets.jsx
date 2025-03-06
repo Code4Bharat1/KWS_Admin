@@ -8,7 +8,7 @@ const Tickets = () => {
   const router = useRouter();
   const [tickets, setTickets] = useState([]);
   const [error, setError] = useState(null);
-  const [id, setId] = useState(null);  // State to store the event ID
+  const [id, setId] = useState(null); // State to store the event ID
   const [searchQuery, setSearchQuery] = useState(""); // For search input
   const [showAddForm, setShowAddForm] = useState(false); // State to control showing the add form
   const [newTicket, setNewTicket] = useState({
@@ -39,7 +39,9 @@ const Tickets = () => {
 
     const fetchTickets = async () => {
       try {
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/tickets/${id}`);
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/tickets/${id}`
+        );
         // console.log("Fetched tickets:", response.data); // Log fetched tickets for debugging
         setTickets(response.data); // Set the fetched tickets to state
       } catch (err) {
@@ -67,7 +69,9 @@ const Tickets = () => {
     if (id) {
       const fetchTickets = async () => {
         try {
-          const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/tickets/${id}`);
+          const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/tickets/${id}`
+          );
           setTickets(response.data);
         } catch (err) {
           console.error("Error fetching tickets:", err);
@@ -97,13 +101,21 @@ const Tickets = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!newTicket.name || !newTicket.phone || !newTicket.civil_id || !newTicket.ticket_no || !newTicket.amount_in_kwd) {
+    if (
+      !newTicket.name ||
+      !newTicket.phone ||
+      !newTicket.civil_id ||
+      !newTicket.ticket_no ||
+      !newTicket.amount_in_kwd
+    ) {
       alert("All fields are required.");
       return;
     }
 
     // Check if ticket number already exists
-    const ticketExists = tickets.some(ticket => ticket.ticketNo === newTicket.ticket_no);
+    const ticketExists = tickets.some(
+      (ticket) => ticket.ticketNo === newTicket.ticket_no
+    );
     if (ticketExists) {
       alert("This ticket number already exists.");
       return;
@@ -113,7 +125,10 @@ const Tickets = () => {
 
     try {
       // Make the POST request to the backend with the event ID
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/addticket/${id}`, newTicket);
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/addticket/${id}`,
+        newTicket
+      );
       setTickets((prev) => [...prev, response.data]);
       setShowAddForm(false); // Hide the form after submission
       setNewTicket({
@@ -131,7 +146,7 @@ const Tickets = () => {
   };
 
   const toggleDropdown = (ticketId) => {
-    setDropdownOpen(prev => prev === ticketId ? null : ticketId);
+    setDropdownOpen((prev) => (prev === ticketId ? null : ticketId));
   };
 
   const handleView = (ticketNo, eventId) => {
@@ -140,7 +155,9 @@ const Tickets = () => {
       console.error("Ticket number or Event ID is missing.");
       return;
     }
-    router.push(`/event-management/tickets/view-ticket?id=${ticketNo}&event_id=${eventId}`);
+    router.push(
+      `/event-management/tickets/view-ticket?id=${ticketNo}&event_id=${eventId}`
+    );
   };
 
   const handleEdit = (ticketNo, eventId) => {
@@ -148,7 +165,9 @@ const Tickets = () => {
       console.error("Ticket number or Event ID is missing.");
       return;
     }
-    router.push(`/event-management/tickets/edit-ticket?id=${ticketNo}&event_id=${eventId}`);
+    router.push(
+      `/event-management/tickets/edit-ticket?id=${ticketNo}&event_id=${eventId}`
+    );
   };
 
   const handleDelete = async (ticketNo, event_id) => {
@@ -162,14 +181,17 @@ const Tickets = () => {
 
     try {
       // Sending the DELETE request with both ticketNo and event_id
-      const response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/deleteticket/${ticketNo}`, {
-        data: { event_id },  // Send event_id in the request body
-      });
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/deleteticket/${ticketNo}`,
+        {
+          data: { event_id }, // Send event_id in the request body
+        }
+      );
 
       // console.log("Ticket deleted:", response.data);  // Log success response
 
       // Remove the deleted ticket from the state
-      setTickets(tickets.filter(ticket => ticket.ticketNo !== ticketNo)); // Use ticketNo to filter
+      setTickets(tickets.filter((ticket) => ticket.ticketNo !== ticketNo)); // Use ticketNo to filter
 
       alert("Ticket deleted successfully.");
     } catch (err) {
@@ -180,7 +202,9 @@ const Tickets = () => {
 
   return (
     <div className="p-6 font-sans bg-gray-50">
-      <h1 className="mt-4 text-center text-4xl md:text-5xl text-[#355F2E] font-bold font-syne">Tickets</h1>
+      <h1 className="mt-4 text-center text-4xl md:text-5xl text-[#355F2E] font-bold font-syne">
+        Tickets
+      </h1>
 
       {/* Filters Section */}
       <div className="flex flex-col md:flex-row justify-between mt-6 mb-6">
@@ -223,55 +247,78 @@ const Tickets = () => {
 
       {/* Add Ticket Form */}
       {showAddForm && (
-        <form onSubmit={handleSubmit} className="mb-6 p-4 border border-gray-300 rounded-lg max-w-sm mx-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="mb-6 p-4 border border-gray-300 rounded-lg max-w-sm mx-auto"
+        >
           <h2 className="text-lg font-bold mb-4">Create Ticket</h2>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-600 mb-1">Full Name*</label>
+              <label className="text-sm font-medium text-gray-600 mb-1">
+                Full Name*
+              </label>
               <input
                 type="text"
                 value={newTicket.name}
-                onChange={(e) => setNewTicket({ ...newTicket, name: e.target.value })}
+                onChange={(e) =>
+                  setNewTicket({ ...newTicket, name: e.target.value })
+                }
                 className="px-4 py-2 border border-gray-300 rounded-lg"
                 placeholder="Full Name"
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-600 mb-1">Phone No.*</label>
+              <label className="text-sm font-medium text-gray-600 mb-1">
+                Phone No.*
+              </label>
               <input
                 type="text"
                 value={newTicket.phone}
-                onChange={(e) => setNewTicket({ ...newTicket, phone: e.target.value })}
+                onChange={(e) =>
+                  setNewTicket({ ...newTicket, phone: e.target.value })
+                }
                 className="px-4 py-2 border border-gray-300 rounded-lg"
                 placeholder="Phone No."
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-600 mb-1">Civil ID*</label>
+              <label className="text-sm font-medium text-gray-600 mb-1">
+                Civil ID*
+              </label>
               <input
                 type="text"
                 value={newTicket.civil_id}
-                onChange={(e) => setNewTicket({ ...newTicket, civil_id: e.target.value })}
+                onChange={(e) =>
+                  setNewTicket({ ...newTicket, civil_id: e.target.value })
+                }
                 className="px-4 py-2 border border-gray-300 rounded-lg"
                 placeholder="Civil ID"
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-600 mb-1">Ticket ID*</label>
+              <label className="text-sm font-medium text-gray-600 mb-1">
+                Ticket ID*
+              </label>
               <input
                 type="text"
                 value={newTicket.ticket_no}
-                onChange={(e) => setNewTicket({ ...newTicket, ticket_no: e.target.value })}
+                onChange={(e) =>
+                  setNewTicket({ ...newTicket, ticket_no: e.target.value })
+                }
                 className="px-4 py-2 border border-gray-300 rounded-lg"
                 placeholder="Ticket ID"
               />
             </div>
             <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-600 mb-1">Amount (KWD)*</label>
+              <label className="text-sm font-medium text-gray-600 mb-1">
+                Amount (KWD)*
+              </label>
               <input
                 type="number"
                 value={newTicket.amount_in_kwd}
-                onChange={(e) => setNewTicket({ ...newTicket, amount_in_kwd: e.target.value })}
+                onChange={(e) =>
+                  setNewTicket({ ...newTicket, amount_in_kwd: e.target.value })
+                }
                 className="px-4 py-2 border border-gray-300 rounded-lg"
                 placeholder="Amount in KWD"
               />
@@ -300,16 +347,26 @@ const Tickets = () => {
         <table className="min-w-full bg-white mt-6 border-collapse">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Ticket No</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Time Sold</th>
-              <th className="px-6 py-3 text-center text-sm font-medium text-gray-500">Options</th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">
+                Ticket No
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">
+                Time Sold
+              </th>
+              <th className="px-6 py-3 text-center text-sm font-medium text-gray-500">
+                Options
+              </th>
             </tr>
           </thead>
           <tbody>
             {tickets.map((ticket) => (
               <tr key={ticket.ticketNo}>
-                <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">{ticket.ticketNo}</td>
-                <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">{ticket.timeSold}</td>
+                <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                  {ticket.ticketNo}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                  {ticket.timeSold}
+                </td>
                 <td className="px-6 py-4 text-center">
                   <div className="relative inline-block">
                     <button
@@ -328,7 +385,7 @@ const Tickets = () => {
                         </button>
                         <button
                           className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
-                          onClick={() => handleEdit(ticket.ticketNo, id)}  // Use ticket.ticketNo
+                          onClick={() => handleEdit(ticket.ticketNo, id)} // Use ticket.ticketNo
                         >
                           Edit
                         </button>
@@ -339,7 +396,9 @@ const Tickets = () => {
                             if (ticket.ticketNo && id) {
                               handleDelete(ticket.ticketNo, id);
                             } else {
-                              console.error("Ticket number or Event ID missing");
+                              console.error(
+                                "Ticket number or Event ID missing"
+                              );
                             }
                           }}
                         >

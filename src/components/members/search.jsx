@@ -47,6 +47,7 @@ const Search = () => {
     zone: "all",
     membershipType: [],
     membershipStatus: "all",
+    cardStatus: "all",
   });
 
   // State for member list and filtered results
@@ -229,6 +230,7 @@ const Search = () => {
       const matchesKwsId = filters.kwsId
         ? member.kwsid?.toLowerCase().includes(filters.kwsId.toLowerCase())
         : true;
+
       const matchesLookUp = filters.lookUp
         ? filters.lookUp
             .toLowerCase()
@@ -241,9 +243,11 @@ const Search = () => {
                 member.civil_id?.includes(word)
             )
         : true;
+
       const matchesZone =
         filters.zone === "all" ||
         member.zone?.toLowerCase() === filters.zone.toLowerCase();
+
       const matchesType =
         filters.membershipType.length === 0 ||
         member.typeOfMember
@@ -251,6 +255,7 @@ const Search = () => {
           .some((memberType) =>
             filters.membershipType.includes(memberType.trim())
           );
+
       const matchesStatus =
         filters.membershipStatus === "all" ||
         (filters.membershipStatus === "active" &&
@@ -259,14 +264,24 @@ const Search = () => {
           member.status?.toLowerCase() === "inactive") ||
         (filters.membershipStatus === "rejected" &&
           member.status?.toLowerCase() === "rejected");
+
+      const matchesCardValidity =
+        filters.cardStatus === "all" ||
+        (filters.cardStatus === "expired" &&
+          new Date(member?.cardValidty) < new Date()) ||
+        (filters.cardStatus === "valid" &&
+          new Date(member?.cardValidty) >= new Date());
+
       return (
         matchesKwsId &&
         matchesLookUp &&
         matchesZone &&
         matchesType &&
-        matchesStatus
+        matchesStatus &&
+        matchesCardValidity
       );
     });
+
     setFilteredResults(results);
     setCurrentPage(1); // Reset to the first page after filtering
   };
@@ -468,6 +483,19 @@ const Search = () => {
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
             <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div>
+          <label className="block mb-2 font-bold">Card Status</label>
+          <select
+            name="cardStatus"
+            value={filters.cardStatus}
+            onChange={handleFilterChange}
+            className="border p-2 rounded w-full"
+          >
+            <option value="all">All</option>
+            <option value="valid">Active</option>
+            <option value="expired">Expired</option>
           </select>
         </div>
       </div>

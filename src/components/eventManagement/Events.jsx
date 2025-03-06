@@ -58,9 +58,11 @@ const Events = () => {
   const fetchEvents = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/get`);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/get`
+      );
       // console.log("Fetched Events:", response.data);
-      
+
       // Ensure response.data is an array
       if (Array.isArray(response.data)) {
         setEvents(response.data);
@@ -202,7 +204,10 @@ const Events = () => {
       {/* Filters Section */}
       <div className="justify-center mt-12 flex flex-col md:flex-row gap-4 mb-6">
         <div className="flex flex-col w-full md:w-auto">
-          <label htmlFor="eventName" className="text-sm font-medium text-gray-600 mb-1">
+          <label
+            htmlFor="eventName"
+            className="text-sm font-medium text-gray-600 mb-1"
+          >
             Event Name
           </label>
           <input
@@ -217,7 +222,10 @@ const Events = () => {
         </div>
 
         <div className="flex flex-col w-full md:w-auto">
-          <label htmlFor="startTime" className="text-sm font-medium text-gray-600 mb-1">
+          <label
+            htmlFor="startTime"
+            className="text-sm font-medium text-gray-600 mb-1"
+          >
             Start Time
           </label>
           <input
@@ -231,7 +239,10 @@ const Events = () => {
         </div>
 
         <div className="flex flex-col w-full md:w-auto">
-          <label htmlFor="endTime" className="text-sm font-medium text-gray-600 mb-1">
+          <label
+            htmlFor="endTime"
+            className="text-sm font-medium text-gray-600 mb-1"
+          >
             End Time
           </label>
           <input
@@ -278,7 +289,10 @@ const Events = () => {
           <h2 className="text-lg font-bold mb-4">Add New Event</h2>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col">
-              <label htmlFor="newEventName" className="text-sm font-medium text-gray-600 mb-1">
+              <label
+                htmlFor="newEventName"
+                className="text-sm font-medium text-gray-600 mb-1"
+              >
                 Event Name
               </label>
               <input
@@ -288,11 +302,16 @@ const Events = () => {
                 placeholder="Event Name"
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                 value={newEvent.name}
-                onChange={(e) => setNewEvent({ ...newEvent, name: e.target.value })}
+                onChange={(e) =>
+                  setNewEvent({ ...newEvent, name: e.target.value })
+                }
               />
             </div>
             <div className="flex flex-col">
-              <label htmlFor="newStartTime" className="text-sm font-medium text-gray-600 mb-1">
+              <label
+                htmlFor="newStartTime"
+                className="text-sm font-medium text-gray-600 mb-1"
+              >
                 Start Time
               </label>
               <input
@@ -301,11 +320,16 @@ const Events = () => {
                 type="datetime-local"
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                 value={newEvent.start_date}
-                onChange={(e) => setNewEvent({ ...newEvent, start_date: e.target.value })}
+                onChange={(e) =>
+                  setNewEvent({ ...newEvent, start_date: e.target.value })
+                }
               />
             </div>
             <div className="flex flex-col">
-              <label htmlFor="newEndTime" className="text-sm font-medium text-gray-600 mb-1">
+              <label
+                htmlFor="newEndTime"
+                className="text-sm font-medium text-gray-600 mb-1"
+              >
                 End Time
               </label>
               <input
@@ -314,7 +338,9 @@ const Events = () => {
                 type="datetime-local"
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                 value={newEvent.end_date}
-                onChange={(e) => setNewEvent({ ...newEvent, end_date: e.target.value })}
+                onChange={(e) =>
+                  setNewEvent({ ...newEvent, end_date: e.target.value })
+                }
               />
             </div>
             <div className="flex justify-between">
@@ -343,13 +369,23 @@ const Events = () => {
         <table className="min-w-full bg-white">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">ID</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Event Name</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">Start Time</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">End Time</th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">
+                ID
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">
+                Event Name
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">
+                Start Time
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-500">
+                End Time
+              </th>
               {/* Conditionally Render "Options" Column Header */}
               {shouldShowOptions && (
-                <th className="px-6 py-3 text-center text-sm font-medium text-gray-500">Options</th>
+                <th className="px-6 py-3 text-center text-sm font-medium text-gray-500">
+                  Options
+                </th>
               )}
             </tr>
           </thead>
@@ -357,8 +393,12 @@ const Events = () => {
             {Array.isArray(filteredEvents) && filteredEvents.length > 0 ? (
               filteredEvents.map((event) => (
                 <tr key={event.id} className="border-t">
-                  <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">{event.id}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">{event.name}</td>
+                  <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                    {event.id}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
+                    {event.name}
+                  </td>
                   <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
                     {new Date(event.start_date).toLocaleString()}
                   </td>
