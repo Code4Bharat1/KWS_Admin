@@ -17,12 +17,18 @@ const Search = () => {
 
   // Navigation functions for editing and viewing a member
   const handleEdit = (userId) => {
+    if (!userId) return; // Ensure userId is valid
     router.push(`/members/edit-member?id=${userId}`);
   };
 
   const handleView = (userId) => {
+    if (!userId) return; // Ensure userId is valid
     router.push(`/members/view-member?id=${userId}`);
   };
+
+  // State for active dropdown
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   // Hide dropdown when clicking outside
   useEffect(() => {
@@ -35,7 +41,7 @@ const Search = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [dropdownRef, setShowDropdown]); // Add dependencies
 
   // State for user roles
   const [staffRoles, setStaffRoles] = useState(null);
@@ -48,6 +54,7 @@ const Search = () => {
     membershipType: [],
     membershipStatus: "all",
     cardStatus: "all",
+    yearOfCardExpiry: "all", // Added yearOfCardExpiry
   });
 
   // State for member list and filtered results
@@ -62,16 +69,10 @@ const Search = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // State for active dropdown
-  const [activeDropdown, setActiveDropdown] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(false);
-
   // ---------------- Transaction Form States ----------------
-  // When a user clicks "Add Transaction", we store that member's data here.
   const [selectedUserForTransaction, setSelectedUserForTransaction] =
     useState(null);
 
-  // Data for the transaction form
   const [transactionFormData, setTransactionFormData] = useState({
     kwsId: "",
     cardPrintedDate: "",
@@ -80,50 +81,46 @@ const Search = () => {
     remarks: "",
   });
 
-  // Dynamic Payment fields state
   const [transactionPaymentFields, setTransactionPaymentFields] = useState([
     { paymentFor: "", amountPaid: "" },
   ]);
 
   // ---------------- Utility Functions for Transaction Form ----------------
 
-  // Calculate the total amount based on the payment fields
   const calculateTotal = () => {
     return transactionPaymentFields
       .reduce((total, field) => total + (parseFloat(field.amountPaid) || 0), 0)
       .toFixed(3);
   };
 
-  // Handle changes in dynamic payment fields
   const handlePaymentFieldChange = (e, index, field) => {
+    if (index < 0 || index >= transactionPaymentFields.length) return; // Ensure index is valid
     const updatedFields = [...transactionPaymentFields];
     updatedFields[index][field] = e.target.value;
     setTransactionPaymentFields(updatedFields);
   };
 
-  // Option to add more payment fields
   const handleAddPaymentField = () => {
+    if (transactionPaymentFields.length >= 10) return; // Limit the number of payment fields
     setTransactionPaymentFields([
       ...transactionPaymentFields,
       { paymentFor: "", amountPaid: "" },
     ]);
   };
 
-  // Remove a payment field
   const handleRemovePaymentField = (index) => {
+    if (index < 0 || index >= transactionPaymentFields.length) return; // Ensure index is valid
     const updatedFields = transactionPaymentFields.filter(
       (_, i) => i !== index
     );
     setTransactionPaymentFields(updatedFields);
   };
 
-  // Handle changes in the transaction form fields
   const handleTransactionFormChange = (e) => {
     const { name, value } = e.target;
     setTransactionFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Submit the transaction form (calls the same API for adding a transaction)
   const handleTransactionFormSubmit = async (e) => {
     e.preventDefault();
     const committedId = localStorage.getItem("userId");
@@ -143,10 +140,9 @@ const Search = () => {
             committedId,
           }
         );
-        // (Optionally) you can update your UI based on response.data.transaction
+        // Optionally update UI based on response.data.transaction
       }
       alert("Transaction added successfully!");
-      // Reset the transaction form and hide it
       setTransactionPaymentFields([{ paymentFor: "", amountPaid: "" }]);
       setTransactionFormData({
         kwsId: "",
@@ -158,11 +154,14 @@ const Search = () => {
       setSelectedUserForTransaction(null);
     } catch (error) {
       console.error("Error adding transaction:", error);
-      alert("Failed to add transaction.");
+      alert(
+        `Failed to add transaction: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     }
   };
 
-  // Cancel transaction form
   const handleTransactionFormCancel = () => {
     setTransactionPaymentFields([{ paymentFor: "", amountPaid: "" }]);
     setTransactionFormData({
@@ -179,9 +178,9 @@ const Search = () => {
 
   const handleMembershipChange = (type) => {
     setFilters((prev) => {
-      const selectedTypes = prev.membershipType.includes(type)
+      const selectedTypes = prev.membershipType?.includes(type)
         ? prev.membershipType.filter((t) => t !== type)
-        : [...prev.membershipType, type];
+        : [...(prev.membershipType || []), type];
       return { ...prev, membershipType: selectedTypes };
     });
   };
@@ -203,12 +202,14 @@ const Search = () => {
         `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/getmembers`
       );
       if (response.data && response.data.members) {
-        setList(response.data.members); // Full member list
-        setFilteredResults(response.data.members); // Initially set filtered results
+        setList(response.data.members);
+        setFilteredResults(response.data.members);
       }
     } catch (err) {
       console.error("Error fetching members:", err);
-      setError("Failed to fetch members.");
+      setError(
+        `Failed to fetch members: ${err.response?.data?.message || err.message}`
+      );
     } finally {
       setLoading(false);
     }
@@ -221,6 +222,7 @@ const Search = () => {
   // Handle filter changes
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
+    if (!name || value === undefined) return; // Ensure name and value are valid
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -272,13 +274,18 @@ const Search = () => {
         (filters.cardStatus === "valid" &&
           new Date(member?.cardValidty) >= new Date());
 
+      const matchesYearOfCardValidity =
+        filters.yearOfCardExpiry === "all" ||
+        member?.cardValidty.includes(filters.yearOfCardExpiry);
+
       return (
         matchesKwsId &&
         matchesLookUp &&
         matchesZone &&
         matchesType &&
         matchesStatus &&
-        matchesCardValidity
+        matchesCardValidity &&
+        matchesYearOfCardValidity
       );
     });
 
@@ -294,6 +301,8 @@ const Search = () => {
       zone: "all",
       membershipType: [],
       membershipStatus: "all",
+      cardStatus: "all", // Reset cardStatus
+      yearOfCardExpiry: "all", // Reset yearOfCardExpiry
     });
     setFilteredResults(list);
     setCurrentPage(1);
@@ -301,6 +310,7 @@ const Search = () => {
 
   // Toggle dropdown menu
   const toggleDropdown = (index) => {
+    if (index === null || index === undefined) return; // Ensure index is valid
     setActiveDropdown((prev) => (prev === index ? null : index));
   };
 
@@ -311,6 +321,7 @@ const Search = () => {
   const totalPages = Math.ceil(filteredResults.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
+    if (pageNumber < 1 || pageNumber > totalPages) return; // Ensure pageNumber is valid
     setCurrentPage(pageNumber);
   };
 
@@ -357,7 +368,6 @@ const Search = () => {
   const hasAllRole = (staffRoles?.All || staffRoles?.Registrar) === true;
 
   const exportToExcel = () => {
-    // Format dates as dd/mm/yyyy or "-" if invalid
     const formattedResults = filteredResults.map((item) => {
       const formatDate = (dateValue) => {
         if (!dateValue) return "-";
@@ -383,10 +393,9 @@ const Search = () => {
 
   // ---------------- New Function: Handle "Add Transaction" ----------------
   const handleAddTransaction = (member) => {
-    // Set the selected member and prefill the kwsId field
+    if (!member) return; // Ensure member is valid
     setSelectedUserForTransaction(member);
-    setTransactionFormData((prev) => ({ ...prev, kwsId: member.kwsid }));
-    // Optionally, close any open dropdown
+    setTransactionFormData((prev) => ({ ...prev, kwsId: member.kwsid || "" }));
     setActiveDropdown(null);
   };
 
@@ -496,6 +505,24 @@ const Search = () => {
             <option value="all">All</option>
             <option value="valid">Active</option>
             <option value="expired">Expired</option>
+          </select>
+        </div>
+        <div>
+          <label className="block mb-2 font-bold">Year of Card Expiry</label>
+          <select
+            name="yearOfCardExpiry"
+            value={filters.yearOfCardExpiry}
+            onChange={handleFilterChange}
+            className="border p-2 rounded w-full"
+          >
+            <option value="all">All</option>
+            <option value="2020">2020</option>
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
           </select>
         </div>
       </div>
@@ -843,7 +870,6 @@ const Search = () => {
               </tbody>
             </table>
 
-            {/* Pagination */}
             {/* Pagination */}
             <div className="flex justify-center items-center space-x-2 mt-4">
               {/* Previous Button */}

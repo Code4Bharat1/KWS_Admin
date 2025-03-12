@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library'; // Importing the necessary ZXing components
+import { BrowserMultiFormatReader, NotFoundException } from "@zxing/library"; // Importing the necessary ZXing components
 import axios from "axios";
 
 const ScanAttendance = () => {
@@ -9,7 +9,7 @@ const ScanAttendance = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [scannerActive, setScannerActive] = useState(false);
-  const [isPopupVisible, setIsPopupVisible] = useState(false);  // State to control the popup visibility
+  const [isPopupVisible, setIsPopupVisible] = useState(false); // State to control the popup visibility
   const videoRef = useRef(null); // Ref to hold the video element
 
   useEffect(() => {
@@ -87,7 +87,9 @@ const ScanAttendance = () => {
         }
       );
 
-      setSuccessMessage(response.data.message || "Attendance marked successfully.");
+      setSuccessMessage(
+        response.data.message || "Attendance marked successfully."
+      );
       setErrorMessage(null);
       setIsPopupVisible(true); // Show popup after successful scan
     } catch (error) {
@@ -109,12 +111,20 @@ const ScanAttendance = () => {
 
       {/* QR Scanner */}
       <div className="flex justify-center mb-4">
-        <video ref={videoRef} width="300" height="300" style={{ border: "1px solid #ddd" }} />
+        <video
+          ref={videoRef}
+          width="300"
+          height="300"
+          style={{ border: "1px solid #ddd" }}
+        />
       </div>
 
       {/* Input Field for Scanned Code */}
       <div className="w-full max-w-md mx-auto mb-4">
-        <label htmlFor="ticketId" className="block text-sm font-medium text-gray-700">
+        <label
+          htmlFor="ticketId"
+          className="block text-sm font-medium text-gray-700"
+        >
           Scanned Ticket/KWS ID:
         </label>
         <input
@@ -141,15 +151,22 @@ const ScanAttendance = () => {
         <p className="text-sm text-red-500 mt-2 text-center">{errorMessage}</p>
       )}
       {successMessage && (
-        <p className="text-sm text-green-500 mt-2 text-center">{successMessage}</p>
+        <p className="text-sm text-green-500 mt-2 text-center">
+          {successMessage}
+        </p>
       )}
 
       {/* Success Popup */}
       {isPopupVisible && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
-            <h3 className="text-lg font-semibold text-green-500">Attendance Marked</h3>
-            <p className="text-sm mt-2">The attendance has been successfully marked for ticket {scannedCode}.</p>
+            <h3 className="text-lg font-semibold text-green-500">
+              Attendance Marked
+            </h3>
+            <p className="text-sm mt-2">
+              The attendance has been successfully marked for ticket{" "}
+              {scannedCode}.
+            </p>
             <button
               onClick={closePopup}
               className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"

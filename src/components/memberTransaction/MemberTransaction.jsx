@@ -10,7 +10,7 @@ import {
 } from "react-icons/ai";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import * as XLSX from "xlsx";   
+import * as XLSX from "xlsx";
 
 const MemberTransaction = () => {
   const router = useRouter();
@@ -33,7 +33,9 @@ const MemberTransaction = () => {
 
   // State for form visibility and new transaction data
   const [isFormVisible, setIsFormVisible] = useState(false);
-  const [paymentFields, setPaymentFields] = useState([{ paymentFor: "", amountPaid: "" }]);
+  const [paymentFields, setPaymentFields] = useState([
+    { paymentFor: "", amountPaid: "" },
+  ]);
 
   const [newTransaction, setNewTransaction] = useState({
     kwsId: "",
@@ -43,21 +45,20 @@ const MemberTransaction = () => {
     remarks: "",
   });
 
-
   const calculateTotal = () => {
-    return paymentFields.reduce((total, field) => total + (parseFloat(field.amountPaid) || 0), 0).toFixed(3);
+    return paymentFields
+      .reduce((total, field) => total + (parseFloat(field.amountPaid) || 0), 0)
+      .toFixed(3);
   };
   const handlePaymentFieldChange = (e, index, field) => {
     const { value } = e.target;
-  
+
     setPaymentFields((prevFields) =>
       prevFields.map((fieldData, i) =>
         i === index ? { ...fieldData, [field]: value } : fieldData
       )
     );
   };
-  
-  
 
   const handleAddPaymentField = () => {
     setPaymentFields([...paymentFields, { paymentFor: "", amountPaid: "" }]);
@@ -67,7 +68,6 @@ const MemberTransaction = () => {
     const updatedFields = paymentFields.filter((_, i) => i !== index);
     setPaymentFields(updatedFields);
   };
-
 
   // State for active dropdown
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -103,7 +103,9 @@ const MemberTransaction = () => {
   }, []);
 
   // Determine if the user has 'All' role
-  const hasAllRole = (staffRoles?.All || staffRoles?.Registrar || staffRoles?.Treasurer )  === true;
+  const hasAllRole =
+    (staffRoles?.All || staffRoles?.Registrar || staffRoles?.Treasurer) ===
+    true;
 
   // Define the handleRedirect function
   const handleRedirect = (id, action) => {
@@ -126,7 +128,9 @@ const MemberTransaction = () => {
   // Handle deleting a transaction
   const deleteTransaction = async (uid) => {
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/delete/${uid}`);
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/delete/${uid}`
+      );
       setList((prev) => prev.filter((transaction) => transaction.UID !== uid));
       alert("Transaction deleted successfully!");
     } catch (error) {
@@ -190,7 +194,6 @@ const MemberTransaction = () => {
       // Make the request
       const response = await axios.get(query);
 
-  
       setList(response.data.transactions);
       setTotalTransactions(response.data.totalTransactions);
     } catch (error) {
@@ -215,41 +218,38 @@ const MemberTransaction = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-
     const committedId = localStorage.getItem("userId");
     try {
       for (const payment of paymentFields) {
-        
         if (!payment.paymentFor || !payment.amountPaid) {
           alert("Both 'Payment For' and 'Amount Paid' are required.");
           return;
         }
-  
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/addtransactions`,
-        {
-          kwsId: newTransaction.kwsId,
-          paymentFor:payment.paymentFor,
-          cardPrintedDate: newTransaction.cardPrintedDate,
-          cardExpiryDate: newTransaction.cardExpiryDate,
-          amountKWD:payment.amountPaid,
-          date: newTransaction.date,
-          remarks: newTransaction.remarks,
-          committedId,
-        }
-      );
-      setList((prev) => [...prev, response.data.transaction]);
 
-    }
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/transaction/addtransactions`,
+          {
+            kwsId: newTransaction.kwsId,
+            paymentFor: payment.paymentFor,
+            cardPrintedDate: newTransaction.cardPrintedDate,
+            cardExpiryDate: newTransaction.cardExpiryDate,
+            amountKWD: payment.amountPaid,
+            date: newTransaction.date,
+            remarks: newTransaction.remarks,
+            committedId,
+          }
+        );
+        setList((prev) => [...prev, response.data.transaction]);
+      }
       // console.log("Added Transaction:", response.data); // Debugging log
       setPaymentFields([{ paymentFor: "", amountPaid: "" }]);
 
       setNewTransaction({
         kwsId: "",
-     
+
         cardPrintedDate: "",
         cardExpiryDate: "",
-   
+
         date: "",
         remarks: "",
       });
@@ -289,7 +289,6 @@ const MemberTransaction = () => {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
     XLSX.writeFile(workbook, "transactions.xlsx");
   };
-
 
   // Handle print functionality
   const handlePrint = () => {
@@ -336,8 +335,6 @@ const MemberTransaction = () => {
   const toggleDropdown = (index) => {
     setActiveDropdown((prevIndex) => (prevIndex === index ? null : index));
   };
-
-
 
   // Define Dropdown Components
   const ViewDropdown = ({ item }) => (
@@ -442,45 +439,44 @@ const MemberTransaction = () => {
 
       {/* Action Buttons */}
       <div className="flex flex-wrap justify-center gap-2 mb-6">
-  <button
-    onClick={handleSearch}
-    className="flex items-center justify-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full sm:w-auto"
-  >
-    <AiOutlineSearch size={20} />
-    <span>Search</span>
-  </button>
-  <button
-    onClick={handlePrint}
-    className="flex items-center justify-center space-x-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full sm:w-auto"
-  >
-    <AiOutlinePrinter size={20} />
-    <span>Print</span>
-  </button>
-  <button
-    onClick={handleExportToExcel}
-    className="flex items-center justify-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full sm:w-auto"
-  >
-    <AiOutlineExport size={20} />
-    <span>Export to excel</span>
-  </button>
-  <button
-    onClick={handleRefresh}
-    className="flex items-center justify-center space-x-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 w-full sm:w-auto"
-  >
-    <AiOutlineReload size={20} />
-    <span>Refresh</span>
-  </button>
-  {/* Conditionally render the Add button based on user roles */}
-  
-    <button
-      onClick={() => setIsFormVisible(true)}
-      className="flex items-center justify-center space-x-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full sm:w-auto"
-    >
-      <AiOutlinePlus size={20} />
-      <span>Add</span>
-    </button>
-</div>
+        <button
+          onClick={handleSearch}
+          className="flex items-center justify-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full sm:w-auto"
+        >
+          <AiOutlineSearch size={20} />
+          <span>Search</span>
+        </button>
+        <button
+          onClick={handlePrint}
+          className="flex items-center justify-center space-x-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full sm:w-auto"
+        >
+          <AiOutlinePrinter size={20} />
+          <span>Print</span>
+        </button>
+        <button
+          onClick={handleExportToExcel}
+          className="flex items-center justify-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full sm:w-auto"
+        >
+          <AiOutlineExport size={20} />
+          <span>Export to excel</span>
+        </button>
+        <button
+          onClick={handleRefresh}
+          className="flex items-center justify-center space-x-2 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 w-full sm:w-auto"
+        >
+          <AiOutlineReload size={20} />
+          <span>Refresh</span>
+        </button>
+        {/* Conditionally render the Add button based on user roles */}
 
+        <button
+          onClick={() => setIsFormVisible(true)}
+          className="flex items-center justify-center space-x-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full sm:w-auto"
+        >
+          <AiOutlinePlus size={20} />
+          <span>Add</span>
+        </button>
+      </div>
 
       {/* Add Transaction Form */}
       {isFormVisible && (
@@ -533,8 +529,7 @@ const MemberTransaction = () => {
                 className="border p-2 rounded w-full"
               />
             </div>
-           
-            
+
             <div className="col-span-2">
               <label className="block mb-2 font-bold">Remarks</label>
               <textarea
@@ -547,88 +542,91 @@ const MemberTransaction = () => {
             </div>
           </div>
 
-           {/* Payment For and Amount Paid Fields */}
-        <div>
-          <label className="block  mb-2 font-bold">Number of Payments</label>
-          <select
-            value={paymentFields.length}
-            onChange={(e) => {
-              const numFields = parseInt(e.target.value, 10);
-              const updatedFields = Array.from({ length: numFields }, () => ({
-                paymentFor: "",
-                amountPaid: "",
-              }));
-              setPaymentFields(updatedFields);
-            }}
-            className="border p-2 mb-4 rounded w-full"
-          >
-            <option value={1}>1</option>
-            <option value={2}>2</option>
-            <option value={3}>3</option>
-            <option value={4}>4</option>
-            <option value={5}>5</option>
-          </select>
-        </div>
-
-        {paymentFields.map((field, index) => (
-          <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            <div>
-              <label className="block mb-2 font-bold">Payment For*</label>
-              <select
-                name={`paymentFor-${index}`}
-                value={field.paymentFor}
-                onChange={(e) => handlePaymentFieldChange(e, index, "paymentFor")}
-                className="border p-2 rounded w-full"
-                required
-              >
-                <option value="">Select Payment Category</option>
-                <option value="NEW">NEW</option>
-                <option value="RENEWAL">RENEWAL</option>
-                <option value="ELITE NEW">ELITE NEW</option>
-                <option value="ELITE RENEWAL">ELITE RENEWAL</option>
-                <option value="PRIVILEGE NEW">PRIVILEGE NEW</option>
-                <option value="PRIVILEGE RENEWAL">PRIVILEGE RENEWAL</option>
-                <option value="MBS1">MBS1</option>
-              <option value="MBS2">MBS2</option>
-              <option value="MBS3">MBS3</option>
-              <option value="MBS4">MBS4</option>
-                <option value="LIFE MEMBERSHIP">LIFE MEMBERSHIP</option>
-              </select>
-            </div>
-            <div>
-              <label className="block mb-2 font-bold">Amount Paid (KWD)*</label>
-              <input
-                type="number"
-                name={`amountPaid-${index}`}
-                value={field.amountPaid}
-                onChange={(e) => handlePaymentFieldChange(e, index, "amountPaid")}
-                placeholder="Enter Amount"
-                className="border p-2 rounded w-full"
-                required
-              />
-            </div>
-            {index > 0 && (
-              <button
-                type="button"
-                onClick={() => handleRemovePaymentField(index)}
-                className="text-red-500 hover:text-red-700 mt-4"
-              >
-                Remove Payment
-              </button>
-            )}
+          {/* Payment For and Amount Paid Fields */}
+          <div>
+            <label className="block  mb-2 font-bold">Number of Payments</label>
+            <select
+              value={paymentFields.length}
+              onChange={(e) => {
+                const numFields = parseInt(e.target.value, 10);
+                const updatedFields = Array.from({ length: numFields }, () => ({
+                  paymentFor: "",
+                  amountPaid: "",
+                }));
+                setPaymentFields(updatedFields);
+              }}
+              className="border p-2 mb-4 rounded w-full"
+            >
+              <option value={1}>1</option>
+              <option value={2}>2</option>
+              <option value={3}>3</option>
+              <option value={4}>4</option>
+              <option value={5}>5</option>
+            </select>
           </div>
-          
-        ))}
-        {/* Display Total Amount Paid */}
-  <div className="flex justify-start mt-4">
-    <label className="mt-2 font-bold">Total Amount Paid (KWD):</label>
-    <h1 className="ml-4 text-3xl font-semibold">{calculateTotal()}</h1>
-  </div>
-        
 
-
-
-
+          {paymentFields.map((field, index) => (
+            <div
+              key={index}
+              className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"
+            >
+              <div>
+                <label className="block mb-2 font-bold">Payment For*</label>
+                <select
+                  name={`paymentFor-${index}`}
+                  value={field.paymentFor}
+                  onChange={(e) =>
+                    handlePaymentFieldChange(e, index, "paymentFor")
+                  }
+                  className="border p-2 rounded w-full"
+                  required
+                >
+                  <option value="">Select Payment Category</option>
+                  <option value="NEW">NEW</option>
+                  <option value="RENEWAL">RENEWAL</option>
+                  <option value="ELITE NEW">ELITE NEW</option>
+                  <option value="ELITE RENEWAL">ELITE RENEWAL</option>
+                  <option value="PRIVILEGE NEW">PRIVILEGE NEW</option>
+                  <option value="PRIVILEGE RENEWAL">PRIVILEGE RENEWAL</option>
+                  <option value="MBS1">MBS1</option>
+                  <option value="MBS2">MBS2</option>
+                  <option value="MBS3">MBS3</option>
+                  <option value="MBS4">MBS4</option>
+                  <option value="LIFE MEMBERSHIP">LIFE MEMBERSHIP</option>
+                </select>
+              </div>
+              <div>
+                <label className="block mb-2 font-bold">
+                  Amount Paid (KWD)*
+                </label>
+                <input
+                  type="number"
+                  name={`amountPaid-${index}`}
+                  value={field.amountPaid}
+                  onChange={(e) =>
+                    handlePaymentFieldChange(e, index, "amountPaid")
+                  }
+                  placeholder="Enter Amount"
+                  className="border p-2 rounded w-full"
+                  required
+                />
+              </div>
+              {index > 0 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemovePaymentField(index)}
+                  className="text-red-500 hover:text-red-700 mt-4"
+                >
+                  Remove Payment
+                </button>
+              )}
+            </div>
+          ))}
+          {/* Display Total Amount Paid */}
+          <div className="flex justify-start mt-4">
+            <label className="mt-2 font-bold">Total Amount Paid (KWD):</label>
+            <h1 className="ml-4 text-3xl font-semibold">{calculateTotal()}</h1>
+          </div>
 
           <div className="flex justify-end space-x-4">
             <button
@@ -682,7 +680,6 @@ const MemberTransaction = () => {
 
               const showViewOnlyDropdown = userHasRoleForZone;
               const showFullDropdown = hasAllRole && !showViewOnlyDropdown;
-
 
               return (
                 <tr key={index} className="text-center">
