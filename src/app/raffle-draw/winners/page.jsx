@@ -3,24 +3,30 @@
 import Navbar from "@/components/raffleDraw/Navbar";
 import Copyright from "@/components/layouts/copyright/copyright";
 import WinnerTable from "@/components/raffleDraw/Tables/winner.table";
-
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-const page = () => {
+const PageContent = () => {
   const searchParams = useSearchParams();
-
   const raffleId = searchParams.get("id");
 
   return (
+    <div className="w-full p-6 md:p-10 bg-white shadow-lg rounded-3xl border border-gray-200">
+      <WinnerTable raffleId={raffleId} />
+    </div>
+  );
+};
+
+const Page = () => {
+  return (
     <div>
       <Navbar />
-      {/* 🎉 Winner Table (Now Same Width as Live Attendees) */}
-      <div className="w-full p-6 md:p-10 bg-white shadow-lg rounded-3xl border border-gray-200">
-        <WinnerTable raffleId={raffleId} />
-      </div>
+      <Suspense fallback={<div>Loading winner data...</div>}>
+        <PageContent />
+      </Suspense>
       <Copyright />
     </div>
   );
 };
 
-export default page;
+export default Page;
