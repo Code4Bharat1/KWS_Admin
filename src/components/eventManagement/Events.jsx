@@ -158,20 +158,24 @@ const Events = () => {
       return;
     }
 
-    try {
-      const response = await axios.delete(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/delete/${eventId}`
-      );
-      // console.log("Event deleted:", response.data); // Log success response
+    if (window.confirm("Are you sure?!")) {
+      try {
+        const response = await axios.delete(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/delete/${eventId}`
+        );
+        // console.log("Event deleted:", response.data); // Log success response
 
-      // Remove the deleted event from the state
-      setEvents(events.filter((event) => event.id !== eventId));
-      setFilteredEvents(filteredEvents.filter((event) => event.id !== eventId));
+        // Remove the deleted event from the state
+        setEvents(events.filter((event) => event.id !== eventId));
+        setFilteredEvents(
+          filteredEvents.filter((event) => event.id !== eventId)
+        );
 
-      alert("Event deleted successfully.");
-    } catch (err) {
-      console.error("Error deleting event:", err);
-      alert("Failed to delete event.");
+        alert("Event deleted successfully.");
+      } catch (err) {
+        console.error("Error deleting event:", err);
+        alert("Failed to delete event.");
+      }
     }
   };
 

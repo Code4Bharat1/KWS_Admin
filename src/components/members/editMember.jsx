@@ -1867,6 +1867,30 @@ const EditMember = () => {
                   <option value="inactive">Inactive</option>
                 </select>
               </div>
+              {formData.membership_status === "inactive" && (
+                <div>
+                  <label
+                    htmlFor="membership_status"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Reason For Inactive
+                  </label>
+                  <select
+                    name="reasonofinactive"
+                    id="reasonofinactive"
+                    value={formData.reasonofinactive || ""}
+                    onChange={handleChange}
+                    className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="" disabled>
+                      Select Status
+                    </option>
+                    <option value="left kuwait">Left Kuwait</option>
+                    <option value="deceased">Deceased</option>
+                    <option value="others">Others</option>
+                  </select>
+                </div>
+              )}
             </div>
           </div>
 

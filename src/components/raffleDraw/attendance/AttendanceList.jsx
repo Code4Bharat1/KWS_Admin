@@ -1,51 +1,44 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useSearchParams } from "next/navigation";
 
 const AttendanceList = () => {
+  const searchParams = useSearchParams();
+  const raffleId = searchParams.get("raffleId");
+
   const [attendanceList, setAttendanceList] = useState([]);
+
   const [filteredAttendanceList, setFilteredAttendanceList] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState(null);
-  const [eventId, setEventId] = useState(null);
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const event_id = searchParams.get("event_id");
-
-    if (event_id) {
-      setEventId(event_id);
-    } else {
-      console.error("Event ID is not provided!");
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!eventId) {
+    if (!raffleId) {
+      setError("Raffle ID is not provided!");
       return;
     }
 
     const fetchAttendanceList = async () => {
       try {
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/event/attendancelist/${eventId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/raffle/attendancelist/${raffleId}`
         );
 
-        setAttendanceList(response.data);
-        setFilteredAttendanceList(response.data); // Set filtered list initially
+        setAttendanceList(response.data.attendance);
+        setFilteredAttendanceList(response.data.attendance);
       } catch (err) {
-        console.error("Error fetching attendance data:", err);
         setError("Failed to fetch attendance data.");
       }
     };
 
     fetchAttendanceList();
-  }, [eventId]);
+  }, [raffleId]);
 
   // Handle Search
   const handleSearch = () => {
     const filtered = attendanceList.filter((attendance) =>
-      `${attendance.firstname} ${attendance.lastname} ${attendance.ticketNo}`
+      ` ${attendance.name} ${attendance.kws_id}`
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
     );
@@ -60,12 +53,19 @@ const AttendanceList = () => {
 
   // Convert the data to CSV format and trigger a download
   const exportToCSV = () => {
-    const header = ["Ticket No", "Contact", "Time Attended", "No. People"];
+    const header = [
+      "Ticket No",
+      "Contact",
+      "Time Attended",
+      "No. People",
+      "Civil Id",
+    ];
     const rows = filteredAttendanceList.map((attendance) => [
-      `${attendance.firstname} ${attendance.lastname} - ${attendance.ticketNo}`,
-      attendance.contact,
-      attendance.timeAttended,
-      attendance.numPeople,
+      `${attendance.name} - ${attendance.kws_id}`,
+      attendance.phone,
+      attendance.attended_time,
+      attendance.num_people,
+      attendance.civil_id,
     ]);
 
     let csvContent = "data:text/csv;charset=utf-8,";
@@ -154,25 +154,24 @@ const AttendanceList = () => {
           <tbody>
             {filteredAttendanceList.length > 0 ? (
               filteredAttendanceList.map((attendance, index) => (
-                <tr
-                  key={`${attendance.ticketNo}-${index}`}
-                  className="border-t"
-                >
+                <tr key={`${attendance.kws_id}-${index}`} className="border-t">
                   <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
-                    {attendance?.name?.length
-                      ? `${attendance.name} - ${attendance.kws_id}`
-                      : `${attendance.firstname} ${attendance.lastname} - ${attendance.ticketNo}`}
+                    {attendance.name} - {attendance.kws_id}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
-                    {attendance.contact?.length
-                      ? attendance.contact
-                      : attendance.phone}
+                    {+attendance.phone === 0 ? "null" : attendance.phone}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
-                    {attendance.timeAttended}
+                    {new Date(attendance.attended_time).toLocaleString(
+                      "en-US",
+                      {
+                        dateStyle: "medium",
+                        timeStyle: "medium",
+                      }
+                    )}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-700 whitespace-nowrap">
-                    {attendance.numPeople}
+                    {attendance.num_people}
                   </td>
                 </tr>
               ))
