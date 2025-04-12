@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import Select from "react-select";
 
+import AutoSearch from "./AutoSearch";
+
 const EditMember = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -16,10 +18,38 @@ const EditMember = () => {
   const [isKwsidChanged, setIsKwsidChanged] = useState(false);
 
   const [formData, setFormData] = useState({});
+
   const [errorMessage, setErrorMessage] = useState("");
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
+
+  //Fetch All Members name for Follow Up Search.
+  const [memberNames, setMemberNames] = useState([]);
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/getmembers`
+        );
+        if (response.data && response.data.members) {
+          const names =
+            response?.data?.members?.length > 0 &&
+            response?.data?.members.map((user) => user.name);
+
+          setMemberNames(names);
+        }
+      } catch (err) {
+        console.error("Error fetching members:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMembers();
+  }, []);
 
   const memberOptions = [
     { value: "PRIVILEGE MEMBER", label: "PRIVILEGE MEMBER" },
@@ -1785,13 +1815,11 @@ const EditMember = () => {
                   >
                     Member for Follow Up
                   </label>
-                  <input
-                    type="text"
-                    name="follow_up_member"
-                    id="follow_up_member"
-                    value={formData.follow_up_member || ""}
-                    onChange={handleChange}
-                    className="mt-1 p-2 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+
+                  <AutoSearch
+                    memberNames={memberNames}
+                    setFormData={setFormData}
+                    formData={formData}
                   />
                 </div>
 
