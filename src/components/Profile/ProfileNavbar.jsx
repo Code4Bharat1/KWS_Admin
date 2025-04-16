@@ -1,6 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { FaIdCard, FaUserAlt, FaEdit, FaUsers, FaSignOutAlt } from "react-icons/fa";
+import {
+  FaIdCard,
+  FaUserAlt,
+  FaEdit,
+  FaUsers,
+  FaSignOutAlt,
+} from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
 const ProfileNavbar = () => {
@@ -69,7 +75,11 @@ const ProfileNavbar = () => {
       <div className="container mx-auto flex justify-around">
         {/* ID Card */}
         <div
-          className={`flex flex-col items-center ${!isLoggedIn ? "text-gray-400 cursor-not-allowed" : "hover:text-blue-400 cursor-pointer"}`}
+          className={`flex flex-col items-center ${
+            !isLoggedIn
+              ? "text-gray-400 cursor-not-allowed"
+              : "hover:text-blue-400 cursor-pointer"
+          }`}
           onClick={handleId}
         >
           <FaIdCard size={24} />
@@ -78,7 +88,11 @@ const ProfileNavbar = () => {
 
         {/* All Details */}
         <div
-          className={`flex flex-col items-center ${!isLoggedIn ? "text-gray-400 cursor-not-allowed" : "hover:text-blue-400 cursor-pointer"}`}
+          className={`flex flex-col items-center ${
+            !isLoggedIn
+              ? "text-gray-400 cursor-not-allowed"
+              : "hover:text-blue-400 cursor-pointer"
+          }`}
           onClick={handleDetail}
         >
           <FaUserAlt size={24} />
@@ -87,7 +101,11 @@ const ProfileNavbar = () => {
 
         {/* Update */}
         <div
-          className={`flex flex-col items-center ${!isLoggedIn ? "text-gray-400 cursor-not-allowed" : "hover:text-blue-400 cursor-pointer"}`}
+          className={`flex flex-col items-center ${
+            !isLoggedIn
+              ? "text-gray-400 cursor-not-allowed"
+              : "hover:text-blue-400 cursor-pointer"
+          }`}
           onClick={handleUpdate}
         >
           <FaEdit size={24} />
@@ -97,7 +115,11 @@ const ProfileNavbar = () => {
         {/* Staff (Only show if any role is true in staffRoles) */}
         {hasAnyRole && (
           <div
-            className={`flex flex-col items-center ${!isLoggedIn ? "text-gray-400 cursor-not-allowed" : "hover:text-blue-400 cursor-pointer"}`}
+            className={`flex flex-col items-center ${
+              !isLoggedIn
+                ? "text-gray-400 cursor-not-allowed"
+                : "hover:text-blue-400 cursor-pointer"
+            }`}
             onClick={handleStaff}
           >
             <FaUsers size={24} />
@@ -107,7 +129,11 @@ const ProfileNavbar = () => {
 
         {/* Log Out */}
         <div
-          className={`flex flex-col items-center ${!isLoggedIn ? "text-gray-400 cursor-not-allowed" : "hover:text-red-400 cursor-pointer"}`}
+          className={`flex flex-col items-center ${
+            !isLoggedIn
+              ? "text-gray-400 cursor-not-allowed"
+              : "hover:text-red-400 cursor-pointer"
+          }`}
           onClick={handleLogout}
         >
           <FaSignOutAlt size={24} />

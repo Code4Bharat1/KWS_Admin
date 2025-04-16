@@ -5,6 +5,7 @@ import axios from "axios";
 
 const Update = () => {
   const [formData, setFormData] = useState({
+    profile_picture: "",
     email: "",
     education_qualification: "",
     profession: "",
@@ -52,18 +53,19 @@ const Update = () => {
     relation_4: "",
     percentage_4: "",
     mobile_4: "",
-  
-  
-  
   });
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [profilePicturePreview, setProfilePicturePreview] = useState("");
+  const [file, setFile] = useState(null);
 
   // Get userId from localStorage (or from your authentication mechanism)
-  const userId = typeof window !== "undefined" && localStorage.getItem("userId");
+  const userId =
+    typeof window !== "undefined" && localStorage.getItem("userId");
   const [initialFormData, setInitialFormData] = useState({});
+
   // Fetch existing user details on mount
   useEffect(() => {
     if (!userId) {
@@ -76,9 +78,14 @@ const Update = () => {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/get/${userId}`
         );
-        // Set the initial form data
+        // Set both form data and preview
         setFormData(response.data.data);
-        setInitialFormData(response.data.data);  // Store initial form data here
+        setInitialFormData(response.data.data);
+
+        // If profile_picture exists in response, set it as preview
+        if (response.data.data.profile_picture) {
+          setProfilePicturePreview(response.data.data.profile_picture);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
         setErrorMessage("Failed to fetch data. Please try again later.");
@@ -98,52 +105,131 @@ const Update = () => {
     }));
   };
 
+  // Handle profile picture upload
+  const handleProfilePictureChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) {
+      setFile("");
+      setProfilePicturePreview(initialFormData.profile_picture || "");
+      return;
+    }
+
+    const maxSizeInBytes = 2 * 1024 * 1024;
+    const allowedFileTypes = ["image/jpeg", "image/jpg", "image/png"];
+
+    if (!allowedFileTypes.includes(selectedFile.type)) {
+      setErrorMessage("Invalid file type. Only JPG/JPEG/PNG allowed.");
+      setFile("");
+      setProfilePicturePreview(initialFormData.profile_picture || "");
+      return;
+    }
+
+    if (selectedFile.size > maxSizeInBytes) {
+      setErrorMessage("Profile picture exceeds 2MB size limit.");
+      setFile("");
+      setProfilePicturePreview(initialFormData.profile_picture || "");
+      return;
+    }
+
+    setFile(selectedFile);
+    setProfilePicturePreview(URL.createObjectURL(selectedFile));
+    setErrorMessage("");
+  };
+
+  const handleUploadPhoto = async (e) => {
+    e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (!file) {
+      setErrorMessage("Please select a file to upload.");
+      return;
+    }
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("profile_picture", file); // Append the 'file' state
+
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/updatephoto/${userId}`,
+        formDataToSend,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      // Refetch user data to update state
+      const refetchResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/get/${userId}`
+      );
+      setFormData(refetchResponse.data.data);
+      setInitialFormData(refetchResponse.data.data);
+      setProfilePicturePreview(refetchResponse.data.data.profile_picture);
+
+      setSuccessMessage("Profile Photo updated successfully.");
+      setFile("");
+    } catch (error) {
+      console.error("Error updating photo:", error);
+      setErrorMessage(
+        error.response?.data?.message || "Failed to update photo."
+      );
+      setFile("");
+      setProfilePicturePreview(initialFormData.profile_picture || "");
+    }
+  };
+
+  const handleCancle = () => {
+    setFile("");
+    setProfilePicturePreview(initialFormData.profile_picture || "");
+    setErrorMessage("");
+  };
+
   // Handle form submission for updating details
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsUpdating(true);
-    setErrorMessage("");  // Reset any error message
+    setErrorMessage(""); // Reset any error message
     setSuccessMessage(""); // Reset any success message
-  
+
     // Ensure userId is available in localStorage
     const userId = localStorage.getItem("userId");
-  
+
     if (!userId) {
       setErrorMessage("User not logged in.");
       setIsUpdating(false);
       return; // Prevent further execution if userId is not available
     }
-  
+
     // Check if there are any pending update requests for this user
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/check/${userId}` // Pass the userId to the backend
       );
-  
+
       // If there's already a pending request, show an error and stop the form submission
       if (response.data.pending) {
-        setErrorMessage("There is already a pending update request for this member.");
+        setErrorMessage(
+          "There is already a pending update request for this member."
+        );
         setIsUpdating(false);
         return; // Prevent form submission if there's a pending request
       }
-  
+
       // If there is no pending request, proceed with submitting the form
       const changedData = {};
-  
+
       // Collect only the changed fields
       for (let key in formData) {
         if (formData[key] !== initialFormData[key]) {
           changedData[key] = formData[key];
         }
       }
-  
+
       // If no data has changed, exit early
       if (Object.keys(changedData).length === 0) {
         setErrorMessage("No changes detected.");
         setIsUpdating(false);
         return;
       }
-  
+
       // Proceed with creating an update request if changes are detected
       const updateResponse = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/profile/update-request`,
@@ -152,35 +238,120 @@ const Update = () => {
           formData: changedData, // Send only the changed fields
         }
       );
-  
+
       setSuccessMessage("Profile update request submitted successfully!");
-  
     } catch (error) {
       console.error("Error submitting update request:", error);
-  
+
       // Check if the error has a response and display a specific message
       if (error.response && error.response.data) {
-        setErrorMessage(error.response.data.message || "Failed to submit update request.");
+        setErrorMessage(
+          error.response.data.message || "Failed to submit update request."
+        );
       } else {
-        setErrorMessage("Failed to submit update request. Please try again later.");
+        setErrorMessage(
+          "Failed to submit update request. Please try again later."
+        );
       }
     } finally {
       setIsUpdating(false);
     }
   };
-  
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <h2 className="text-3xl text-green-700 font-bold text-center mb-8">Update Profile</h2>
+      <h2 className="text-3xl text-green-700 font-bold text-center mb-8">
+        Update Profile
+      </h2>
       <form
         onSubmit={handleSubmit}
         className="bg-white shadow rounded p-8 space-y-6"
       >
         {/* Personal Details */}
         <div>
+          <div className="flex flex-col items-center p-6 bg-white rounded-xl">
+            <label className="text-lg font-medium text-gray-800 mb-2">
+              Profile Picture (2MB Max)
+            </label>
+            <h1 className="mb-4 text-red-500 text-sm text-center">
+              Only JPG / JPEG / PNG images are allowed*
+            </h1>
+
+            {profilePicturePreview ? (
+              <div className="relative group flex flex-col items-center">
+                <img
+                  src={profilePicturePreview}
+                  alt="Current Profile Picture"
+                  className="w-32 h-32 rounded-full object-cover shadow-md border-2 border-gray-300"
+                />
+
+                <label
+                  htmlFor="profilePictureUpload"
+                  className="mt-4 flex items-center justify-center w-48 h-12 border-2 border-black rounded-lg cursor-pointer hover:bg-blue-100 transition-all duration-200"
+                >
+                  <span className="text-black">Change Picture</span>
+                  <input
+                    type="file"
+                    id="profilePictureUpload"
+                    accept="image/*"
+                    onChange={handleProfilePictureChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+            ) : (
+              <label
+                htmlFor="profilePictureUpload"
+                className="mt-4 flex flex-col justify-center items-center w-48 h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 hover:border-blue-500 transition-all duration-200"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-10 w-10 text-gray-500 mb-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 16l4-4m0 0l-4-4m4 4H8m8 4v6m0-6H8"
+                  />
+                </svg>
+                <span className="text-gray-500 text-sm">
+                  Upload Profile Picture
+                </span>
+                <input
+                  type="file"
+                  id="profilePictureUpload"
+                  accept="image/*"
+                  onChange={handleProfilePictureChange}
+                  className="hidden"
+                />
+              </label>
+            )}
+
+            {/* Conditionally show Save and Cancel buttons */}
+            {file && (
+              <div className="mt-4 flex gap-4 justify-center">
+                <button
+                  onClick={handleUploadPhoto}
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={handleCancle}
+                  className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+
           <h3 className="text-lg font-bold mb-4">Personal Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Email
@@ -193,9 +364,7 @@ const Update = () => {
                 className="w-full border rounded p-2"
               />
             </div>
-            
-           
-           
+
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Education Qualification
@@ -245,37 +414,36 @@ const Update = () => {
               />
             </div>
             <div>
-  <label className="block text-sm font-medium text-gray-700">
-    Marital Status
-  </label>
-  <select
-    name="marital_status"
-    value={formData.marital_status || ""}
-    onChange={handleChange}
-    className="w-full border rounded p-2"
-  >
-    <option value="">Select Marital Status</option>
-    <option value="Single">Single</option>
-    <option value="Married">Married</option>
-  </select>
-</div>
+              <label className="block text-sm font-medium text-gray-700">
+                Marital Status
+              </label>
+              <select
+                name="marital_status"
+                value={formData.marital_status || ""}
+                onChange={handleChange}
+                className="w-full border rounded p-2"
+              >
+                <option value="">Select Marital Status</option>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+              </select>
+            </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700">
-    Family in Kuwait
-  </label>
-  <select
-    name="family_in_kuwait"
-    value={formData.family_in_kuwait || ""}
-    onChange={handleChange}
-    className="w-full border rounded p-2"
-  >
-    <option value="">Select</option>
-    <option value="Yes">Yes</option>
-    <option value="No">No</option>
-  </select>
-</div>
-
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Family in Kuwait
+              </label>
+              <select
+                name="family_in_kuwait"
+                value={formData.family_in_kuwait || ""}
+                onChange={handleChange}
+                className="w-full border rounded p-2"
+              >
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -589,10 +757,6 @@ const Update = () => {
           </div>
         </div>
 
-       
-        
-
-        
         <div>
           <h3 className="text-lg font-bold mb-4">MBS Nomination</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -644,11 +808,7 @@ const Update = () => {
                 className="w-full border rounded p-2"
               />
             </div>
-
-            
-         
           </div>
-
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -699,11 +859,7 @@ const Update = () => {
                 className="w-full border rounded p-2"
               />
             </div>
-
-            
-         
           </div>
-
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -754,9 +910,6 @@ const Update = () => {
                 className="w-full border rounded p-2"
               />
             </div>
-
-            
-         
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -808,9 +961,6 @@ const Update = () => {
                 className="w-full border rounded p-2"
               />
             </div>
-
-            
-         
           </div>
         </div>
 
