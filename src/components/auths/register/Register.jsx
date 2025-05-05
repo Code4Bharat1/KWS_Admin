@@ -152,7 +152,8 @@ const Register = () => {
       if (emailCancelToken) {
         emailCancelToken.cancel("Operation canceled due to new request.");
       }
-      emailCancelToken = axios.CancelToken.source();
+      emailCancelToken = axios.CancelToken.source();// ye cancel token hum isiliye use kar rhe h kyuki ye har letter enter karne pe db me req bhejega check karne ki to aise multiple req jayegi db aur jo latest req h wo overwritten hojayegi to isisliye jab user ne galti se wrong civil id daldi to wo req gayi fir user proper
+      // civil id daldi to wo req db tak nhi pauchegi isiliye cancel token karte h jo purani req ko khatam kardeti h nayi req bhejne se pehle       //
 
       const checkEmail = async () => {
         try {
