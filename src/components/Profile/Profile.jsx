@@ -59,7 +59,7 @@ const Profile = () => {
   const { username, core_kwsmember } = userData || {};
   const profilePic = core_kwsmember?.profilePicture;
 
-  const typeOfMember = (core_kwsmember?.typeOfMember).split(",").join(",  ");
+  const typeOfMember = (core_kwsmember?.typeOfMember);
 
   const handlePrint = () => {
     window.print();
