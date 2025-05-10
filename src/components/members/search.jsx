@@ -25,7 +25,7 @@ const Search = () => {
     if (!userId) return; // Ensure userId is valid
     router.push(`/members/view-member?id=${userId}`);
   };
-
+  
   // State for active dropdown
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -185,7 +185,7 @@ const Search = () => {
     });
   };
 
-  // Fetch user roles from localStorage
+ // Fetch user roles from localStorage
   useEffect(() => {
     const roles = localStorage.getItem("staffRoles");
     if (roles) {
@@ -193,41 +193,93 @@ const Search = () => {
     }
   }, []);
 
-  // Fetch members data
-  const fetchMembers = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/getmembers`
-      );
-      if (response.data && response.data.members) {
-        setList(response.data.members);
-        setFilteredResults(response.data.members);
-      }
-    } catch (err) {
-      console.error("Error fetching members:", err);
-      setError(
-        `Failed to fetch members: ${err.response?.data?.message || err.message}`
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    fetchMembers(); // Fetch all members on initial load
-  }, []);
+   // ✅ Early return to prevent incorrect logic execution
+   
+   
+   
+   // Define zone roles
+   const zoneRoles = ["Fahaheel", "Salmiya", "Jleeb", "Farwaniya", "Hawally"];
+   
+   // Check if user has 'All' role or other admin roles (registrar and treasurer)
+   const hasAllRole = ["All", "Registrar", "Treasurer"].some(role => staffRoles?.[role]);
+   
+   // Check if the user has only a specific zone role
+   const isZoneMemberOnly = !hasAllRole && zoneRoles.some((zone) => staffRoles?.[zone]);
+   
+   // Get the user's zone role
+   const userZone = zoneRoles.find((zone) => staffRoles?.[zone]) || null;
+   
+   
+   // Set user zone in filters when role information is loaded
+   useEffect(() => {
+     if (userZone) {
+       setFilters((prev) => ({
+         ...prev,
+         zone: userZone,
+        }));
+      }
+    }, [userZone]);
+    
+    // Fetch members data
+    const fetchMembers = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/getmembers`
+        );
+        if (response.data && response.data.members) {
+          const allMembers = response.data.members;
+          
+          // If user is zone member only, pre-filter the list by their zone
+          if (isZoneMemberOnly && userZone) {
+            const zoneMembers = allMembers.filter(
+              (member) => member.zone?.toLowerCase() === userZone.toLowerCase()
+            );
+            setList(zoneMembers);
+            setFilteredResults(zoneMembers);
+          } else {
+            setList(allMembers);
+            setFilteredResults(allMembers);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching members:", err);
+        setError(
+          `Failed to fetch members: ${err.response?.data?.message || err.message}`
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    useEffect(() => {
+      console.log("isZoneMemberOnly:", isZoneMemberOnly);
+      console.log("userZone:", userZone);
+      console.log("hasAllRole:", hasAllRole);
+      
+      fetchMembers(); // Fetch all members on initial load
+    }, [isZoneMemberOnly, userZone,hasAllRole]); // Re-fetch when these dependencies change
+    
+    if (!staffRoles) return <div>Loading roles...</div>; // Show loading while waiting for roles
 
   // Handle filter changes
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     if (!name || value === undefined) return; // Ensure name and value are valid
+    
+    // If user is zone member only, don't allow them to change the zone
+    if (name === "zone" && isZoneMemberOnly) return;
+    
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
   // Handle search functionality
   const handleSearch = () => {
+    // For zone members, always enforce their zone filter
+    const effectiveZoneFilter = isZoneMemberOnly ? userZone : filters.zone;
+    
     const results = list.filter((member) => {
       const matchesKwsId = filters.kwsId
         ? member.kwsid?.toLowerCase().includes(filters.kwsId.toLowerCase())
@@ -246,9 +298,10 @@ const Search = () => {
             )
         : true;
 
+      // For zone members, we enforce their zone regardless of the filter
       const matchesZone =
-        filters.zone === "all" ||
-        member.zone?.toLowerCase() === filters.zone.toLowerCase();
+        effectiveZoneFilter === "all" ||
+        member.zone?.toLowerCase() === effectiveZoneFilter.toLowerCase();
 
       const matchesType =
         filters.membershipType.length === 0 ||
@@ -281,7 +334,7 @@ const Search = () => {
       return (
         matchesKwsId &&
         matchesLookUp &&
-        matchesZone &&
+        matchesZone &&  // This line is critical for zone-based filtering
         matchesType &&
         matchesStatus &&
         matchesCardValidity &&
@@ -295,16 +348,29 @@ const Search = () => {
 
   // Handle refresh functionality
   const handleRefresh = () => {
+    // For zone members, we enforce their zone even after refresh
+    const defaultZone = isZoneMemberOnly ? userZone : "all";
+    
     setFilters({
       kwsId: "",
       lookUp: "",
-      zone: "all",
+      zone: defaultZone,
       membershipType: [],
       membershipStatus: "all",
-      cardStatus: "all", // Reset cardStatus
-      yearOfCardExpiry: "all", // Reset yearOfCardExpiry
+      cardStatus: "all",
+      yearOfCardExpiry: "all",
     });
-    setFilteredResults(list);
+    
+    // If zone member only, filter the list by their zone
+    if (isZoneMemberOnly && userZone) {
+      const zoneMembers = list.filter(
+        (member) => member.zone?.toLowerCase() === userZone.toLowerCase()
+      );
+      setFilteredResults(zoneMembers);
+    } else {
+      setFilteredResults(list);
+    }
+    
     setCurrentPage(1);
   };
 
@@ -361,11 +427,8 @@ const Search = () => {
     "LADIES PRIVILEGE MEMBER",
   ];
 
-  // Define zone roles
-  const zoneRoles = ["fahaheel", "salmiya", "jleeb", "farwaniya", "hawally"];
-
-  // Check if user has 'All' role
-  const hasAllRole = (staffRoles?.All || staffRoles?.Registrar) === true;
+  // Check if user has any zone roles
+  const hasAnyZoneRole = zoneRoles.some((zone) => staffRoles?.[zone]);
 
   const exportToExcel = () => {
     const formattedResults = filteredResults.map((item) => {
@@ -387,9 +450,6 @@ const Search = () => {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Members");
     XLSX.writeFile(workbook, "members.xlsx");
   };
-
-  // Check if user has any zone roles
-  const hasAnyZoneRole = zoneRoles.some((zone) => staffRoles?.[zone]);
 
   // ---------------- New Function: Handle "Add Transaction" ----------------
   const handleAddTransaction = (member) => {
@@ -429,22 +489,38 @@ const Search = () => {
             className="border p-2 rounded w-full"
           />
         </div>
-        <div>
-          <label className="block mb-2 font-bold">Zone</label>
-          <select
-            name="zone"
-            value={filters.zone}
-            onChange={handleFilterChange}
-            className="border p-2 rounded w-full"
-          >
-            <option value="all">All</option>
-            <option value="fahaheel">Fahaheel</option>
-            <option value="salmiya">Salmiya</option>
-            <option value="jleeb">Jleeb</option>
-            <option value="farwaniya">Farwaniya</option>
-            <option value="hawally">Hawally</option>
-          </select>
-        </div>
+        
+        {/* Show zone dropdown only to users with All, Registrar or Treasurer roles */}
+        {hasAllRole && (
+          <div>
+            <label className="block mb-2 font-bold">Zone</label>
+            <select
+              name="zone"
+              value={filters.zone}
+              onChange={handleFilterChange}
+              className="border p-2 rounded w-full"
+              disabled={isZoneMemberOnly} // Disable if zone member only
+            >
+              <option value="all">All</option>
+              <option value="fahaheel">Fahaheel</option>
+              <option value="salmiya">Salmiya</option>
+              <option value="jleeb">Jleeb</option>
+              <option value="farwaniya">Farwaniya</option>
+              <option value="hawally">Hawally</option>
+            </select>
+          </div>
+        )}
+        
+        {/* Show zone information for zone members */}
+        {!hasAllRole && isZoneMemberOnly && (
+          <div>
+            <label className="block mb-2 font-bold">Your Zone</label>
+            <div className="border p-2 rounded w-full bg-gray-100">
+              {userZone ? userZone.charAt(0).toUpperCase() + userZone.slice(1) : 'No Zone Assigned'}
+            </div>
+          </div>
+        )}
+        
         <div className="relative" ref={dropdownRef}>
           <label className="block mb-2 font-bold">Membership Type</label>
           <div
@@ -559,6 +635,7 @@ const Search = () => {
           <>
             <table className="w-full border-collapse border border-gray-300">
               <thead>
+                
                 <tr className="bg-gray-100">
                   <th className="border px-4 py-2">KWS ID</th>
                   <th className="border px-4 py-2">Civil ID</th>
@@ -587,6 +664,12 @@ const Search = () => {
                   const finalCardValidity = splittedCardValidity
                     ?.slice(1)
                     .join(" ");
+
+                  // Only show Edit and Add Transaction buttons if:
+                  // 1. User has All/Registrar/Treasurer role, OR
+                  // 2. The member belongs to the same zone as the user
+                  const canManageMember = hasAllRole || 
+                    (userZone && userZone.toLowerCase() === memberZone);
 
                   return (
                     <React.Fragment key={index}>
@@ -626,8 +709,9 @@ const Search = () => {
                               >
                                 View
                               </button>
+                              
                               {/* Conditionally render Edit and Add Transaction buttons */}
-                              {(hasAllRole || !isZoneMember) && (
+                              {hasAllRole && (
                                 <>
                                   <button
                                     className="block px-4 py-2 text-blue-500 hover:bg-gray-100 w-full text-left"
@@ -643,6 +727,16 @@ const Search = () => {
                                   </button>
                                 </>
                               )}
+                              
+                              {/* Only show Delete option to users with All/Registrar/Treasurer roles
+                              {hasAllRole && (
+                                <button
+                                  className="block px-4 py-2 text-red-500 hover:bg-gray-100 w-full text-left"
+                                  onClick={() => handleAddTransaction(item)}
+                                >
+                                  Delete
+                                </button>
+                              )} */}
                             </div>
                           )}
                         </td>

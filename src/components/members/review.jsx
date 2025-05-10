@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import { toast } from 'react-toastify';
 import Select from "react-select";
 
 const Review = () => {
@@ -10,6 +10,7 @@ const Review = () => {
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
+  const [userRoles, setUserRoles] = useState({});
 
   const memberOptions = [
     { value: "PRIVILEGE MEMBER", label: "PRIVILEGE MEMBER" },
@@ -84,22 +85,75 @@ const Review = () => {
     }));
   };
 
-  // Fetch all users with membership status "pending"
+      // Utility to determine if the user is a zonal member //nouman khan
+      const isZonalMember = (roles) => {
+        const zonalRoles = ["Fahaheel", "Farwaniya", "Jleeb", "Hawally", "Salmiya"];
+        const privilegedRoles = ["All", "Treasurer", "Registrar"];
+          const hasPrivilegedAccess = privilegedRoles.some(role => roles[role]);
+        const hasZonalAccess = zonalRoles.some(role => roles[role]);
+      
+        // Block only if user has no "All" access and has zonal roles
+        return !hasPrivilegedAccess && hasZonalAccess;
+      };
+     // Fetch roles from localStorage//nouman khan
+  useEffect(() => {
+    try {
+      const storedRoles = localStorage.getItem("staffRoles");
+      if (storedRoles) {
+        const parsedRoles = JSON.parse(storedRoles);
+        setUserRoles(parsedRoles);
+      } else {
+        setErrorMessage("No roles found. Please log in again.");
+      }
+    } catch (error) {
+      console.error("Error reading roles from localStorage:", error);
+      setErrorMessage("Failed to read user roles.");
+    }
+  }, []);
+
+
+  // Fetch all users with membership status "pending"// nouman khan
   useEffect(() => {
     const fetchPendingApprovals = async () => {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/pending`
-        );
-        setPendingApprovals(response.data); // Store fetched pending approvals in state
+        if (!isZonalMember(userRoles)) {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/pending`);
+          setPendingApprovals(response.data);
+        } else {
+          setErrorMessage("You are not authorized to view pending approvals.");
+          toast.error("Access Denied: You are not authorized to view this page.");
+        }
       } catch (error) {
         console.error("Error fetching pending approvals:", error);
         setErrorMessage("Error fetching pending approvals.");
+        toast.error("Something went wrong while fetching approvals.");
       }
     };
 
-    fetchPendingApprovals();
-  }, []);
+    if (Object.keys(userRoles).length > 0) {
+      fetchPendingApprovals();
+    }
+  }, [userRoles]);
+
+
+
+
+  // // Fetch all users with membership status "pending"// ahmed and sanad code 
+  // useEffect(() => {
+  //   const fetchPendingApprovals = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         `${process.env.NEXT_PUBLIC_BACKEND_API_KEY}/member/pending`
+  //       );
+  //       setPendingApprovals(response.data); // Store fetched pending approvals in state
+  //     } catch (error) {
+  //       console.error("Error fetching pending approvals:", error);
+  //       setErrorMessage("Error fetching pending approvals.");
+  //     }
+  //   };
+
+  //   fetchPendingApprovals();
+  // }, []);
 
   // Handle selecting a user for review
   const handleReviewClick = async (userId) => {
